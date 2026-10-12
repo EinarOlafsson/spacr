@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
@@ -121,8 +121,9 @@ msgstr "यह नियंत्रण-प्रवाह का सामा�
 msgid "Return whether the calling worker has a pending cancellation request."
 msgstr "लौटाएँ कि कॉल करने वाले वर्कर का कोई रद्दीकरण अनुरोध लंबित है या नहीं।"
 
-msgid "Stop at this safe boundary when requested; otherwise do nothing."
-msgstr "अनुरोध होने पर इस सुरक्षित सीमा पर रुकें; अन्यथा कुछ न करें।"
+#, fuzzy
+msgid "Raise :class:`PipelineCancelled` if this thread's token was cancelled."
+msgstr "रद्दीकरण का अनुरोध होने पर :class:`PipelineCancelled` उत्पन्न करें।"
 
 msgid "Calls outside a managed worker are intentionally no-ops, so the same pipeline functions work through the GUI, CLI, notebooks, and tests."
 msgstr "प्रबंधित वर्कर के बाहर के कॉल जानबूझकर कुछ नहीं करते, इसलिए वही पाइपलाइन फ़ंक्शन GUI, CLI, नोटबुक और परीक्षणों में काम करते हैं।"

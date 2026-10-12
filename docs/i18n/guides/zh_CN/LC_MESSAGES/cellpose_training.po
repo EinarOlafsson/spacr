@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -37,7 +37,8 @@ msgstr "将训练图像放在一个文件夹中，并将对应掩膜放在其 ``
 msgid "Each mask must have the same height and width as its image. Use integer object labels: zero for background and a different positive number for each object. A mask filename can match its image or add ``_masks`` before the extension, such as ``field_01_masks.tif``. Keep one matching mask per image."
 msgstr "每个掩膜的高度和宽度必须与其图像相同。请使用整数对象标签：背景为零，每个对象使用不同的正整数。掩膜文件名可以与图像相同，也可以在扩展名前加上 ``_masks``，例如 ``field_01_masks.tif``。每张图像保留一个匹配的掩膜。"
 
-msgid "Use Make Masks to inspect and correct object boundaries before training. Keep separate fields for validation. You can reuse a legacy project containing ``train/images`` and ``train/masks`` by selecting that project as Source."
+#, fuzzy
+msgid "Use Make Masks to inspect and correct object boundaries before training. Keep separate fields for validation. A project containing ``train/images`` and ``train/masks`` can also be selected as Source."
 msgstr "训练前，请使用创建掩膜检查并校正对象边界。为验证保留独立的视野。选择包含 ``train/images`` 和 ``train/masks`` 的旧版项目作为来源，即可重用该项目。"
 
 msgid "Choose inputs and settings"

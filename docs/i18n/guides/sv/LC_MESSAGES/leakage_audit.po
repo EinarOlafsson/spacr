@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
@@ -105,8 +105,8 @@ msgstr "Utvärdering, kalibrering och läckagediagnostik för uppdelningar av kl
 msgid "The module is model-agnostic: it consumes labels, probabilities, fold ids, and sample paths. Deep-learning CV and future classical-ML pipelines can therefore write the same evaluation bundle and the Qt workbench can display one stable artifact format."
 msgstr "Modulen är modelloberoende: den tar emot etiketter, sannolikheter, veck-ID och provsökvägar. Korsvalidering med djupinlärning och framtida pipelines för klassisk maskininlärning kan därför skriva samma utvärderingspaket, och Qt-arbetsbänken kan visa ett enda stabilt artefaktformat."
 
-msgid "Whole-CV proof that each related sample family belongs to one fold."
-msgstr "Bevis för hela korsvalideringen att varje relaterad provfamilj tillhör ett enda veck."
+msgid "Result of auditing every cross-validation fold for leakage."
+msgstr ""
 
 msgid "Parameters"
 msgstr "Parametrar"
@@ -210,10 +210,12 @@ msgstr "valfri klass per sökväg, ett värde per sökväg. Används bara för a
 msgid "identity level that may not cross a fold boundary -- ``none``, ``field``, ``well`` or ``plate``. A well-grouped split permits the same plate on both sides but never the same well."
 msgstr "identitetsnivå som inte får korsa en veckgräns -- ``none``, ``field``, ``well`` eller ``plate``. En uppdelning grupperad per brunn tillåter samma platta på båda sidor men aldrig samma brunn."
 
-msgid "also compare file CONTENT, so a byte-identical copy under a different name is caught. Costs one read per file."
+#, fuzzy
+msgid "also compare file contents, so a byte-identical copy under a different name is detected. Costs one read per file."
 msgstr "jämför också filernas INNEHÅLL, så att en byteidentisk kopia med ett annat namn upptäcks. Kostar en läsning per fil."
 
-msgid "treat UNVERIFIABLE as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning -- so leaving this False means a clean report can still hide leakage nobody could check for."
+#, fuzzy
+msgid "treat unverifiable samples as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning, so with this False a passing report can include samples whose leakage was not checked."
 msgstr "behandla ICKE VERIFIERBART som kritiskt. Ett filnamn som inte kodar den begärda identiteten, eller en fil som inte kan hashas, är annars bara en varning -- så om detta lämnas False kan en ren rapport fortfarande dölja läckage som ingen kunde kontrollera."
 
 msgid "raise :class:`LeakageError` instead of returning a report whose ``passed`` is False."

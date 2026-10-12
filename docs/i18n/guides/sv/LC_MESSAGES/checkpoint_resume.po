@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
@@ -66,7 +66,8 @@ msgstr "Avbrutna normaliseringsarkiv"
 msgid "Mask also checks the normalized ``masks/*.npz`` archives before segmentation. It checks ZIP member extents, a readable numeric ``data.npy`` header, enough declared pixel bytes for the shape and dtype, and one filename per batch field. This structural check does not inflate every pixel array or perform a full pixel CRC scan."
 msgstr "Masker kontrollerar också de normaliserade ``masks/*.npz``-arkiven före segmenteringen. Kontrollen omfattar ZIP-medlemmarnas omfång, ett läsbart numeriskt ``data.npy``-huvud, tillräckligt många deklarerade pixelbyte för formen och datatypen samt ett filnamn per batchfält. Den här strukturella kontrollen packar inte upp varje pixelmatris och gör ingen fullständig CRC-kontroll av pixlarna."
 
-msgid "Damaged archives are set aside as ``<name>.damaged``. With preprocessing disabled, the run stops and explains how to recover them. The same quarantine still prevents a later run from silently omitting those fields. It is resolved by a valid same-name replacement, or by readable archives covering every existing field in ``stack/``. Legacy object-valued filename arrays cannot prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt from the available source data; valid archives and quarantined evidence are preserved."
+#, fuzzy
+msgid "Damaged archives are set aside as ``<name>.damaged``. With preprocessing disabled, the run stops and explains how to recover them. The same quarantine still prevents a later run from silently omitting those fields. It is resolved by a valid same-name replacement, or by readable archives covering every existing field in ``stack/``. Archives that store filenames as object-valued arrays cannot prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt from the available source data; valid archives and quarantined evidence are preserved."
 msgstr "Skadade arkiv läggs åt sidan som ``<name>.damaged``. Om förbehandlingen är avstängd stoppar körningen och förklarar hur de kan återställas. Samma karantän hindrar fortfarande en senare körning från att i tysthet utelämna de fälten. Den upphävs av en giltig ersättning med samma namn, eller av läsbara arkiv som täcker varje befintligt fält i ``stack/``. Äldre filnamnsmatriser med objektvärden kan inte visa den täckningen. Om förbehandlingen aktiveras kan återställbara fält byggas om från tillgängliga källdata; giltiga arkiv och bevis i karantän bevaras."
 
 msgid "Safety rules"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
@@ -102,12 +102,14 @@ msgid "The command is the same as the macOS recovery command below, using the ac
 msgstr "O comando é o mesmo comando de recuperação do macOS apresentado abaixo, usando o diretório real da instalação. Uma atualização ou verificação de versão malsucedida é registrada em ``~/.spacr/logs/update.log`` e não aciona a reabertura correspondente a uma atualização bem-sucedida. A atualização também é interrompida se o spaCR não conseguir terminar de fechar com segurança. O pacote independente da aplicação congelada usa seu procedimento de substituição do pacote."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Older installations and full installers"
+#, fuzzy
+msgid "Existing installations and full installers"
 msgstr "Instalações anteriores e instaladores completos"
 
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The full installers and other installer update paths look for spaCR installations an earlier installer made and remove them, so that only one installer-made copy remains. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer names it and does not install the new version."
+#, fuzzy
+msgid "The full installers and other installer update paths look for spaCR installations made by another spaCR installer and remove them, so that only one installer-made copy remains. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer names it and does not install the new version."
 msgstr "Os instaladores completos e os demais procedimentos de atualização dos instaladores procuram instalações do spaCR criadas por um instalador anterior e as removem, de modo que reste apenas uma cópia criada por instalador. Eles localizam as instalações online e offline do Windows, a aplicação macOS e seu ambiente por usuário, a instalação online do Linux e o pacote Debian, junto com seus iniciadores, atalhos, entradas de menu e registros de desinstalação. Ambientes criados por você e cópias do código-fonte são listados, mas nunca removidos; suas pastas de projetos e resultados nunca são alterados. Se uma cópia não puder ser removida -- por exemplo, uma aplicação macOS em ``/Applications`` que exige privilégios de administrador --, o instalador informa qual é e não instala a nova versão."
 
 msgid "To see what it would find without changing anything, run the finder from a spaCR checkout: ``python spacr/install_cleanup.py find``."
@@ -369,7 +371,8 @@ msgstr "Imagens de contêiner"
 msgid "Two images are published to the GitHub Container Registry as part of every spaCR release, after that version reaches PyPI. Each one is built and then checked before it is pushed: it must report the version its tag claims, it must not run as root, and it must complete one pipeline run on a synthetic field. An image that fails a check is not published, and the workflow run that built it fails."
 msgstr "Duas imagens são publicadas no GitHub Container Registry como parte de cada versão do spaCR, depois que essa versão chega ao PyPI. Cada uma é gerada e verificada antes de ser enviada: ela precisa informar a versão declarada por sua tag, não pode ser executada como root e precisa concluir uma execução do pipeline em um campo sintético. Uma imagem que falha em uma verificação não é publicada, e a execução do workflow que a gerou falha."
 
-msgid "The public `GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available versions. The commands below use the published **1.5.1.0** images; not every older spaCR release has a container image."
+#, fuzzy
+msgid "The public `GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available versions. The commands below use the published **1.5.1.0** images; not every spaCR release has a container image."
 msgstr "A `página pública do pacote no GHCR <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lista as versões disponíveis. Os comandos abaixo usam as imagens **1.5.1.0** publicadas; nem toda versão antiga do spaCR tem uma imagem de contêiner."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
@@ -382,13 +385,15 @@ msgstr "Imagem"
 msgid "For"
 msgstr "Para"
 
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.0``"
+#, fuzzy
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.0``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "Somente CPU. Executa contêineres Linux x86-64 com Docker ou Podman e não precisa de driver de GPU."
 
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``"
+#, fuzzy
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."

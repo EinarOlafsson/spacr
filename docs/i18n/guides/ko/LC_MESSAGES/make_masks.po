@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
@@ -52,7 +52,8 @@ msgid "The saved integer mask gives every retained punctum its own label. Nearby
 msgstr "저장된 정수 마스크는 유지되는 각 점상 객체에 고유한 라벨을 부여합니다. 인접한 중심 창은 겹칠 수 있습니다. 각 정수 좌표 피크는 해당 객체에 예약되며, 다른 공유 픽셀은 가장 가까운 중심에 할당되고 부모 밖의 픽셀은 제외됩니다. 따라서 마스크의 픽셀 수는 요청한 N보다 적을 수 있습니다. 이 마스크는 중심 샘플링용이며 점상 객체의 물리적 경계가 아닙니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The legacy ``corrected`` column retains the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results."
+#, fuzzy
+msgid "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The ``corrected`` column holds the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results."
 msgstr "변경하지 않은 전체 이미지 감지 결과를 저장하면 마스크 옆에 ``<stem>.puncta.csv`` 파일과 ``<stem>.puncta.json`` 파일도 기록됩니다. 표에는 모든 후보, 포함 플래그, 출력 객체 라벨, 부모 ID, 좌표, 노이즈, 국소 배경, 정확한 10/20/40 픽셀 중심 평균과 선택한 N 픽셀 평균이 포함됩니다. 정확한 중심 평균은 라벨 할당과 무관하게 겹치는 샘플을 유지합니다. 선택한 N 픽셀 평균에서 국소 배경을 뺀 값에는 ``center_corrected`` 열을, 고정된 20 픽셀 변형에는 ``corrected20`` 열을 사용하세요. 기존 ``corrected`` 열은 참조 구현의 3×3 창 결과를 유지합니다. 기록은 체크섬으로 이미지, 부모 마스크, 출력 마스크, CSV 및 감지기 설정을 연결합니다. 편집하거나 결합한 라벨에 이전 중심 측정값이 조용히 연결되지 않습니다. 국소 미리보기는 잘라낸 영역 안에서 노이즈를 추정하므로 과학적 결과에는 전체 이미지 감지를 사용하세요."
 
 # AI technical review (Codex), no native-speaker signoff.
@@ -356,7 +357,8 @@ msgstr "Cellpose 및 기타 설치된 백엔드"
 msgid "Use the corresponding model controls. Cellpose exposes diameter, flow-error threshold, cell-probability threshold and normalization. Inspect its cell-probability and flow panes alongside accepted labels."
 msgstr "해당 모델 컨트롤을 사용합니다. Cellpose는 직경, 흐름 오차 임계값, 세포 확률 임계값, 정규화를 제공합니다. 수락한 레이블과 함께 세포 확률 창과 흐름 창을 검사합니다."
 
-msgid "Ordinary Otsu retains a legacy magnifier preprocessing path. Its cropped preview and whole-field detection are not guaranteed to be pixel-identical. Other threshold modes run the shared engine on the requested crop; a crop can still have a different histogram from the whole field. Tune on several representative fields and inspect the final whole-image output."
+#, fuzzy
+msgid "Ordinary Otsu uses a separate magnifier preprocessing path, so its cropped preview and whole-field detection are not guaranteed to be pixel-identical. Other threshold modes run the shared engine on the requested crop; a crop can still have a different histogram from the whole field. Tune on several representative fields and inspect the final whole-image output."
 msgstr "일반 Otsu는 이전 방식의 돋보기 전처리 경로를 유지합니다. 잘라낸 미리보기와 전체 시야 검출이 픽셀 단위로 같다는 보장은 없습니다. 다른 임계값 모드는 요청된 크롭에서 공유 엔진을 실행하지만, 크롭의 히스토그램은 여전히 전체 시야와 다를 수 있습니다. 여러 대표 시야에서 조정하고 최종 전체 이미지 출력을 검사합니다."
 
 msgid "Enhancement before and after detection"

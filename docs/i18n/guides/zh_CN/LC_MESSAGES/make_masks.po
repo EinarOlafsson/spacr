@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -52,7 +52,8 @@ msgid "The saved integer mask gives every retained punctum its own label. Nearby
 msgstr "保存的整数掩膜为每个保留的点状对象分配独立标签。邻近的中心窗口可能重叠：每个整数坐标峰值保留给其自身对象，其他共享像素归属最近的中心，父级对象外的像素被省略。因此，掩膜中的像素数可能少于请求的 N 个像素。这是中心采样掩膜，不代表点状对象的物理边界。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The legacy ``corrected`` column retains the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results."
+#, fuzzy
+msgid "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The ``corrected`` column holds the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results."
 msgstr "保存未经修改的整幅图像检测结果时，还会在掩膜旁写入 ``<stem>.puncta.csv`` 和 ``<stem>.puncta.json``。表格包含全部候选对象、纳入标记、输出对象标签、父级 ID、坐标、噪声、局部背景、精确的 10/20/40 像素中心均值及所选的 N 像素均值。精确中心均值保留重叠采样，与像素的标签归属无关。``center_corrected`` 表示所选 N 像素均值减去局部背景，``corrected20`` 表示固定的 20 像素版本。旧版 ``corrected`` 列保留参考实现的三乘三窗口结果。记录通过校验和关联图像、父级掩膜、输出掩膜、CSV 和检测器设置。编辑或合并的标签不会静默获得旧的中心测量。局部预览仅在裁剪范围内估计噪声；科学结果应使用整幅图像检测。"
 
 # AI technical review (Codex), no native-speaker signoff.
@@ -356,7 +357,8 @@ msgstr "Cellpose 及其他已安装的后端"
 msgid "Use the corresponding model controls. Cellpose exposes diameter, flow-error threshold, cell-probability threshold and normalization. Inspect its cell-probability and flow panes alongside accepted labels."
 msgstr "使用相应的模型控件。Cellpose 提供直径、流场误差阈值、细胞概率阈值和归一化。请将其细胞概率窗格和流场窗格与已接受的标签一起检查。"
 
-msgid "Ordinary Otsu retains a legacy magnifier preprocessing path. Its cropped preview and whole-field detection are not guaranteed to be pixel-identical. Other threshold modes run the shared engine on the requested crop; a crop can still have a different histogram from the whole field. Tune on several representative fields and inspect the final whole-image output."
+#, fuzzy
+msgid "Ordinary Otsu uses a separate magnifier preprocessing path, so its cropped preview and whole-field detection are not guaranteed to be pixel-identical. Other threshold modes run the shared engine on the requested crop; a crop can still have a different histogram from the whole field. Tune on several representative fields and inspect the final whole-image output."
 msgstr "普通 Otsu 保留了一条旧版的放大镜预处理路径。其裁剪预览与整个视野的检测结果不保证逐像素一致。其他阈值模式在所请求的裁剪区域上运行共享引擎；裁剪区域的直方图仍可能与整个视野不同。请在多个具有代表性的视野上进行调整，并检查最终的整图输出。"
 
 msgid "Enhancement before and after detection"

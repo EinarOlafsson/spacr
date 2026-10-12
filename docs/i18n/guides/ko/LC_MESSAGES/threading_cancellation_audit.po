@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
@@ -121,8 +121,9 @@ msgstr "이는 파이프라인 실패가 아니라 정상적인 제어 흐름 �
 msgid "Return whether the calling worker has a pending cancellation request."
 msgstr "호출한 작업자에 대기 중인 취소 요청이 있는지 반환합니다."
 
-msgid "Stop at this safe boundary when requested; otherwise do nothing."
-msgstr "요청이 있으면 이 안전한 경계에서 멈추고, 그렇지 않으면 아무것도 하지 않습니다."
+#, fuzzy
+msgid "Raise :class:`PipelineCancelled` if this thread's token was cancelled."
+msgstr "취소가 요청되었으면 :class:`PipelineCancelled` 를 발생시킵니다."
 
 msgid "Calls outside a managed worker are intentionally no-ops, so the same pipeline functions work through the GUI, CLI, notebooks, and tests."
 msgstr "관리되는 작업자 밖에서의 호출은 의도적으로 아무 일도 하지 않으므로, 같은 파이프라인 함수를 GUI, CLI, 노트북, 테스트에서 사용할 수 있습니다."

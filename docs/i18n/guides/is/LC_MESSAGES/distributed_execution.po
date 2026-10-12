@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
@@ -65,6 +65,21 @@ msgstr "Þegar tengislóðir eru ólíkar skaltu stilla *Local dataset root* og 
 
 msgid "Settings can be dragged onto the Distributed Jobs screen, selected with **Browse**, or handed off directly with **Submit remote…** in any ordinary module."
 msgstr "Hægt er að draga stillingar á skjáinn Dreifð verk, velja þær með **Velja** eða afhenda þær beint með **Senda fjarvinnslu…** í hvaða venjulegu einingu sem er."
+
+msgid "Settings files from the GUI"
+msgstr "Stillingaskrár úr GUI"
+
+msgid "Every module screen with **Import settings…** has **Export settings…** next to it. It saves the values currently in the form, exactly what **Run** would use, to a CSV you choose. Nothing runs: the source folder is not listed or opened, so a form set up for a slow network share is saved at once. The dialog suggests ``<module>_settings.csv`` in the source folder."
+msgstr "Sérhver einingaskjár með **Flytja inn stillingar…** hefur **Flytja út stillingar…** við hliðina. Það vistar gildin sem eru nú í eyðublaðinu, nákvæmlega það sem **Keyra** myndi nota, í CSV sem þú velur. Ekkert er keyrt: upprunamappan er hvorki skráð né opnuð, svo eyðublað sem er stillt fyrir hægt netdrif er vistað strax. Glugginn leggur til ``<module>_settings.csv`` í upprunamöppunni."
+
+msgid "The file has the layout spaCR writes into ``<src>/settings/`` at the start of every run: a ``Key,Value`` header and one row per setting, with lists in Python form (``[0, 1, 2]``), ``True``/``False`` and empty cells for unset values. Paths are saved exactly as the form shows them. A ``.json`` copy with the same settings is written beside it. **Import settings…** reads the file back to the same form values, and the command line runs it unchanged::"
+msgstr "Skráin hefur þá uppsetningu sem spaCR skrifar í ``<src>/settings/`` í upphafi hverrar keyrslu: hausinn ``Key,Value`` og eina línu fyrir hverja stillingu, með listum á Python-formi (``[0, 1, 2]``), ``True``/``False`` og tómum reitum fyrir óstillt gildi. Slóðir eru vistaðar nákvæmlega eins og eyðublaðið sýnir þær. ``.json``-afrit með sömu stillingum er skrifað við hliðina. **Flytja inn stillingar…** les skrána aftur í sömu eyðublaðsgildi, og skipanalínan keyrir hana óbreytta::"
+
+msgid "From Python, ``spacr.cli.load_settings_file`` reads it and ``spacr.cli.write_settings_file`` writes one. When the cluster mounts the data under another path, change ``src`` with ``--set src=/cluster/projects/plate-A`` or use the dataset roots of an execution profile."
+msgstr "Úr Python les ``spacr.cli.load_settings_file`` hana og ``spacr.cli.write_settings_file`` skrifar eina. Þegar klasinn tengir gögnin undir annarri slóð, breyttu ``src`` með ``--set src=/cluster/projects/plate-A`` eða notaðu gagnasafnarætur keyrsluprófíls."
+
+msgid "After **Submit remote…**, **Save settings CSV…** on the Distributed Jobs screen saves the snapshot it received as the same file. Submitting is unchanged."
+msgstr "Eftir **Senda fjarvinnslu…** vistar **Vista stillinga-CSV…** á skjánum Dreifð verk myndina sem hann fékk sem sömu skrá. Sendingin sjálf er óbreytt."
 
 msgid "Command-line workflow"
 msgstr "Verkflæði í skipanalínu"

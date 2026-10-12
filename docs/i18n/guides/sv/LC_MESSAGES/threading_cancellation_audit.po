@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
@@ -121,8 +121,9 @@ msgstr "Detta är ett normalt utfall i kontrollflödet, inte ett pipelinefel.  A
 msgid "Return whether the calling worker has a pending cancellation request."
 msgstr "Returnera om den anropande arbetsprocessen har en väntande begäran om avbrytning."
 
-msgid "Stop at this safe boundary when requested; otherwise do nothing."
-msgstr "Stoppa vid den här säkra gränsen när det har begärts; gör annars ingenting."
+#, fuzzy
+msgid "Raise :class:`PipelineCancelled` if this thread's token was cancelled."
+msgstr "Utlös :class:`PipelineCancelled` när avbrytning har begärts."
 
 msgid "Calls outside a managed worker are intentionally no-ops, so the same pipeline functions work through the GUI, CLI, notebooks, and tests."
 msgstr "Anrop utanför en hanterad arbetsprocess gör avsiktligt ingenting, så samma pipelinefunktioner fungerar via GUI, CLI, notebooks och tester."

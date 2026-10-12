@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
@@ -244,6 +244,27 @@ msgstr "접근성"
 msgid "Every control has a name that screen readers announce, taken from its label, tooltip or placeholder, and the names follow the interface language. **Tab** moves out of text boxes and tables to the next control instead of typing a tab. **Preferences → Appearance → Theme** offers **High contrast**, in which all text has a contrast ratio of at least 7:1 against its background."
 msgstr "모든 컨트롤에는 화면 판독기가 읽어 주는 이름이 있으며, 이 이름은 레이블, 툴팁 또는 자리 표시자에서 가져오고 인터페이스 언어를 따릅니다. **Tab** 은 탭 문자를 입력하지 않고 텍스트 상자와 표에서 다음 컨트롤로 이동합니다. **환경설정 → 모양 → 테마** 에는 모든 텍스트의 배경 대비율이 최소 7:1인 **고대비** 가 있습니다."
 
+msgid "**Preferences → Appearance → Accessibility** gathers the settings that help most:"
+msgstr "**환경설정 → 모양 → 접근성** 은 가장 도움이 되는 설정을 모아 둡니다:"
+
+msgid "**High contrast** chooses the High contrast theme. Clear it to return to the theme you had before. The Theme control shows the same choice."
+msgstr "**고대비** 는 고대비 테마를 선택합니다. 이전에 쓰던 테마로 돌아가려면 해제하세요. 테마 컨트롤도 같은 선택을 보여 줍니다."
+
+msgid "**Text size** makes all text larger or smaller. It is the same setting as **Font scale** on the General tab."
+msgstr "**텍스트 크기** 는 모든 텍스트를 더 크게 또는 더 작게 만듭니다. 일반 탭의 **글꼴 배율** 과 같은 설정입니다."
+
+msgid "**Reduce motion** holds every animated backdrop still and turns off ripples, click ripples, popup waves and mouse gravity. Clear it to get your previous motion settings back exactly."
+msgstr "**모션 줄이기** 는 움직이는 배경을 모두 정지시키고 물결, 클릭 물결, 팝업 파동, 마우스 중력을 끕니다. 해제하면 이전 모션 설정이 그대로 돌아옵니다."
+
+msgid "**Focus outlines** draws a thick outline round the control that has keyboard focus, in a colour that stands out in every theme."
+msgstr "**포커스 윤곽선** 은 키보드 포커스가 있는 컨트롤 둘레에 모든 테마에서 눈에 띄는 색의 두꺼운 윤곽선을 그립니다."
+
+msgid "**Keyboard shortcuts…** opens the shortcut editor, where you can change the key for any action."
+msgstr "**키보드 단축키…** 는 단축키 편집기를 열며, 거기서 모든 동작의 키를 바꿀 수 있습니다."
+
+msgid "Apply, Cancel and Save work as they do for every other preference."
+msgstr "적용, 취소, 저장은 다른 모든 환경설정과 같은 방식으로 동작합니다."
+
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Data-art themes"
 msgstr "데이터 아트 테마"
@@ -288,8 +309,8 @@ msgid "**spaCR spinn** — Fine paper facets move gently and spin locally in res
 msgstr "**spaCR spinn** — 얇은 종이 조각 같은 면들이 부드럽게 움직이며 마우스 위치에 따라 국소적으로 회전합니다. 포인터에 가까울수록 회전이 빠르고, 마우스 중력 반경의 가장자리에서는 속도가 부드럽게 0으로 줄어듭니다. 반경을 바꾸면 영향을 받는 영역이 바뀝니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
-msgstr "**마우스 중력 반경** 은 화면의 짧은 변 길이에 대한 백분율로 영향 영역을 설정합니다. 기본값은 **15%** 이며, **0** 으로 설정하면 마우스 영향을 끕니다. **애니메이션 밀도** 는 요소 수를 바꾸며, 그리기 해상도를 바꾸는 **애니메이션 세부 사항** 과 독립적입니다. 최소 밀도는 **1%** 입니다. 세부 사항을 높여도 선택한 요소 수는 줄어들지 않습니다. 렌더러는 화면의 픽셀 예산 안에서 샘플링 작업을 제한합니다. **애니메이션 팔레트** 에서 **무작위** 를 선택하면 각 요소에 임의의 색을 사용합니다. 새 설치는 **어두움** , **spaCR field** , **spaCR** 애니메이션 팔레트를 사용하며, 밀도 **10%** , 중력 **15%** , 세부 사항·속도·크기 **100%** , 페이지 불투명도 **60%** 가 기본입니다. **점 깜빡임** 은 흰색으로 깜빡이는 보이는 점의 비율을 조절합니다. **0** 은 깜빡임을 끄는 기본값이며, 0이 아닌 범위는 0.00001%부터 10%까지입니다. 이 설정은 spaCR field, spaCR advection, spaCR waves, spaCR stratified에 적용됩니다. 필드 페이드가 켜져 있습니다. 파란 테두리는 둘레 대비 길이 **17%** , 추적 **50%** , 포인터 중심 정렬, **Beat** 모드, **1.5 s** 주기를 사용합니다. 기존에 저장된 환경설정은 변경하거나 초기화할 때까지 유지됩니다."
+msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **10%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
+msgstr "**마우스 중력 반경** 은 화면의 짧은 변 길이에 대한 백분율로 영향 영역을 설정합니다. 기본값은 **15%** 이며, **0** 으로 설정하면 마우스 영향을 끕니다. **애니메이션 밀도** 는 요소 수를 바꾸며, 그리기 해상도를 바꾸는 **애니메이션 세부 사항** 과 독립적입니다. 최소 밀도는 **1%** 입니다. 세부 사항을 높여도 선택한 요소 수는 줄어들지 않습니다. 렌더러는 화면의 픽셀 예산 안에서 샘플링 작업을 제한합니다. **애니메이션 팔레트** 에서 **무작위** 를 선택하면 각 요소에 임의의 색을 사용합니다. 새 설치는 **어두움** , **spaCR field** , **spaCR** 애니메이션 팔레트를 사용하며, 밀도 **10%** , 중력 **10%** , 세부 사항·속도·크기 **100%** , 페이지 불투명도 **60%** 가 기본입니다. **점 깜빡임** 은 흰색으로 깜빡이는 보이는 점의 비율을 조절합니다. **0** 은 깜빡임을 끄는 기본값이며, 0이 아닌 범위는 0.00001%부터 10%까지입니다. 이 설정은 spaCR field, spaCR advection, spaCR waves, spaCR stratified에 적용됩니다. 필드 페이드가 켜져 있습니다. 파란 테두리는 둘레 대비 길이 **17%** , 추적 **50%** , 포인터 중심 정렬, **Beat** 모드, **1.5 s** 주기를 사용합니다. 기존에 저장된 환경설정은 변경하거나 초기화할 때까지 유지됩니다."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Animation background colour** sets the background independently of the animation palette. Until you choose a colour, it follows the page theme; **Theme colour** restores that behaviour. The chosen colour's brightness is kept within the active Dark or Light theme's range. It applies to the main window, module screens and animated settings popups. A full-screen wallpaper can cover the background fill."

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
@@ -37,7 +37,8 @@ msgstr "Settu þjálfunarmyndir í eina möppu og grímur þeirra í undirmöppu
 msgid "Each mask must have the same height and width as its image. Use integer object labels: zero for background and a different positive number for each object. A mask filename can match its image or add ``_masks`` before the extension, such as ``field_01_masks.tif``. Keep one matching mask per image."
 msgstr "Hver gríma verður að hafa sömu hæð og breidd og myndin hennar. Notaðu heiltölumerki fyrir hluti: núll fyrir bakgrunn og mismunandi jákvæða tölu fyrir hvern hlut. Skráarheiti grímu getur verið það sama og myndarinnar eða bætt ``_masks`` við á undan endingunni, t.d. ``field_01_masks.tif``. Hafðu eina samsvarandi grímu fyrir hverja mynd."
 
-msgid "Use Make Masks to inspect and correct object boundaries before training. Keep separate fields for validation. You can reuse a legacy project containing ``train/images`` and ``train/masks`` by selecting that project as Source."
+#, fuzzy
+msgid "Use Make Masks to inspect and correct object boundaries before training. Keep separate fields for validation. A project containing ``train/images`` and ``train/masks`` can also be selected as Source."
 msgstr "Notaðu Búa til grímur til að skoða og leiðrétta hlutamörk fyrir þjálfun. Haltu aðskildum sjónsviðum fyrir sannprófun. Þú getur endurnýtt eldra verkefni sem inniheldur ``train/images`` og ``train/masks`` með því að velja það verkefni sem Uppruna."
 
 msgid "Choose inputs and settings"

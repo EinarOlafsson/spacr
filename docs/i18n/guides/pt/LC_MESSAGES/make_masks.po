@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
@@ -52,7 +52,8 @@ msgid "The saved integer mask gives every retained punctum its own label. Nearby
 msgstr "A máscara inteira salva fornece a cada ponto retido seu próprio rótulo. Janelas centrais próximas podem se sobrepor: cada pico em coordenadas inteiras é reservado para seu objeto, outros pixels compartilhados vão para o centro mais próximo e pixels fora do objeto parental são omitidos. Assim, uma máscara pode conter menos que os N pixels solicitados. Esta é uma máscara de amostragem central, não o limite físico do ponto."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The legacy ``corrected`` column retains the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results."
+#, fuzzy
+msgid "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The ``corrected`` column holds the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results."
 msgstr "Salvar uma detecção inalterada da imagem inteira também grava ``<stem>.puncta.csv`` e ``<stem>.puncta.json`` junto à máscara. A tabela contém todos os candidatos, seus indicadores de inclusão, os rótulos dos objetos de saída, IDs parentais, coordenadas, ruído, fundo local, médias centrais exatas de 10/20/40 pixels e a média selecionada de N pixels. As médias centrais exatas preservam as amostras sobrepostas independentemente da atribuição dos rótulos. Use ``center_corrected`` para a média selecionada de N pixels menos o fundo local, ou ``corrected20`` para a variante fixa de 20 pixels. A coluna legada ``corrected`` preserva o resultado da janela de três por três da referência. O comprovante vincula imagem, máscara parental, máscara de saída, CSV e configurações do detector por somas de verificação. Rótulos editados ou combinados não podem receber silenciosamente as medições centrais antigas. As prévias locais estimam o ruído dentro de seu recorte; use a detecção da imagem inteira para resultados científicos."
 
 # AI technical review (Codex), no native-speaker signoff.
@@ -356,7 +357,8 @@ msgstr "Cellpose e outros backends instalados"
 msgid "Use the corresponding model controls. Cellpose exposes diameter, flow-error threshold, cell-probability threshold and normalization. Inspect its cell-probability and flow panes alongside accepted labels."
 msgstr "Use os controles de modelo correspondentes. O Cellpose expõe diâmetro, limiar de erro de fluxo, limiar de probabilidade celular e normalização. Inspecione seus painéis de probabilidade celular e de fluxo junto com os rótulos aceitos."
 
-msgid "Ordinary Otsu retains a legacy magnifier preprocessing path. Its cropped preview and whole-field detection are not guaranteed to be pixel-identical. Other threshold modes run the shared engine on the requested crop; a crop can still have a different histogram from the whole field. Tune on several representative fields and inspect the final whole-image output."
+#, fuzzy
+msgid "Ordinary Otsu uses a separate magnifier preprocessing path, so its cropped preview and whole-field detection are not guaranteed to be pixel-identical. Other threshold modes run the shared engine on the requested crop; a crop can still have a different histogram from the whole field. Tune on several representative fields and inspect the final whole-image output."
 msgstr "O Otsu comum mantém um caminho de pré-processamento antigo para a lupa. Não há garantia de que sua prévia recortada e a detecção no campo inteiro sejam idênticas pixel a pixel. Os demais modos de limiar executam o mecanismo comum no recorte solicitado; ainda assim, um recorte pode ter um histograma diferente do campo inteiro. Ajuste em vários campos representativos e inspecione a saída final na imagem inteira."
 
 msgid "Enhancement before and after detection"

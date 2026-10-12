@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
@@ -254,7 +254,8 @@ msgid "Recover original filenames before labelling conditions"
 msgstr "स्थितियों के लेबल देने से पहले मूल फ़ाइल नाम वापस पाना"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "If images were renamed to Yokogawa format, use **Merge original filenames…** inside **Merge tables** to recover the names recorded during conversion. Select ``conversion_map.csv``, a legacy ``rename_log.csv``, a ``channel_sorting_manifest.csv``, or a SQLite database containing the ``conversion_map`` table. The file picker starts near a known mapping when one is found beside the measurement database or in its parent folders. The mapping must contain recorded source-to-output relationships; this action does not infer treatment names from renamed images."
+#, fuzzy
+msgid "If images were renamed to Yokogawa format, use **Merge original filenames…** inside **Merge tables** to recover the names recorded during conversion. Select ``conversion_map.csv``, a ``rename_log.csv``, a ``channel_sorting_manifest.csv``, or a SQLite database containing the ``conversion_map`` table. The file picker starts near a known mapping when one is found beside the measurement database or in its parent folders. The mapping must contain recorded source-to-output relationships; this action does not infer treatment names from renamed images."
 msgstr "यदि चित्रों का नाम Yokogawa प्रारूप में बदला गया था, तो रूपांतरण के दौरान दर्ज नाम पाने के लिए **मूल फ़ाइल नाम जोड़ें…** में **तालिकाएँ मर्ज करें** उपयोग करें। ``conversion_map.csv``, पुरानी ``rename_log.csv``, ``channel_sorting_manifest.csv`` या ``conversion_map`` तालिका वाला SQLite डेटाबेस चुनें। मापन डेटाबेस के पास या उसके ऊपरी फ़ोल्डरों में ज्ञात मैपिंग मिलने पर फ़ाइल चयनक वहीं से शुरू होता है। मैपिंग में दर्ज स्रोत-से-आउटपुट संबंध होने चाहिए; यह क्रिया नाम बदले चित्रों से उपचार नामों का अनुमान नहीं लगाती।"
 
 # AI technical review (Codex), no native-speaker signoff.

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: sv\n"
@@ -295,7 +295,8 @@ msgstr "för ett osäkert eller ej stött begärt journalläge, eller när SQLit
 msgid "Put ``path`` into WAL when the filesystem allows it. Never raises."
 msgstr "Sätt ``path`` i WAL när filsystemet tillåter det. Utlöser aldrig undantag."
 
-msgid "WHY THIS EXISTS (issue #15, \"measurements sometimes hangs\"). Measure runs one worker per field and every append goes through pandas' ``DataFrame.to_sql``, which issues a ``has_table`` probe -- a READ -- before writing. So each worker alternates read, write, read, write against one file."
+#, fuzzy
+msgid "This addresses issue #15 (\"measurements sometimes hangs\"). Measure runs one worker per field and every append goes through pandas' ``DataFrame.to_sql``, which issues a ``has_table`` probe -- a read -- before writing. So each worker alternates read, write, read, write against one file."
 msgstr "VARFÖR DETTA FINNS (ärende #15, \"measurements sometimes hangs\"). Mätning kör en arbetsprocess per fält och varje tillägg går genom pandas ``DataFrame.to_sql``, som gör ett ``has_table``-test -- en LÄSNING -- före skrivningen. Varje arbetsprocess växlar alltså mellan läsning, skrivning, läsning, skrivning mot en och samma fil."
 
 msgid "Under the shipped rollback journal that combination starves the writer. A reader holds SHARED for the length of its statement, and a writer cannot COMMIT until every SHARED lock is gone, so with enough workers there is almost always someone reading and the committing worker waits out its busy timeout and raises \"database is locked\" -- usually surfacing on the next process's ``has_table``, which is the statement in the reporter's traceback."
@@ -307,19 +308,23 @@ msgstr "Uppmätt på exakt denna form, en commit som försöks medan en läsare 
 msgid "journal_mode=delete    writer waited 1.037 s journal_mode=wal       writer waited 0.002 s"
 msgstr "journal_mode=delete    skrivaren väntade 1,037 s journal_mode=wal       skrivaren väntade 0,002 s"
 
-msgid "WAL readers do not block a writer at all, which removes the starvation. It does NOT make two WRITERS concurrent -- SQLite still serialises those -- so this fixes the reader-blocks-writer half, which is the half the traceback is in."
+#, fuzzy
+msgid "WAL readers do not block a writer, which removes the starvation. WAL does not make two writers concurrent -- SQLite still serialises those -- so this fixes only readers blocking a writer, which is the case in the traceback."
 msgstr "WAL-läsare blockerar inte en skrivare alls, vilket tar bort utsvältningen. Det gör INTE två SKRIVARE samtidiga -- SQLite serialiserar fortfarande dem -- så detta åtgärdar halvan där läsaren blockerar skrivaren, som är den halva som tracebacken gäller."
 
-msgid "(The first version of this note had the direction backwards, claiming reads were blocked by writes. The test written to prove it measured 0.000 s and refuted it: in rollback-journal mode a writer holding RESERVED does not block readers, only its brief EXCLUSIVE commit does.)"
+#, fuzzy
+msgid "The reverse direction is not a problem: in rollback-journal mode a writer holding RESERVED does not block readers; only its brief EXCLUSIVE commit does."
 msgstr "(Den första versionen av denna anteckning hade riktningen baklänges och påstod att läsningar blockerades av skrivningar. Testet som skrevs för att bevisa det mätte 0,000 s och motbevisade det: i återställningsjournalläge blockerar en skrivare som håller RESERVED inte läsare, bara dess korta EXCLUSIVE-commit gör det.)"
 
-msgid "Called once when a database is opened for a run rather than per write: the mode is a property of the FILE and persists, so paying for it per connection would buy nothing."
+#, fuzzy
+msgid "Called once when a database is opened for a run rather than per write: the journal mode is stored in the database file and persists, so setting it per connection has no further effect."
 msgstr "Anropas en gång när en databas öppnas för en körning snarare än per skrivning: läget är en egenskap hos FILEN och består, så att betala för det per anslutning skulle inte ge någonting."
 
 msgid "the database to switch. A file that does not exist yet is created by the connection, which is fine -- the mode persists."
 msgstr "databasen som ska växlas. En fil som ännu inte finns skapas av anslutningen, vilket är i sin ordning -- läget består."
 
-msgid "the journal mode in force afterwards, or ``None`` when the database could not be opened at all."
+#, fuzzy
+msgid "the journal mode in force afterwards, or ``None`` when :func:`wal_is_safe_here` is ``False`` (nothing is changed) or the database could not be opened or queried."
 msgstr "journalläget som gäller efteråt, eller ``None`` när databasen inte kunde öppnas alls."
 
 msgid "Best-effort filesystem type for ``path``, or None when unknowable."
@@ -413,13 +418,16 @@ msgstr "när låset varar längre än budgeten för nya försök."
 msgid "when asked to nest inside an active transaction outside a writer-owned packet. Queued helper transactions use savepoints within that packet."
 msgstr "när en nästlad transaktion begärs inom en aktiv transaktion utanför ett paket som ägs av skrivaren. Köade hjälpfunktioners transaktioner använder savepoints inom paketet."
 
-msgid "Is ``path`` on a filesystem where WAL is known to behave?"
+#, fuzzy
+msgid "Return whether ``path`` is on a filesystem where WAL is known to work."
 msgstr "Ligger ``path`` på ett filsystem där WAL är känt att fungera?"
 
-msgid "``True`` only for a POSITIVELY IDENTIFIED local filesystem. Anything else -- a network type, an unrecognised type, or a platform where :func:`filesystem_type` cannot tell (it reads ``/proc/mounts``, so macOS and Windows always answer ``None``) -- is ``False``."
+#, fuzzy
+msgid "``True`` only when the filesystem type is identified and listed in ``WAL_SAFE_FILESYSTEMS``. Anything else -- a network type, an unrecognised type, or a path whose type :func:`filesystem_type` cannot determine (it returns ``None``) -- is ``False``."
 msgstr "``True`` bara för ett POSITIVT IDENTIFIERAT lokalt filsystem. Allt annat -- en nätverkstyp, en okänd typ eller en plattform där :func:`filesystem_type` inte kan avgöra (den läser ``/proc/mounts``, så macOS och Windows svarar alltid ``None``) -- är ``False``."
 
-msgid "That asymmetry is the point. The cost of a wrong ``False`` is the lock contention this project already survives; the cost of a wrong ``True`` is WAL shared memory on storage that cannot support it, which is a corrupted database."
+#, fuzzy
+msgid "The default is ``False`` because the two errors differ in cost: a wrong ``False`` leaves the rollback journal and its lock contention in place, while a wrong ``True`` puts WAL shared memory on storage that cannot support it, which can corrupt the database."
 msgstr "Den asymmetrin är poängen. Kostnaden för ett felaktigt ``False`` är den låskonkurrens som projektet redan klarar av; kostnaden för ett felaktigt ``True`` är delat WAL-minne på lagring som inte kan hantera det, vilket blir en skadad databas."
 
 msgid "the database file (or its directory) whose filesystem is looked up with :func:`filesystem_type`."

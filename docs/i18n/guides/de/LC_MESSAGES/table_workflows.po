@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: de\n"
@@ -254,7 +254,8 @@ msgid "Recover original filenames before labelling conditions"
 msgstr "Ursprüngliche Dateinamen vor der Bedingungszuweisung wiederherstellen"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "If images were renamed to Yokogawa format, use **Merge original filenames…** inside **Merge tables** to recover the names recorded during conversion. Select ``conversion_map.csv``, a legacy ``rename_log.csv``, a ``channel_sorting_manifest.csv``, or a SQLite database containing the ``conversion_map`` table. The file picker starts near a known mapping when one is found beside the measurement database or in its parent folders. The mapping must contain recorded source-to-output relationships; this action does not infer treatment names from renamed images."
+#, fuzzy
+msgid "If images were renamed to Yokogawa format, use **Merge original filenames…** inside **Merge tables** to recover the names recorded during conversion. Select ``conversion_map.csv``, a ``rename_log.csv``, a ``channel_sorting_manifest.csv``, or a SQLite database containing the ``conversion_map`` table. The file picker starts near a known mapping when one is found beside the measurement database or in its parent folders. The mapping must contain recorded source-to-output relationships; this action does not infer treatment names from renamed images."
 msgstr "Wenn Bilder ins Yokogawa-Format umbenannt wurden, verwenden Sie **Original Dateinamen zusammenführen...** innerhalb von **Tabellen zusammenführen**, um die bei der Konvertierung gespeicherten Namen wiederherzustellen. Wählen Sie ``conversion_map.csv``, eine ältere ``rename_log.csv``, eine ``channel_sorting_manifest.csv`` oder eine SQLite-Datenbank mit der Tabelle ``conversion_map``. Die Dateiauswahl beginnt in der Nähe einer bekannten Zuordnung, wenn eine neben der Messdatenbank oder in ihren übergeordneten Ordnern gefunden wird. Die Zuordnung muss gespeicherte Beziehungen zwischen Quelle und Ausgabe enthalten. Diese Aktion leitet keine Behandlungsnamen aus umbenannten Bildern ab."
 
 # AI technical review (Codex), no native-speaker signoff.

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
@@ -121,8 +121,9 @@ msgstr "Il s’agit d’une issue normale du flux de contrôle, pas d’un éche
 msgid "Return whether the calling worker has a pending cancellation request."
 msgstr "Indique si le worker appelant a une demande d’annulation en attente."
 
-msgid "Stop at this safe boundary when requested; otherwise do nothing."
-msgstr "S’arrête à cette limite sûre si c’est demandé ; sinon, ne fait rien."
+#, fuzzy
+msgid "Raise :class:`PipelineCancelled` if this thread's token was cancelled."
+msgstr "Lève :class:`PipelineCancelled` lorsqu’une annulation a été demandée."
 
 msgid "Calls outside a managed worker are intentionally no-ops, so the same pipeline functions work through the GUI, CLI, notebooks, and tests."
 msgstr "Les appels en dehors d’un worker géré sont volontairement sans effet, de sorte que les mêmes fonctions de pipeline fonctionnent via l’interface graphique, la CLI, les notebooks et les tests."

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
@@ -52,7 +52,8 @@ msgid "The saved integer mask gives every retained punctum its own label. Nearby
 msgstr "Vistaði heiltölumaskinn gefur hverjum varðveittum punkti sitt eigið merki. Nálægir miðjugluggar geta skarast: hver toppur með heiltöluhnitum er frátekinn fyrir hlut sinn, aðrir sameiginlegir pixlar fara til næstu miðju og pixlum utan foreldris er sleppt. Maski getur því innihaldið færri en þá N pixla sem óskað er eftir. Þetta er maski fyrir miðjusýnatöku, ekki líkamleg mörk punktsins."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The legacy ``corrected`` column retains the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results."
+#, fuzzy
+msgid "Saving an unchanged whole-image detection also writes ``<stem>.puncta.csv`` and ``<stem>.puncta.json`` beside the mask. The table contains all candidates, their inclusion flags, output object labels, parent IDs, coordinates, noise, local background, exact 10/20/40-pixel centre means and the selected N-pixel mean. Exact centre means retain overlapping samples independently of label ownership. Use ``center_corrected`` for the selected N-pixel mean minus local background, or ``corrected20`` for the fixed 20-pixel variant. The ``corrected`` column holds the reference's three-by-three-window result. The receipt binds the image, parent mask, output mask, CSV and detector settings to checksums. Edited or combined labels cannot silently receive the old centre measurements. Local previews estimate noise within their crop; use whole-image detection for scientific results."
 msgstr "Þegar óbreytt greining allrar myndarinnar er vistuð eru einnig skrifaðar ``<stem>.puncta.csv`` og ``<stem>.puncta.json`` við hlið maskans. Taflan inniheldur alla mögulega punkta, innfellingarflögg þeirra, merki úttakshluta, foreldraauðkenni, hnit, suð, staðbundinn bakgrunn, nákvæm miðjumeðaltöl fyrir 10/20/40 pixla og valið N-pixla meðaltal. Nákvæm miðjumeðaltöl varðveita skarandi sýni óháð því hvaða merki á pixlana. Notaðu ``center_corrected`` fyrir valið N-pixla meðaltal að frádregnum staðbundnum bakgrunni, eða ``corrected20`` fyrir föstu 20-pixla útgáfuna. Eldri dálkurinn ``corrected`` varðveitir niðurstöðu þriggja sinnum þriggja glugga viðmiðunarinnar. Kvittunin tengir mynd, foreldramaska, úttaksmaska, CSV og stillingar greinis við gátsummur. Breytt eða sameinuð merki geta ekki hljóðlega fengið gömlu miðjumælingarnar. Staðbundnar forsýningar meta suð innan útskurðar síns; notaðu greiningu allrar myndarinnar fyrir vísindalegar niðurstöður."
 
 # AI technical review (Codex), no native-speaker signoff.
@@ -356,7 +357,8 @@ msgstr "Cellpose og aðrir uppsettir bakendar"
 msgid "Use the corresponding model controls. Cellpose exposes diameter, flow-error threshold, cell-probability threshold and normalization. Inspect its cell-probability and flow panes alongside accepted labels."
 msgstr "Notaðu samsvarandi líkanastýringar. Cellpose sýnir þvermál, þröskuld flæðisvillu, þröskuld fyrir líkur á frumu og stöðlun. Skoðaðu glugga þess fyrir líkur á frumu og flæði við hlið samþykktra merkja."
 
-msgid "Ordinary Otsu retains a legacy magnifier preprocessing path. Its cropped preview and whole-field detection are not guaranteed to be pixel-identical. Other threshold modes run the shared engine on the requested crop; a crop can still have a different histogram from the whole field. Tune on several representative fields and inspect the final whole-image output."
+#, fuzzy
+msgid "Ordinary Otsu uses a separate magnifier preprocessing path, so its cropped preview and whole-field detection are not guaranteed to be pixel-identical. Other threshold modes run the shared engine on the requested crop; a crop can still have a different histogram from the whole field. Tune on several representative fields and inspect the final whole-image output."
 msgstr "Venjulegt Otsu heldur eldri forvinnsluleið stækkunarglersins. Ekki er tryggt að skorin forskoðun þess og greining á öllu sjónsviðinu séu eins upp á pixla. Aðrir þröskuldshamir keyra sameiginlegu vélina á umbeðnum skurði; skurður getur samt haft annað stuðlarit en allt sjónsviðið. Stilltu á nokkrum dæmigerðum sjónsviðum og skoðaðu lokaúttakið fyrir alla myndina."
 
 msgid "Enhancement before and after detection"

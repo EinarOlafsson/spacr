@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
@@ -102,12 +102,14 @@ msgid "The command is the same as the macOS recovery command below, using the ac
 msgstr "Kommandot är samma som återställningskommandot för macOS nedan, med den faktiska installationskatalogen. En misslyckad uppgradering eller versionskontroll registreras i ``~/.spacr/logs/update.log`` och utlöser ingen omstart för en lyckad uppdatering. Uppdateringen avbryts också om spaCR inte kan stängas säkert. Det separata frysta programpaketet använder sitt arbetsflöde för paketbyte."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Older installations and full installers"
+#, fuzzy
+msgid "Existing installations and full installers"
 msgstr "Äldre installationer och fullständiga installationsprogram"
 
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The full installers and other installer update paths look for spaCR installations an earlier installer made and remove them, so that only one installer-made copy remains. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer names it and does not install the new version."
+#, fuzzy
+msgid "The full installers and other installer update paths look for spaCR installations made by another spaCR installer and remove them, so that only one installer-made copy remains. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer names it and does not install the new version."
 msgstr "De fullständiga installationsprogrammen och andra uppdateringsvägar söker efter spaCR-installationer som ett tidigare installationsprogram skapade och tar bort dem, så att bara en kopia skapad av ett installationsprogram finns kvar. De hittar Windows online- och offlineinstallationer, macOS-programmet och dess användarspecifika miljö, Linux-onlineinstallationen och Debian-paketet, tillsammans med deras startprogram, genvägar, menyposter och avinstallationsregistreringar. Miljöer som du själv skapat och källkodskopior listas men tas aldrig bort, och dina projektmappar och resultat berörs aldrig. Om en kopia inte kan tas bort -- exempelvis ett macOS-program i ``/Applications`` som kräver administratörsbehörighet -- anger installationsprogrammet vilken och installerar inte den nya versionen."
 
 msgid "To see what it would find without changing anything, run the finder from a spaCR checkout: ``python spacr/install_cleanup.py find``."
@@ -369,7 +371,8 @@ msgstr "Containeravbilder"
 msgid "Two images are published to the GitHub Container Registry as part of every spaCR release, after that version reaches PyPI. Each one is built and then checked before it is pushed: it must report the version its tag claims, it must not run as root, and it must complete one pipeline run on a synthetic field. An image that fails a check is not published, and the workflow run that built it fails."
 msgstr "Två avbilder publiceras i GitHub Container Registry som en del av varje spaCR-version, efter att versionen har nått PyPI. Var och en byggs och kontrolleras sedan innan den publiceras: den måste rapportera den version som dess tagg anger, den får inte köras som root, och den måste slutföra en pipelinekörning på ett syntetiskt fält. En avbild som underkänns i en kontroll publiceras inte, och arbetsflödeskörningen som byggde den misslyckas."
 
-msgid "The public `GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available versions. The commands below use the published **1.5.1.0** images; not every older spaCR release has a container image."
+#, fuzzy
+msgid "The public `GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available versions. The commands below use the published **1.5.1.0** images; not every spaCR release has a container image."
 msgstr "Den publika `paketsidan på GHCR <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ listar tillgängliga versioner. Kommandona nedan använder de publicerade avbilderna för **1.5.1.0**; inte varje äldre spaCR-version har en containeravbild."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
@@ -382,13 +385,15 @@ msgstr "Bild"
 msgid "For"
 msgstr "För"
 
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.0``"
+#, fuzzy
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.0``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "Enbart CPU. Kör Linux x86-64-containrar med Docker eller Podman och behöver ingen GPU-drivrutin."
 
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``"
+#, fuzzy
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."

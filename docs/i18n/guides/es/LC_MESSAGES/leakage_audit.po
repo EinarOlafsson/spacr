@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
@@ -105,8 +105,8 @@ msgstr "Evaluación de clasificadores, calibración y diagnóstico de fugas entr
 msgid "The module is model-agnostic: it consumes labels, probabilities, fold ids, and sample paths. Deep-learning CV and future classical-ML pipelines can therefore write the same evaluation bundle and the Qt workbench can display one stable artifact format."
 msgstr "El módulo es independiente del modelo: consume etiquetas, probabilidades, identificadores de pliegue y rutas de muestras. Por tanto, la validación cruzada de aprendizaje profundo y las futuras canalizaciones de ML clásico pueden escribir el mismo conjunto de evaluación, y el banco de Qt puede mostrar un único formato de artefacto estable."
 
-msgid "Whole-CV proof that each related sample family belongs to one fold."
-msgstr "Prueba, sobre toda la validación cruzada, de que cada familia de muestras relacionadas pertenece a un solo pliegue."
+msgid "Result of auditing every cross-validation fold for leakage."
+msgstr ""
 
 msgid "Parameters"
 msgstr "Parámetros"
@@ -210,10 +210,12 @@ msgstr "clase opcional por ruta, un valor por ruta. Solo se usa para describir l
 msgid "identity level that may not cross a fold boundary -- ``none``, ``field``, ``well`` or ``plate``. A well-grouped split permits the same plate on both sides but never the same well."
 msgstr "nivel de identidad que no puede cruzar un límite de pliegue -- ``none``, ``field``, ``well`` o ``plate``. Una partición agrupada por pocillo permite la misma placa a ambos lados, pero nunca el mismo pocillo."
 
-msgid "also compare file CONTENT, so a byte-identical copy under a different name is caught. Costs one read per file."
+#, fuzzy
+msgid "also compare file contents, so a byte-identical copy under a different name is detected. Costs one read per file."
 msgstr "compara también el CONTENIDO de los archivos, de modo que se detecta una copia idéntica byte a byte con otro nombre. Cuesta una lectura por archivo."
 
-msgid "treat UNVERIFIABLE as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning -- so leaving this False means a clean report can still hide leakage nobody could check for."
+#, fuzzy
+msgid "treat unverifiable samples as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning, so with this False a passing report can include samples whose leakage was not checked."
 msgstr "trata lo NO VERIFICABLE como crítico. Un nombre de archivo que no codifica la identidad solicitada, o un archivo cuyo hash no puede calcularse, es en otro caso solo una advertencia -- dejar esto en False significa que un informe limpio aún puede ocultar fugas que nadie pudo comprobar."
 
 msgid "raise :class:`LeakageError` instead of returning a report whose ``passed`` is False."

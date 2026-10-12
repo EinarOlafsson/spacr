@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: es\n"
@@ -254,7 +254,8 @@ msgid "Recover original filenames before labelling conditions"
 msgstr "Recuperar nombres originales de archivos antes de etiquetar condiciones"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "If images were renamed to Yokogawa format, use **Merge original filenames…** inside **Merge tables** to recover the names recorded during conversion. Select ``conversion_map.csv``, a legacy ``rename_log.csv``, a ``channel_sorting_manifest.csv``, or a SQLite database containing the ``conversion_map`` table. The file picker starts near a known mapping when one is found beside the measurement database or in its parent folders. The mapping must contain recorded source-to-output relationships; this action does not infer treatment names from renamed images."
+#, fuzzy
+msgid "If images were renamed to Yokogawa format, use **Merge original filenames…** inside **Merge tables** to recover the names recorded during conversion. Select ``conversion_map.csv``, a ``rename_log.csv``, a ``channel_sorting_manifest.csv``, or a SQLite database containing the ``conversion_map`` table. The file picker starts near a known mapping when one is found beside the measurement database or in its parent folders. The mapping must contain recorded source-to-output relationships; this action does not infer treatment names from renamed images."
 msgstr "Si las imágenes se renombraron al formato Yokogawa, use **Fusionar nombres de archivo originales...** dentro de **Combinar tablas** para recuperar los nombres registrados durante la conversión. Seleccione ``conversion_map.csv``, un ``rename_log.csv`` antiguo, un ``channel_sorting_manifest.csv`` o una base de datos SQLite que contenga la tabla ``conversion_map``. El selector de archivos comienza cerca de una asignación conocida cuando encuentra una junto a la base de datos de mediciones o en sus carpetas superiores. La asignación debe contener relaciones registradas entre origen y salida; esta acción no deduce nombres de tratamientos a partir de imágenes renombradas."
 
 # AI technical review (Codex), no native-speaker signoff.

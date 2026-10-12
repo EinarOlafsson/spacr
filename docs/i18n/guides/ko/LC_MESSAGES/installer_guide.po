@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
@@ -102,12 +102,14 @@ msgid "The command is the same as the macOS recovery command below, using the ac
 msgstr "실행하는 명령은 아래의 macOS 복구 명령과 같으며, 실제 설치 디렉터리를 사용합니다. 업그레이드나 버전 확인에 실패하면 ``~/.spacr/logs/update.log``\\ 에 기록되며, 업데이트 성공 시의 자동 재실행은 수행되지 않습니다. spaCR이 안전하게 종료되지 못해도 업데이트가 중단됩니다. 별도의 독립 실행형 앱 번들은 번들 교체 절차를 사용합니다."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Older installations and full installers"
+#, fuzzy
+msgid "Existing installations and full installers"
 msgstr "이전 설치본과 전체 설치 프로그램"
 
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The full installers and other installer update paths look for spaCR installations an earlier installer made and remove them, so that only one installer-made copy remains. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer names it and does not install the new version."
+#, fuzzy
+msgid "The full installers and other installer update paths look for spaCR installations made by another spaCR installer and remove them, so that only one installer-made copy remains. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer names it and does not install the new version."
 msgstr "전체 설치 프로그램과 다른 설치 프로그램 기반 업데이트 경로는 이전 설치 프로그램이 만든 spaCR 설치본을 찾아 제거하여, 설치 프로그램이 만든 사본이 하나만 남도록 합니다. Windows 온라인·오프라인 설치본, macOS 앱과 사용자별 환경, Linux 온라인 설치본과 Debian 패키지를 그 실행기, 바로가기, 메뉴 항목, 제거 등록 정보와 함께 찾습니다. 직접 만든 환경과 소스 체크아웃은 목록에 표시하지만 제거하지 않으며, 프로젝트 폴더와 결과는 절대 건드리지 않습니다. 예를 들어 관리자 권한이 필요한 ``/Applications``\\ 의 macOS 앱처럼 제거할 수 없는 사본이 있으면, 설치 프로그램은 그 사본을 알리고 새 버전을 설치하지 않습니다."
 
 msgid "To see what it would find without changing anything, run the finder from a spaCR checkout: ``python spacr/install_cleanup.py find``."
@@ -369,7 +371,8 @@ msgstr "컨테이너 이미지"
 msgid "Two images are published to the GitHub Container Registry as part of every spaCR release, after that version reaches PyPI. Each one is built and then checked before it is pushed: it must report the version its tag claims, it must not run as root, and it must complete one pipeline run on a synthetic field. An image that fails a check is not published, and the workflow run that built it fails."
 msgstr "모든 spaCR 릴리스에서, 해당 버전이 PyPI에 올라간 뒤 두 이미지가 GitHub Container Registry에 게시됩니다. 각 이미지는 빌드된 다음 푸시되기 전에 검사를 받습니다. 태그가 주장하는 버전을 보고해야 하고, root로 실행되어서는 안 되며, 합성 시야에서 파이프라인 실행 하나를 완료해야 합니다. 검사에 실패한 이미지는 게시되지 않으며, 그 이미지를 빌드한 워크플로 실행은 실패합니다."
 
-msgid "The public `GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available versions. The commands below use the published **1.5.1.0** images; not every older spaCR release has a container image."
+#, fuzzy
+msgid "The public `GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available versions. The commands below use the published **1.5.1.0** images; not every spaCR release has a container image."
 msgstr "공개 `GHCR 패키지 페이지 <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ 에 사용 가능한 버전이 나열되어 있습니다. 아래 명령은 게시된 **1.5.1.0** 이미지를 사용합니다. 모든 이전 spaCR 릴리스에 컨테이너 이미지가 있는 것은 아닙니다."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
@@ -382,13 +385,15 @@ msgstr "이미지"
 msgid "For"
 msgstr "용도"
 
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.0``"
+#, fuzzy
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.0``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "CPU 전용. Docker나 Podman으로 Linux x86-64 컨테이너를 실행하며 GPU 드라이버가 필요 없습니다."
 
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``"
+#, fuzzy
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."

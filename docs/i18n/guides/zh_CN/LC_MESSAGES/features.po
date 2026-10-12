@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -244,6 +244,27 @@ msgstr "无障碍"
 msgid "Every control has a name that screen readers announce, taken from its label, tooltip or placeholder, and the names follow the interface language. **Tab** moves out of text boxes and tables to the next control instead of typing a tab. **Preferences → Appearance → Theme** offers **High contrast**, in which all text has a contrast ratio of at least 7:1 against its background."
 msgstr "每个控件都有屏幕阅读器会朗读的名称，取自其标签、工具提示或占位文本，并且名称跟随界面语言。**Tab** 会从文本框和表格移到下一个控件，而不是输入制表符。**偏好 → 外观 → 主题** 提供 **高对比度**，其中所有文字与背景的对比度至少为 7:1。"
 
+msgid "**Preferences → Appearance → Accessibility** gathers the settings that help most:"
+msgstr "**偏好 → 外观 → 辅助功能** 汇集了最有帮助的设置："
+
+msgid "**High contrast** chooses the High contrast theme. Clear it to return to the theme you had before. The Theme control shows the same choice."
+msgstr "**高对比度** 选择高对比度主题。取消勾选可返回之前的主题。主题控件显示的是同一选项。"
+
+msgid "**Text size** makes all text larger or smaller. It is the same setting as **Font scale** on the General tab."
+msgstr "**文字大小** 让所有文字变大或变小。它与常规选项卡上的 **字体缩放** 是同一项设置。"
+
+msgid "**Reduce motion** holds every animated backdrop still and turns off ripples, click ripples, popup waves and mouse gravity. Clear it to get your previous motion settings back exactly."
+msgstr "**减少动态效果** 让所有动画背景保持静止，并关闭涟漪、点击涟漪、弹出波纹和鼠标引力。取消勾选可原样恢复您之前的动态设置。"
+
+msgid "**Focus outlines** draws a thick outline round the control that has keyboard focus, in a colour that stands out in every theme."
+msgstr "**焦点轮廓** 在拥有键盘焦点的控件周围绘制粗轮廓，颜色在每个主题中都很醒目。"
+
+msgid "**Keyboard shortcuts…** opens the shortcut editor, where you can change the key for any action."
+msgstr "**键盘快捷键…** 打开快捷键编辑器，您可以在其中更改任何操作的按键。"
+
+msgid "Apply, Cancel and Save work as they do for every other preference."
+msgstr "应用、取消和保存的作用与其他所有偏好设置相同。"
+
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Data-art themes"
 msgstr "数据艺术主题"
@@ -288,8 +309,8 @@ msgid "**spaCR spinn** — Fine paper facets move gently and spin locally in res
 msgstr "**spaCR spinn** — 细薄的纸片状面片轻柔移动，并根据鼠标位置局部旋转。越靠近指针，旋转越快；速度在鼠标引力半径的边缘平滑降至零。改变半径会改变受影响的区域。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
-msgstr "**鼠标引力半径** 以屏幕较短边长的百分比设置影响区域。默认值为 **15%** ；设为 **0** 可禁用鼠标影响。**动画密度** 控制元素数量，与改变绘制分辨率的 **动画细节** 相互独立。密度最低为 **1%** ；增加细节不会减少已选定的元素数量。渲染器将采样工作限制在屏幕像素预算内。在 **动画调色板** 中选择 **随机** 可为每个元素使用随机颜色。新安装默认使用 **深色** 、**spaCR field** 和 **spaCR** 动画调色板，密度为 **10%** ，引力为 **15%** ，细节、速度和大小均为 **100%** ，页面不透明度为 **60%** 。**点闪烁** 控制闪烁为白色的可见点所占的百分比：**0** 禁用闪烁（默认值），非零范围为 0.00001% 至 10%。该设置适用于 spaCR field、spaCR advection、spaCR waves 和 spaCR stratified。场淡出已启用。蓝色边缘光使用周长的 **17%** 作为相对长度，跟随为 **50%** ，以指针为中心对齐，模式为 **Beat** ，周期为 **1.5 s** 。已有的已保存偏好设置会保留，直到用户更改或重置。"
+msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **10%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
+msgstr "**鼠标引力半径** 以屏幕较短边长的百分比设置影响区域。默认值为 **15%** ；设为 **0** 可禁用鼠标影响。**动画密度** 控制元素数量，与改变绘制分辨率的 **动画细节** 相互独立。密度最低为 **1%** ；增加细节不会减少已选定的元素数量。渲染器将采样工作限制在屏幕像素预算内。在 **动画调色板** 中选择 **随机** 可为每个元素使用随机颜色。新安装默认使用 **深色** 、**spaCR field** 和 **spaCR** 动画调色板，密度为 **10%** ，引力为 **10%** ，细节、速度和大小均为 **100%** ，页面不透明度为 **60%** 。**点闪烁** 控制闪烁为白色的可见点所占的百分比：**0** 禁用闪烁（默认值），非零范围为 0.00001% 至 10%。该设置适用于 spaCR field、spaCR advection、spaCR waves 和 spaCR stratified。场淡出已启用。蓝色边缘光使用周长的 **17%** 作为相对长度，跟随为 **50%** ，以指针为中心对齐，模式为 **Beat** ，周期为 **1.5 s** 。已有的已保存偏好设置会保留，直到用户更改或重置。"
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Animation background colour** sets the background independently of the animation palette. Until you choose a colour, it follows the page theme; **Theme colour** restores that behaviour. The chosen colour's brightness is kept within the active Dark or Light theme's range. It applies to the main window, module screens and animated settings popups. A full-screen wallpaper can cover the background fill."

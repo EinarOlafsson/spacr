@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -102,12 +102,14 @@ msgid "The command is the same as the macOS recovery command below, using the ac
 msgstr "该命令与下方的 macOS 恢复命令相同，但使用实际安装目录。升级或版本检查失败会记录在 ``~/.spacr/logs/update.log`` 中，且不会触发更新成功后的重新启动。如果 spaCR 无法安全完成关闭，更新也会停止。独立的冻结应用程序包使用其程序包替换流程。"
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "Older installations and full installers"
+#, fuzzy
+msgid "Existing installations and full installers"
 msgstr "旧版安装与完整安装程序"
 
 # AI technical review (Codex), no native-speaker signoff.
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The full installers and other installer update paths look for spaCR installations an earlier installer made and remove them, so that only one installer-made copy remains. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer names it and does not install the new version."
+#, fuzzy
+msgid "The full installers and other installer update paths look for spaCR installations made by another spaCR installer and remove them, so that only one installer-made copy remains. They find the Windows online and offline installs, the macOS application and its per-user environment, the Linux online install and the Debian package, together with their launchers, shortcuts, menu entries and uninstall registrations. Environments you created yourself and source checkouts are listed but never removed, and your project folders and results are never touched. If a copy cannot be removed -- for example a macOS application in ``/Applications`` that needs an administrator -- the installer names it and does not install the new version."
 msgstr "完整安装程序和其他安装程序更新流程会查找早期安装程序创建的 spaCR 安装并将其删除，从而只保留一个由安装程序创建的副本。它们查找 Windows 在线和离线安装、macOS 应用及其用户专用环境、Linux 在线安装和 Debian 软件包，以及对应的启动器、快捷方式、菜单项和卸载注册信息。自行创建的环境和源代码检出目录会被列出，但不会被删除；项目文件夹和结果也不会受到影响。如果无法删除某个副本——例如 ``/Applications`` 中需要管理员权限的 macOS 应用——安装程序会指出是哪一个，并且不安装新版本。"
 
 msgid "To see what it would find without changing anything, run the finder from a spaCR checkout: ``python spacr/install_cleanup.py find``."
@@ -369,7 +371,8 @@ msgstr "容器镜像"
 msgid "Two images are published to the GitHub Container Registry as part of every spaCR release, after that version reaches PyPI. Each one is built and then checked before it is pushed: it must report the version its tag claims, it must not run as root, and it must complete one pipeline run on a synthetic field. An image that fails a check is not published, and the workflow run that built it fails."
 msgstr "每次 spaCR 发布、且该版本已上传到 PyPI 之后，都会有两个镜像发布到 GitHub Container Registry。每个镜像在推送之前都会先构建再检查：它必须报告其标签所声明的版本，不得以 root 身份运行，并且必须在一个合成视野上完整运行一次流程。未通过检查的镜像不会被发布，构建它的工作流运行会失败。"
 
-msgid "The public `GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available versions. The commands below use the published **1.5.1.0** images; not every older spaCR release has a container image."
+#, fuzzy
+msgid "The public `GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available versions. The commands below use the published **1.5.1.0** images; not every spaCR release has a container image."
 msgstr "公开的 `GHCR 软件包页面 <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ 列出了可用的版本。下面的命令使用已发布的 **1.5.1.0** 镜像；并非每个较旧的 spaCR 版本都有容器镜像。"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
@@ -382,13 +385,15 @@ msgstr "图像"
 msgid "For"
 msgstr "用途"
 
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.0``"
+#, fuzzy
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.4``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.0``"
 
 msgid "CPU only. Runs Linux x86-64 containers with Docker or Podman and needs no GPU driver."
 msgstr "仅 CPU。使用 Docker 或 Podman 运行 Linux x86-64 容器，不需要 GPU 驱动程序。"
 
-msgid "``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``"
+#, fuzzy
+msgid "``ghcr.io/einarolafsson/spacr:1.5.1.4-cuda12.4``"
 msgstr "``ghcr.io/einarolafsson/spacr:1.5.1.0-cuda12.4``"
 
 msgid "CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU image."

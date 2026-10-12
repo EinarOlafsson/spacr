@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
@@ -65,6 +65,21 @@ msgstr "När monteringssökvägarna skiljer sig anger du en *lokal rot för data
 
 msgid "Settings can be dragged onto the Distributed Jobs screen, selected with **Browse**, or handed off directly with **Submit remote…** in any ordinary module."
 msgstr "Inställningar kan dras till skärmen Distribuerade jobb, väljas med **Bläddra** eller lämnas över direkt med **Skicka till fjärrsystem…** i vilken vanlig modul som helst."
+
+msgid "Settings files from the GUI"
+msgstr "Inställningsfiler från GUI:t"
+
+msgid "Every module screen with **Import settings…** has **Export settings…** next to it. It saves the values currently in the form, exactly what **Run** would use, to a CSV you choose. Nothing runs: the source folder is not listed or opened, so a form set up for a slow network share is saved at once. The dialog suggests ``<module>_settings.csv`` in the source folder."
+msgstr "Varje modulskärm med **Importera inställningar…** har **Exportera inställningar…** bredvid. Det sparar värdena som just nu står i formuläret, precis det som **Kör** skulle använda, till en CSV som du väljer. Inget körs: källmappen listas eller öppnas inte, så ett formulär som är inställt för en långsam nätverksresurs sparas direkt. Dialogrutan föreslår ``<module>_settings.csv`` i källmappen."
+
+msgid "The file has the layout spaCR writes into ``<src>/settings/`` at the start of every run: a ``Key,Value`` header and one row per setting, with lists in Python form (``[0, 1, 2]``), ``True``/``False`` and empty cells for unset values. Paths are saved exactly as the form shows them. A ``.json`` copy with the same settings is written beside it. **Import settings…** reads the file back to the same form values, and the command line runs it unchanged::"
+msgstr "Filen har den layout som spaCR skriver i ``<src>/settings/`` i början av varje körning: en rubrikrad ``Key,Value`` och en rad per inställning, med listor i Python-form (``[0, 1, 2]``), ``True``/``False`` och tomma celler för ej satta värden. Sökvägar sparas exakt som formuläret visar dem. En ``.json``-kopia med samma inställningar skrivs bredvid. **Importera inställningar…** läser tillbaka filen till samma formulärvärden, och kommandoraden kör den oförändrad::"
+
+msgid "From Python, ``spacr.cli.load_settings_file`` reads it and ``spacr.cli.write_settings_file`` writes one. When the cluster mounts the data under another path, change ``src`` with ``--set src=/cluster/projects/plate-A`` or use the dataset roots of an execution profile."
+msgstr "Från Python läser ``spacr.cli.load_settings_file`` den och ``spacr.cli.write_settings_file`` skriver en. När klustret monterar data under en annan sökväg, ändra ``src`` med ``--set src=/cluster/projects/plate-A`` eller använd datamängdsrötterna i en körprofil."
+
+msgid "After **Submit remote…**, **Save settings CSV…** on the Distributed Jobs screen saves the snapshot it received as the same file. Submitting is unchanged."
+msgstr "Efter **Skicka till fjärrsystem…** sparar **Spara inställnings-CSV…** på skärmen Distribuerade jobb ögonblicksbilden den fick som samma fil. Att skicka är oförändrat."
 
 msgid "Command-line workflow"
 msgstr "Arbetsflöde på kommandoraden"

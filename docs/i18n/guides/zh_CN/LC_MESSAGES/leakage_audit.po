@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -105,8 +105,8 @@ msgstr "分类器评估、校准以及划分泄漏诊断。"
 msgid "The module is model-agnostic: it consumes labels, probabilities, fold ids, and sample paths. Deep-learning CV and future classical-ML pipelines can therefore write the same evaluation bundle and the Qt workbench can display one stable artifact format."
 msgstr "该模块与模型无关：它使用标签、概率、折 ID 和样本路径。因此，深度学习交叉验证和未来的经典机器学习流程都可以写入相同的评估文件集，Qt 工作台可以显示一种稳定的产物格式。"
 
-msgid "Whole-CV proof that each related sample family belongs to one fold."
-msgstr "整个交叉验证范围内每个相关样本族只属于一个折的证明。"
+msgid "Result of auditing every cross-validation fold for leakage."
+msgstr ""
 
 msgid "Parameters"
 msgstr "参数"
@@ -210,10 +210,12 @@ msgstr "每个路径可选的类别，每个路径一个值。仅用于描述各
 msgid "identity level that may not cross a fold boundary -- ``none``, ``field``, ``well`` or ``plate``. A well-grouped split permits the same plate on both sides but never the same well."
 msgstr "不得跨越折边界的标识层级——``none``、``field``、``well`` 或 ``plate``。按孔分组的划分允许同一孔板出现在两侧，但绝不允许同一个孔。"
 
-msgid "also compare file CONTENT, so a byte-identical copy under a different name is caught. Costs one read per file."
+#, fuzzy
+msgid "also compare file contents, so a byte-identical copy under a different name is detected. Costs one read per file."
 msgstr "同时比较文件内容（CONTENT），以便发现名称不同但字节完全相同的副本。每个文件需读取一次。"
 
-msgid "treat UNVERIFIABLE as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning -- so leaving this False means a clean report can still hide leakage nobody could check for."
+#, fuzzy
+msgid "treat unverifiable samples as critical. A filename that does not encode the requested identity, or a file that cannot be hashed, is otherwise only a warning, so with this False a passing report can include samples whose leakage was not checked."
 msgstr "将无法验证（UNVERIFIABLE）视为严重问题。否则，未编码所请求标识的文件名或无法计算哈希的文件只会产生警告——因此若将其保持为 False，一份干净的报告仍可能隐藏无人能够检查的泄漏。"
 
 msgid "raise :class:`LeakageError` instead of returning a report whose ``passed`` is False."

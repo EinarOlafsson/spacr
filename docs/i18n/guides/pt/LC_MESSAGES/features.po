@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: pt\n"
@@ -244,6 +244,27 @@ msgstr "Acessibilidade"
 msgid "Every control has a name that screen readers announce, taken from its label, tooltip or placeholder, and the names follow the interface language. **Tab** moves out of text boxes and tables to the next control instead of typing a tab. **Preferences → Appearance → Theme** offers **High contrast**, in which all text has a contrast ratio of at least 7:1 against its background."
 msgstr "Todo controle tem um nome anunciado pelos leitores de tela, obtido de seu rótulo, sua dica de ferramenta ou seu texto de espaço reservado, e os nomes seguem o idioma da interface. **Tab** sai das caixas de texto e das tabelas para o próximo controle, em vez de inserir uma tabulação. **Preferências → Aparência → Tema** oferece **Alto contraste**, em que todo texto tem uma razão de contraste de pelo menos 7:1 em relação ao fundo."
 
+msgid "**Preferences → Appearance → Accessibility** gathers the settings that help most:"
+msgstr "**Preferências → Aparência → Acessibilidade** reúne as configurações que mais ajudam:"
+
+msgid "**High contrast** chooses the High contrast theme. Clear it to return to the theme you had before. The Theme control shows the same choice."
+msgstr "**Alto contraste** escolhe o tema Alto contraste. Desmarque para voltar ao tema que você tinha antes. O controle Tema mostra a mesma escolha."
+
+msgid "**Text size** makes all text larger or smaller. It is the same setting as **Font scale** on the General tab."
+msgstr "**Tamanho do texto** deixa todo o texto maior ou menor. É a mesma configuração que **Escala da fonte** na aba Geral."
+
+msgid "**Reduce motion** holds every animated backdrop still and turns off ripples, click ripples, popup waves and mouse gravity. Clear it to get your previous motion settings back exactly."
+msgstr "**Reduzir movimento** mantém parados todos os planos de fundo animados e desliga as ondas, as ondas de clique, as ondas de pop-up e a gravidade do mouse. Desmarque para recuperar exatamente suas configurações de movimento anteriores."
+
+msgid "**Focus outlines** draws a thick outline round the control that has keyboard focus, in a colour that stands out in every theme."
+msgstr "**Contornos de foco** desenha um contorno grosso em volta do controle que tem o foco do teclado, em uma cor que se destaca em todos os temas."
+
+msgid "**Keyboard shortcuts…** opens the shortcut editor, where you can change the key for any action."
+msgstr "**Atalhos de teclado…** abre o editor de atalhos, onde você pode mudar a tecla de qualquer ação."
+
+msgid "Apply, Cancel and Save work as they do for every other preference."
+msgstr "Aplicar, Cancelar e Salvar funcionam como em qualquer outra preferência."
+
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Data-art themes"
 msgstr "Temas de arte de dados"
@@ -288,8 +309,8 @@ msgid "**spaCR spinn** — Fine paper facets move gently and spin locally in res
 msgstr "**spaCR spinn** As facetas finas do papel movem-se suavemente e giram localmente em resposta ao mouse. A rotação é mais rápida ao lado do ponteiro e desaparece suavemente a zero no raio de gravidade do mouse; mudando o raio muda a área afetada."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
-msgstr "**Raio da gravidade do mouse** define a área afetada como percentagem do lado mais curto do ecrã. O valor padrão é **15%**; defina **0** para desativar a influência do rato. **Densidade da animação** altera o número de elementos independentemente de **Detalhe da animação**, que altera a resolução do desenho. A densidade tem um mínimo de **1%**; aumentar o detalhe não reduz a população escolhida. O renderizador limita o trabalho de amostragem ao orçamento de píxeis do ecrã. Selecione **Aleatório** em **Paleta de animação** para atribuir cores a cada elemento. As novas instalações usam **Escuro**, **spaCR field** e a paleta **spaCR**, com densidade **10%**, gravidade **15%**, detalhe, velocidade e tamanho **100%**, e opacidade da página **60%**. **Piscar dos pontos** controla a percentagem de pontos visíveis que piscam a branco: **0** desativa o efeito (o padrão), e os valores não nulos variam de 0,00001% a 10%. Esta definição aplica-se a spaCR field, spaCR advection, spaCR waves e spaCR stratified. O desvanecimento do campo está ativado. A borda azul usa um comprimento relativo ao perímetro de **17%**, acompanhamento **50%**, alinhamento centrado, modo **Beat** e um ciclo de **1.5 s**. As preferências já guardadas mantêm-se até serem alteradas ou repostas."
+msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **10%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
+msgstr "**Raio da gravidade do mouse** define a área afetada como percentagem do lado mais curto do ecrã. O valor padrão é **15%**; defina **0** para desativar a influência do rato. **Densidade da animação** altera o número de elementos independentemente de **Detalhe da animação**, que altera a resolução do desenho. A densidade tem um mínimo de **1%**; aumentar o detalhe não reduz a população escolhida. O renderizador limita o trabalho de amostragem ao orçamento de píxeis do ecrã. Selecione **Aleatório** em **Paleta de animação** para atribuir cores a cada elemento. As novas instalações usam **Escuro**, **spaCR field** e a paleta **spaCR**, com densidade **10%**, gravidade **10%**, detalhe, velocidade e tamanho **100%**, e opacidade da página **60%**. **Piscar dos pontos** controla a percentagem de pontos visíveis que piscam a branco: **0** desativa o efeito (o padrão), e os valores não nulos variam de 0,00001% a 10%. Esta definição aplica-se a spaCR field, spaCR advection, spaCR waves e spaCR stratified. O desvanecimento do campo está ativado. A borda azul usa um comprimento relativo ao perímetro de **17%**, acompanhamento **50%**, alinhamento centrado, modo **Beat** e um ciclo de **1.5 s**. As preferências já guardadas mantêm-se até serem alteradas ou repostas."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Animation background colour** sets the background independently of the animation palette. Until you choose a colour, it follows the page theme; **Theme colour** restores that behaviour. The chosen colour's brightness is kept within the active Dark or Light theme's range. It applies to the main window, module screens and animated settings popups. A full-screen wallpaper can cover the background fill."

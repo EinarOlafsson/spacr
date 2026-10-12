@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
@@ -65,6 +65,21 @@ msgstr "마운트 경로가 다르면 *Local dataset root* 와 *Remote dataset r
 
 msgid "Settings can be dragged onto the Distributed Jobs screen, selected with **Browse**, or handed off directly with **Submit remote…** in any ordinary module."
 msgstr "설정은 분산 작업 화면에 끌어다 놓거나, **찾아보기** 로 선택하거나, 일반 모듈에서 **원격 제출…** 로 바로 넘길 수 있습니다."
+
+msgid "Settings files from the GUI"
+msgstr "GUI에서 설정 파일 만들기"
+
+msgid "Every module screen with **Import settings…** has **Export settings…** next to it. It saves the values currently in the form, exactly what **Run** would use, to a CSV you choose. Nothing runs: the source folder is not listed or opened, so a form set up for a slow network share is saved at once. The dialog suggests ``<module>_settings.csv`` in the source folder."
+msgstr "**설정 가져오기…** 가 있는 모든 모듈 화면에는 그 옆에 **설정 내보내기…** 가 있습니다. 현재 양식에 있는 값, 즉 **실행** 이 사용할 값 그대로를 선택한 CSV에 저장합니다. 아무것도 실행되지 않습니다. 소스 폴더를 나열하거나 열지 않으므로 느린 네트워크 공유용으로 설정한 양식도 즉시 저장됩니다. 대화 상자는 소스 폴더에 ``<module>_settings.csv`` 를 제안합니다."
+
+msgid "The file has the layout spaCR writes into ``<src>/settings/`` at the start of every run: a ``Key,Value`` header and one row per setting, with lists in Python form (``[0, 1, 2]``), ``True``/``False`` and empty cells for unset values. Paths are saved exactly as the form shows them. A ``.json`` copy with the same settings is written beside it. **Import settings…** reads the file back to the same form values, and the command line runs it unchanged::"
+msgstr "파일은 spaCR가 모든 실행의 시작에 ``<src>/settings/`` 에 쓰는 레이아웃을 가집니다. ``Key,Value`` 머리글과 설정당 한 행이며, 리스트는 Python 형태(``[0, 1, 2]``), ``True``/``False``, 설정되지 않은 값은 빈 셀입니다. 경로는 양식이 보여 주는 그대로 저장됩니다. 같은 설정을 담은 ``.json`` 사본이 옆에 쓰입니다. **설정 가져오기…** 는 파일을 같은 양식 값으로 다시 읽고, 명령줄은 이를 그대로 실행합니다::"
+
+msgid "From Python, ``spacr.cli.load_settings_file`` reads it and ``spacr.cli.write_settings_file`` writes one. When the cluster mounts the data under another path, change ``src`` with ``--set src=/cluster/projects/plate-A`` or use the dataset roots of an execution profile."
+msgstr "Python에서는 ``spacr.cli.load_settings_file`` 이 읽고 ``spacr.cli.write_settings_file`` 이 하나를 씁니다. 클러스터가 데이터를 다른 경로에 마운트하면 ``--set src=/cluster/projects/plate-A`` 로 ``src`` 를 바꾸거나 실행 프로필의 데이터셋 루트를 사용하세요."
+
+msgid "After **Submit remote…**, **Save settings CSV…** on the Distributed Jobs screen saves the snapshot it received as the same file. Submitting is unchanged."
+msgstr "**원격 제출…** 후에는 분산 작업 화면의 **설정 CSV 저장…** 이 받은 스냅샷을 같은 파일로 저장합니다. 제출 자체는 달라지지 않습니다."
 
 msgid "Command-line workflow"
 msgstr "명령줄 워크플로"

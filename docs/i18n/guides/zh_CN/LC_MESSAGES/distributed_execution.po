@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -65,6 +65,21 @@ msgstr "当挂载路径不同时，请设置 *Local dataset root* 和 *Remote da
 
 msgid "Settings can be dragged onto the Distributed Jobs screen, selected with **Browse**, or handed off directly with **Submit remote…** in any ordinary module."
 msgstr "可以将设置拖放到分布式作业屏幕上，使用 **浏览** 选择，或在任何普通模块中通过 **远程提交…** 直接移交。"
+
+msgid "Settings files from the GUI"
+msgstr "从 GUI 导出设置文件"
+
+msgid "Every module screen with **Import settings…** has **Export settings…** next to it. It saves the values currently in the form, exactly what **Run** would use, to a CSV you choose. Nothing runs: the source folder is not listed or opened, so a form set up for a slow network share is saved at once. The dialog suggests ``<module>_settings.csv`` in the source folder."
+msgstr "每个带有 **导入设置…** 的模块界面，在它旁边都有 **导出设置…**。它会把表单中当前的值，也就是 **运行** 会使用的值，保存到您选择的 CSV。不会运行任何东西：不会列出或打开源文件夹，因此为缓慢网络共享设置的表单也能立即保存。对话框会在源文件夹中建议 ``<module>_settings.csv``。"
+
+msgid "The file has the layout spaCR writes into ``<src>/settings/`` at the start of every run: a ``Key,Value`` header and one row per setting, with lists in Python form (``[0, 1, 2]``), ``True``/``False`` and empty cells for unset values. Paths are saved exactly as the form shows them. A ``.json`` copy with the same settings is written beside it. **Import settings…** reads the file back to the same form values, and the command line runs it unchanged::"
+msgstr "该文件的布局与 spaCR 在每次运行开始时写入 ``<src>/settings/`` 的相同：一个 ``Key,Value`` 表头，每项设置一行，列表采用 Python 形式（``[0, 1, 2]``），``True``/``False``，未设置的值为空单元格。路径按表单所显示的原样保存。旁边会写入一份包含相同设置的 ``.json`` 副本。**导入设置…** 会把文件读回到相同的表单值，而命令行可原样运行它::"
+
+msgid "From Python, ``spacr.cli.load_settings_file`` reads it and ``spacr.cli.write_settings_file`` writes one. When the cluster mounts the data under another path, change ``src`` with ``--set src=/cluster/projects/plate-A`` or use the dataset roots of an execution profile."
+msgstr "在 Python 中，``spacr.cli.load_settings_file`` 读取它，``spacr.cli.write_settings_file`` 写入一个。当集群把数据挂载在另一个路径下时，用 ``--set src=/cluster/projects/plate-A`` 修改 ``src``，或使用执行配置文件的数据集根目录。"
+
+msgid "After **Submit remote…**, **Save settings CSV…** on the Distributed Jobs screen saves the snapshot it received as the same file. Submitting is unchanged."
+msgstr "在 **远程提交…** 之后，分布式作业屏幕上的 **保存设置 CSV…** 会把收到的快照保存为同一个文件。提交本身不变。"
 
 msgid "Command-line workflow"
 msgstr "命令行工作流程"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
@@ -121,8 +121,9 @@ msgstr "Þetta er eðlileg niðurstaða stýriflæðis, ekki villa í vinnsluke�
 msgid "Return whether the calling worker has a pending cancellation request."
 msgstr "Skila hvort kallandi vinnsluþráður hafi afturköllunarbeiðni í bið."
 
-msgid "Stop at this safe boundary when requested; otherwise do nothing."
-msgstr "Stöðva við þessi öruggu mörk þegar beðið er um það; annars gera ekkert."
+#, fuzzy
+msgid "Raise :class:`PipelineCancelled` if this thread's token was cancelled."
+msgstr "Kasta :class:`PipelineCancelled` þegar beðið var um afturköllun."
 
 msgid "Calls outside a managed worker are intentionally no-ops, so the same pipeline functions work through the GUI, CLI, notebooks, and tests."
 msgstr "Köll utan stýrðs vinnsluþráðar gera vísvitandi ekkert, svo sömu föll vinnslukeðjunnar virka í gegnum GUI, CLI, fartölvur og prófanir."

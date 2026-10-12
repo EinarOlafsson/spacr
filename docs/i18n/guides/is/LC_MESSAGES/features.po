@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
@@ -244,6 +244,27 @@ msgstr "Aðgengi"
 msgid "Every control has a name that screen readers announce, taken from its label, tooltip or placeholder, and the names follow the interface language. **Tab** moves out of text boxes and tables to the next control instead of typing a tab. **Preferences → Appearance → Theme** offers **High contrast**, in which all text has a contrast ratio of at least 7:1 against its background."
 msgstr "Hver stýring hefur heiti sem skjálesarar lesa upp, tekið úr merki hennar, skjábendingu eða staðgengilstexta, og heitin fylgja tungumáli viðmótsins. **Tab** færir úr textareitum og töflum í næstu stýringu í stað þess að skrifa dálkstopp. **Kjörstillingar → Útlit → Þema** býður upp á **Mikil birtuskil**, þar sem allur texti hefur birtuskilahlutfall að minnsta kosti 7:1 gagnvart bakgrunni sínum."
 
+msgid "**Preferences → Appearance → Accessibility** gathers the settings that help most:"
+msgstr "**Kjörstillingar → Útlit → Aðgengi** safnar saman þeim stillingum sem hjálpa mest:"
+
+msgid "**High contrast** chooses the High contrast theme. Clear it to return to the theme you had before. The Theme control shows the same choice."
+msgstr "**Mikil birtuskil** velur þemað Mikil birtuskil. Taktu hakið af til að fara aftur í þemað sem þú hafðir áður. Stýringin Þema sýnir sama val."
+
+msgid "**Text size** makes all text larger or smaller. It is the same setting as **Font scale** on the General tab."
+msgstr "**Textastærð** gerir allan texta stærri eða minni. Þetta er sama stilling og **Leturstærð** á flipanum Almennt."
+
+msgid "**Reduce motion** holds every animated backdrop still and turns off ripples, click ripples, popup waves and mouse gravity. Clear it to get your previous motion settings back exactly."
+msgstr "**Draga úr hreyfingu** heldur öllum hreyfimyndabakgrunnum kyrrum og slekkur á gárum, smellagárum, sprettgluggabylgjum og músarþyngdarafli. Taktu hakið af til að fá fyrri hreyfistillingar þínar nákvæmlega til baka."
+
+msgid "**Focus outlines** draws a thick outline round the control that has keyboard focus, in a colour that stands out in every theme."
+msgstr "**Fókusútlínur** teiknar þykka útlínu utan um stýringuna sem hefur lyklaborðsfókusinn, í lit sem sker sig úr í hverju þema."
+
+msgid "**Keyboard shortcuts…** opens the shortcut editor, where you can change the key for any action."
+msgstr "**Flýtilyklar…** opnar flýtilyklaritilinn, þar sem þú getur breytt lyklinum fyrir hvaða aðgerð sem er."
+
+msgid "Apply, Cancel and Save work as they do for every other preference."
+msgstr "Beita, Hætta við og Vista virka eins og fyrir allar aðrar stillingar."
+
 # AI technical review (Codex), no native-speaker signoff.
 msgid "Data-art themes"
 msgstr "Þemu með gagnalist"
@@ -288,8 +309,8 @@ msgid "**spaCR spinn** — Fine paper facets move gently and spin locally in res
 msgstr "**spaCR spinn** — Fíngerðir pappírsfletir hreyfast mjúklega og snúast staðbundið til að bregðast við músinni. Snúningurinn er hraðastur næst bendlinum og minnkar mjúklega niður í núll við jaðar þyngdarsviðs músarinnar; radíusinn ákvarðar stærð svæðisins sem verður fyrir áhrifum."
 
 # AI technical review (Codex), no native-speaker signoff.
-msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **15%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
-msgstr "**Radíus þyngdarsviðs músar** skilgreinir áhrifasvæðið sem hlutfall af styttri skjábrúninni. Sjálfgefið gildi er **15%**; veldu **0** til að slökkva á áhrifum músarinnar. **Þéttleiki hreyfimyndar** breytir fjölda eininga óháð **Smáatriði hreyfimyndar**, sem breytir upplausn teikningarinnar. Lágmarksþéttleiki er **1%**; aukin smáatriði fækka ekki þeim einingum sem voru valdar. Teiknarinn takmarkar sýnatökuvinnu sína við mynddílafjölda skjásins. Veldu **Handahófskennt** í **Litapalletta hreyfimyndar** til að fá lit fyrir hverja einingu. Nýjar uppsetningar nota **Dökkt**, **spaCR field** og **spaCR** litapallettuna, með þéttleika **10%**, þyngdarsvið **15%**, smáatriði, hraða og stærð **100%** og ógagnsæi síðu **60%**. **Blikk punkta** stjórnar hlutfalli sýnilegra punkta sem blikka hvítir: **0** slekkur á því (sjálfgefið), og önnur gildi eru frá 0,00001% til 10%. Stillingin á við spaCR field, spaCR advection, spaCR waves og spaCR stratified. Dofnun sviðsins er virk. Blái jaðarinn notar hlutfallslega lengd **17%** af ummáli, eftirfylgni **50%**, miðjaða staðsetningu, haminn **Beat** og lotu **1.5 s**. Vistaðar stillingar haldast þar til þeim er breytt eða þær endurstilltar."
+msgid "**Mouse gravity radius** sets the affected area as a percentage of the shorter screen edge. Its default is **15%**; set it to **0** to disable mouse influence. **Animation density** changes the number of elements independently of **Animation detail**, which changes drawing resolution. Density has a minimum of **1%**; increasing Detail does not trim the chosen population. The renderer bounds its sampling work within the screen's pixel budget. Select **Random** in **Animation palette** for per-element colours. Fresh installations use **Dark**, **spaCR field** and the **spaCR** animation palette, with Density **10%**, Gravity **10%**, Detail, Speed and Size **100%**, and Page opacity **60%**. **Dot blinking** controls the percentage of visible dots that flash white: **0** switches it off (the default), and nonzero values range from 0.00001% to 10%. The setting applies to spaCR field, spaCR advection, spaCR waves and spaCR stratified. Field fade is on. The blue rim uses a relative perimeter length of **17%**, Chase **50%**, centred alignment, **Beat** mode and a **1.5 s** cycle. Existing saved preferences remain in effect until changed or reset."
+msgstr "**Radíus þyngdarsviðs músar** skilgreinir áhrifasvæðið sem hlutfall af styttri skjábrúninni. Sjálfgefið gildi er **15%**; veldu **0** til að slökkva á áhrifum músarinnar. **Þéttleiki hreyfimyndar** breytir fjölda eininga óháð **Smáatriði hreyfimyndar**, sem breytir upplausn teikningarinnar. Lágmarksþéttleiki er **1%**; aukin smáatriði fækka ekki þeim einingum sem voru valdar. Teiknarinn takmarkar sýnatökuvinnu sína við mynddílafjölda skjásins. Veldu **Handahófskennt** í **Litapalletta hreyfimyndar** til að fá lit fyrir hverja einingu. Nýjar uppsetningar nota **Dökkt**, **spaCR field** og **spaCR** litapallettuna, með þéttleika **10%**, þyngdarsvið **10%**, smáatriði, hraða og stærð **100%** og ógagnsæi síðu **60%**. **Blikk punkta** stjórnar hlutfalli sýnilegra punkta sem blikka hvítir: **0** slekkur á því (sjálfgefið), og önnur gildi eru frá 0,00001% til 10%. Stillingin á við spaCR field, spaCR advection, spaCR waves og spaCR stratified. Dofnun sviðsins er virk. Blái jaðarinn notar hlutfallslega lengd **17%** af ummáli, eftirfylgni **50%**, miðjaða staðsetningu, haminn **Beat** og lotu **1.5 s**. Vistaðar stillingar haldast þar til þeim er breytt eða þær endurstilltar."
 
 # AI technical review (Codex), no native-speaker signoff.
 msgid "**Animation background colour** sets the background independently of the animation palette. Until you choose a colour, it follows the page theme; **Theme colour** restores that behaviour. The chosen colour's brightness is kept within the active Dark or Light theme's range. It applies to the main window, module screens and animated settings popups. A full-screen wallpaper can cover the background fill."

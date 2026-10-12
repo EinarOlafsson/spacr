@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Codex (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -295,7 +295,8 @@ msgstr "请求的日志模式不安全/不受支持，或 SQLite 拒绝应用时
 msgid "Put ``path`` into WAL when the filesystem allows it. Never raises."
 msgstr "在文件系统允许时将 ``path`` 切换为 WAL。绝不抛出异常。"
 
-msgid "WHY THIS EXISTS (issue #15, \"measurements sometimes hangs\"). Measure runs one worker per field and every append goes through pandas' ``DataFrame.to_sql``, which issues a ``has_table`` probe -- a READ -- before writing. So each worker alternates read, write, read, write against one file."
+#, fuzzy
+msgid "This addresses issue #15 (\"measurements sometimes hangs\"). Measure runs one worker per field and every append goes through pandas' ``DataFrame.to_sql``, which issues a ``has_table`` probe -- a read -- before writing. So each worker alternates read, write, read, write against one file."
 msgstr "为什么存在此功能（问题 #15，“measurements sometimes hangs”）。测量模块为每个视野运行一个工作进程，每次追加都通过 pandas 的 ``DataFrame.to_sql`` 进行，它在写入前会先执行一次 ``has_table`` 探测——即一次读取（READ）。因此，每个工作进程都会针对同一个文件交替进行读、写、读、写。"
 
 msgid "Under the shipped rollback journal that combination starves the writer. A reader holds SHARED for the length of its statement, and a writer cannot COMMIT until every SHARED lock is gone, so with enough workers there is almost always someone reading and the committing worker waits out its busy timeout and raises \"database is locked\" -- usually surfacing on the next process's ``has_table``, which is the statement in the reporter's traceback."
@@ -307,19 +308,23 @@ msgstr "在完全相同的情形下测得：当一个读取者持有一个打开
 msgid "journal_mode=delete    writer waited 1.037 s journal_mode=wal       writer waited 0.002 s"
 msgstr "journal_mode=delete    写入者等待 1.037 s journal_mode=wal       写入者等待 0.002 s"
 
-msgid "WAL readers do not block a writer at all, which removes the starvation. It does NOT make two WRITERS concurrent -- SQLite still serialises those -- so this fixes the reader-blocks-writer half, which is the half the traceback is in."
+#, fuzzy
+msgid "WAL readers do not block a writer, which removes the starvation. WAL does not make two writers concurrent -- SQLite still serialises those -- so this fixes only readers blocking a writer, which is the case in the traceback."
 msgstr "WAL 读取者完全不会阻塞写入者，从而消除了饥饿。它并不会使两个写入者（WRITERS）并发——SQLite 仍会将它们串行化——所以这修复的是读取者阻塞写入者的那一半，也就是回溯所在的那一半。"
 
-msgid "(The first version of this note had the direction backwards, claiming reads were blocked by writes. The test written to prove it measured 0.000 s and refuted it: in rollback-journal mode a writer holding RESERVED does not block readers, only its brief EXCLUSIVE commit does.)"
+#, fuzzy
+msgid "The reverse direction is not a problem: in rollback-journal mode a writer holding RESERVED does not block readers; only its brief EXCLUSIVE commit does."
 msgstr "（此说明的第一个版本把方向弄反了，声称读取被写入阻塞。为证明这一点而编写的测试测得 0.000 s，从而否定了它：在回滚日志模式下，持有 RESERVED 的写入者不会阻塞读取者，只有其短暂的 EXCLUSIVE 提交才会。）"
 
-msgid "Called once when a database is opened for a run rather than per write: the mode is a property of the FILE and persists, so paying for it per connection would buy nothing."
+#, fuzzy
+msgid "Called once when a database is opened for a run rather than per write: the journal mode is stored in the database file and persists, so setting it per connection has no further effect."
 msgstr "在为一次运行打开数据库时调用一次，而不是每次写入时调用：该模式是文件（FILE）的属性并会持久保存，因此为每个连接付出代价毫无意义。"
 
 msgid "the database to switch. A file that does not exist yet is created by the connection, which is fine -- the mode persists."
 msgstr "要切换的数据库。尚不存在的文件会由连接创建，这没有问题——模式会持久保存。"
 
-msgid "the journal mode in force afterwards, or ``None`` when the database could not be opened at all."
+#, fuzzy
+msgid "the journal mode in force afterwards, or ``None`` when :func:`wal_is_safe_here` is ``False`` (nothing is changed) or the database could not be opened or queried."
 msgstr "之后生效的日志模式；如果完全无法打开数据库，则为 ``None``。"
 
 msgid "Best-effort filesystem type for ``path``, or None when unknowable."
@@ -413,13 +418,16 @@ msgstr "当锁的持续时间超过重试预算时。"
 msgid "when asked to nest inside an active transaction outside a writer-owned packet. Queued helper transactions use savepoints within that packet."
 msgstr "在写入器所管理的数据包之外，请求嵌套到活动事务中时。排队的辅助函数事务在该数据包内使用保存点。"
 
-msgid "Is ``path`` on a filesystem where WAL is known to behave?"
+#, fuzzy
+msgid "Return whether ``path`` is on a filesystem where WAL is known to work."
 msgstr "``path`` 是否位于已知 WAL 能正常工作的文件系统上？"
 
-msgid "``True`` only for a POSITIVELY IDENTIFIED local filesystem. Anything else -- a network type, an unrecognised type, or a platform where :func:`filesystem_type` cannot tell (it reads ``/proc/mounts``, so macOS and Windows always answer ``None``) -- is ``False``."
+#, fuzzy
+msgid "``True`` only when the filesystem type is identified and listed in ``WAL_SAFE_FILESYSTEMS``. Anything else -- a network type, an unrecognised type, or a path whose type :func:`filesystem_type` cannot determine (it returns ``None``) -- is ``False``."
 msgstr "仅对被明确识别（POSITIVELY IDENTIFIED）的本地文件系统返回 ``True``。其他任何情况——网络类型、无法识别的类型，或 :func:`filesystem_type` 无法判断的平台（它读取 ``/proc/mounts``，因此 macOS 和 Windows 总是返回 ``None``）——都返回 ``False``。"
 
-msgid "That asymmetry is the point. The cost of a wrong ``False`` is the lock contention this project already survives; the cost of a wrong ``True`` is WAL shared memory on storage that cannot support it, which is a corrupted database."
+#, fuzzy
+msgid "The default is ``False`` because the two errors differ in cost: a wrong ``False`` leaves the rollback journal and its lock contention in place, while a wrong ``True`` puts WAL shared memory on storage that cannot support it, which can corrupt the database."
 msgstr "这种不对称正是关键所在。错误返回 ``False`` 的代价是本项目本来就能承受的锁竞争；错误返回 ``True`` 的代价是在无法支持的存储上使用 WAL 共享内存，也就是一个损坏的数据库。"
 
 msgid "the database file (or its directory) whose filesystem is looked up with :func:`filesystem_type`."

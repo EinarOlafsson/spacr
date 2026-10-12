@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-10 19:50-0400\n"
+"POT-Creation-Date: 2026-10-12 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
@@ -37,7 +37,8 @@ msgstr "Placez les images d’entraînement dans un dossier et leurs masques dan
 msgid "Each mask must have the same height and width as its image. Use integer object labels: zero for background and a different positive number for each object. A mask filename can match its image or add ``_masks`` before the extension, such as ``field_01_masks.tif``. Keep one matching mask per image."
 msgstr "Chaque masque doit avoir la même hauteur et la même largeur que son image. Utilisez des étiquettes d’objet entières : zéro pour l’arrière-plan et un nombre positif différent pour chaque objet. Le nom d’un fichier de masque peut être identique à celui de son image ou ajouter ``_masks`` avant l’extension, comme ``field_01_masks.tif``. Conservez un seul masque correspondant par image."
 
-msgid "Use Make Masks to inspect and correct object boundaries before training. Keep separate fields for validation. You can reuse a legacy project containing ``train/images`` and ``train/masks`` by selecting that project as Source."
+#, fuzzy
+msgid "Use Make Masks to inspect and correct object boundaries before training. Keep separate fields for validation. A project containing ``train/images`` and ``train/masks`` can also be selected as Source."
 msgstr "Utilisez Créer des masques pour examiner et corriger les contours des objets avant l’entraînement. Réservez des champs distincts pour la validation. Vous pouvez réutiliser un ancien projet contenant ``train/images`` et ``train/masks`` en le sélectionnant comme source."
 
 msgid "Choose inputs and settings"
