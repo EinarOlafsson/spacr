@@ -21,11 +21,12 @@ from __future__ import annotations
 
 import logging
 import math
+import weakref
 from typing import Optional
 
 from PySide6.QtCore import QEvent, QObject, QRectF, Qt
-from PySide6.QtGui import (QBrush, QColor, QLinearGradient, QPainter, QPen,
-                           QPixmap)
+from PySide6.QtGui import (QBrush, QColor, QImage, QLinearGradient, QPainter,
+                           QPen, QPixmap)
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QAbstractSpinBox,
@@ -99,6 +100,7 @@ def invalidate_field_fade() -> None:
     _enabled = None
     _forget_painting_theme()
     _CHROME.clear()
+    _recall_chrome()
 
 
 def fades(widget) -> bool:
@@ -233,6 +235,20 @@ def paint_field_fade(widget, painter: QPainter, theme: Optional[str] = None
     :param painter: an active painter whose coordinates are the widget's.
     :param theme: theme name; ``None`` resolves the effective one.
     """
+    pixmap = _chrome_of(widget, painter.device().devicePixelRatioF(), theme)
+    if pixmap is not None:
+        painter.drawPixmap(0, 0, pixmap)
+
+
+def _chrome_of(widget, ratio: float, theme: Optional[str] = None
+               ) -> Optional[QPixmap]:
+    """The pixmap :func:`paint_field_fade` draws under ``widget``.
+
+    :param widget: the field.
+    :param ratio: the device pixel ratio it is painted at.
+    :param theme: theme name; ``None`` resolves the effective one.
+    :returns: ``None`` when the field is too small to have chrome.
+    """
     if theme is None:
         theme = _painting_theme()
     chrome = field_chrome(theme)
@@ -241,7 +257,7 @@ def paint_field_fade(widget, painter: QPainter, theme: Optional[str] = None
     inset = FIELD_BORDER_PX / 2.0
     rect = QRectF(widget.rect()).adjusted(inset, inset, -inset, -inset)
     if rect.width() <= 0.0 or rect.height() <= 0.0:
-        return
+        return None
 
     enabled = widget.isEnabled()
     if not enabled:
@@ -251,9 +267,68 @@ def paint_field_fade(widget, painter: QPainter, theme: Optional[str] = None
     else:
         fill_key, border_key = "fill", "border"
     size = widget.size()
-    painter.drawPixmap(0, 0, _chrome_pixmap(
-        size.width(), size.height(), painter.device().devicePixelRatioF(),
-        radius, tuple(chrome[fill_key]), tuple(chrome[border_key])))
+    return _chrome_pixmap(
+        size.width(), size.height(), ratio,
+        radius, tuple(chrome[fill_key]), tuple(chrome[border_key]))
+
+
+#: Fields whose chrome is painted elsewhere for now, each with the call that
+#: hands it back. The window's field composites the chrome of a field that
+#: has no focus into its frames, off the GUI thread, with the card
+#: backgrounds (:class:`spacr.qt.widgets.ambient._CardTints`), and the fade's
+#: filter is taken off the field meanwhile: over a moving field every field
+#: on screen repaints on every frame, and the filter was a Python call, a
+#: painter and a blend for each of them.
+_LENT: "weakref.WeakKeyDictionary" = weakref.WeakKeyDictionary()
+
+
+def _chrome_image(widget) -> Optional[QImage]:
+    """What the fade paints under ``widget`` now, for compositing it.
+
+    :param widget: any widget.
+    :returns: the chrome at a pixel ratio of one, the same pixels the filter
+        draws; ``None`` when the fade paints nothing under it, or when it has
+        focus, whose ring follows the pointer and the keyboard.
+    """
+    if (_filter is None or not isinstance(widget, FIELD_TYPES)
+            or not field_fade_enabled() or not fades(widget)
+            or widget.hasFocus()):
+        return None
+    pixmap = _chrome_of(widget, 1.0)
+    return None if pixmap is None else pixmap.toImage()
+
+
+def _lend_chrome(widget, give_back) -> None:
+    """Stop painting ``widget``'s chrome; someone else paints it.
+
+    :param widget: a field :func:`_chrome_image` answered for.
+    :param give_back: called when the chrome may have changed in a way no
+        event of the field's says, such as the fade being switched off or
+        uninstalled; it must hand the field back with
+        :func:`_take_back_chrome` before the next paint.
+    """
+    _LENT[widget] = give_back
+    if _filter is not None:
+        widget.removeEventFilter(_filter)
+
+
+def _take_back_chrome(widget) -> None:
+    """Paint ``widget``'s chrome here again.
+
+    :param widget: a field given to :func:`_lend_chrome`; one already
+        destroyed is skipped.
+    """
+    from shiboken6 import isValid
+
+    _LENT.pop(widget, None)
+    if _filter is not None and isValid(widget):
+        widget.installEventFilter(_filter)
+
+
+def _recall_chrome() -> None:
+    """Ask for every lent field back."""
+    for give_back in set(_LENT.values()):
+        give_back()
 
 
 class _FieldFadeFilter(QObject):
@@ -275,7 +350,7 @@ class _FieldFadeFilter(QObject):
         """
         kind = event.type()
         if kind == QEvent.Type.Polish:
-            if isinstance(obj, FIELD_TYPES):
+            if isinstance(obj, FIELD_TYPES) and obj not in _LENT:
                 obj.installEventFilter(self)
             return False
         if kind != QEvent.Type.Paint:
@@ -302,7 +377,7 @@ def _watch_fields(app) -> None:
     """Hear every widget's polish, and filter the fields that already exist."""
     _watch_application_events(app, _filter, (QEvent.Type.Polish,))
     for widget in app.allWidgets():
-        if isinstance(widget, FIELD_TYPES):
+        if isinstance(widget, FIELD_TYPES) and widget not in _LENT:
             widget.installEventFilter(_filter)
 
 
@@ -330,6 +405,7 @@ def uninstall_field_fade(app=None) -> bool:
     global _filter
     if _filter is None:
         return False
+    _recall_chrome()
     app = app or QApplication.instance()
     if app is not None:
         _stop_watching_application_events(app, _filter)

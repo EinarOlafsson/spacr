@@ -20,7 +20,7 @@ import time
 from functools import partial
 from html import escape
 from typing import Callable, Optional
-from weakref import WeakMethod
+from weakref import WeakMethod, WeakSet
 
 from PySide6.QtCore import (
     QEvent, QObject, QRect, QSize, Qt, QThread, QTimer, Signal,
@@ -2021,6 +2021,45 @@ def export_settings_csv(parent, settings: dict, default_path: str) -> list:
     written = write_settings_file(settings, path)
     _SETTINGS_CSV_FOLDER["last"] = os.path.dirname(written[0])
     return written
+
+
+#: The events :meth:`AppScreen.eventFilter` acts on for the widgets that
+#: carry hover help.
+_HINT_EVENTS = frozenset((QEvent.ToolTip, QEvent.Enter, QEvent.Leave))
+
+
+class _HintWatcher(QObject):
+    """Hands a screen the hover and tooltip events of its help-carrying widgets.
+
+    The screen used to be an event filter on each setting caption, action
+    button and category header, and Qt asks every filter on a widget about
+    every event it gets. Over the window's moving field every widget
+    repaints on every frame, so that was 45 Python calls a Mask Generation
+    frame for a filter that acts on three event types. The watcher hears
+    those three through the application event hub
+    (:func:`spacr.qt.gil_priority._watch_application_events`), which is
+    asked about every event anyway, and passes the screen only its own
+    widgets' events.
+    """
+
+    def __init__(self, screen: QWidget):
+        """Watch the application on behalf of ``screen``."""
+        from ..gil_priority import _watch_application_events
+
+        super().__init__(screen)
+        self._widgets = WeakSet()
+        _watch_application_events(QApplication.instance(), self,
+                                  _HINT_EVENTS)
+
+    def add(self, widget: QWidget) -> None:
+        """Pass ``widget``'s hover and tooltip events to the screen."""
+        self._widgets.add(widget)
+
+    def eventFilter(self, watched, event) -> bool:  # noqa: N802 - Qt name
+        """The screen's answer for its own widgets; ``False`` otherwise."""
+        if watched in self._widgets:
+            return self.parent().eventFilter(watched, event)
+        return False
 
 
 class AppScreen(QWidget):
@@ -4711,7 +4750,7 @@ class AppScreen(QWidget):
             lbl_widget.setEnabled(field.isEnabled())
             self._hint_map[lbl_widget] = hint
             self._html_tip_map[lbl_widget] = html
-            lbl_widget.installEventFilter(self)
+            self._hear_hints_of(lbl_widget)
             self._put_the_greyed_reason_on(field, lbl_widget)
         section.add_row(lbl_widget, widget, info_widget=None,
                         wrap_label=True)
@@ -6893,6 +6932,17 @@ class AppScreen(QWidget):
         return chosen
 
 
+    def _hear_hints_of(self, widget: QWidget) -> None:
+        """Give ``widget``'s hover and tooltip events to :meth:`eventFilter`.
+
+        Through :class:`_HintWatcher`, not as a filter on the widget, so the
+        widget's paint events never reach Python.
+        """
+        watcher = getattr(self, "_hint_watcher", None)
+        if watcher is None:
+            watcher = self._hint_watcher = _HintWatcher(self)
+        watcher.add(widget)
+
     def eventFilter(self, obj, event):
         """Show/hide the hover tooltip and update the hint strip on Enter/Leave.
 
@@ -8379,7 +8429,7 @@ class AppScreen(QWidget):
             control.setProperty("_spacr_i18n_tooltip", "")
             control.setProperty(OPT_OUT_PROPERTY, True)
             control.setToolTip("")
-            control.installEventFilter(self)
+            self._hear_hints_of(control)
 
     def _write_hint(self, text: str, url: str = "",
                     hold: bool = False, animated: bool = False) -> None:
@@ -8578,8 +8628,7 @@ class AppScreen(QWidget):
                      or section.title())
             header.setProperty("settingsCategory", title)
             header.setProperty("categoryHintWired", True)
-            header.removeEventFilter(self)
-            header.installEventFilter(self)
+            self._hear_hints_of(header)
             section.toggled.connect(
                 partial(self._on_category_toggled, title))
 

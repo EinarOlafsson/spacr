@@ -1,8 +1,9 @@
 """Toggle — QCheckBox styled as an iOS-style switch."""
 from __future__ import annotations
 
-from PySide6.QtCore import Property, QPropertyAnimation, QRect, QSize, Qt
-from PySide6.QtGui import QBrush, QColor, QMouseEvent, QPainter, QPen
+from PySide6.QtCore import (Property, QAbstractAnimation, QPropertyAnimation,
+                            QRect, QSize, Qt)
+from PySide6.QtGui import QBrush, QColor, QMouseEvent, QPainter, QPen, QPicture
 from PySide6.QtWidgets import QCheckBox, QSizePolicy
 
 from ..theme import _painting_palette
@@ -32,6 +33,8 @@ class Toggle(QCheckBox):
         self._mouse_pressed = False
         self._dragging = False
         self._press_x = 0.0
+        self._lent_to = None
+        self._pictured = None
         self._anim = QPropertyAnimation(self, b"knobPos", self)
         self._anim.setDuration(140)
         self.stateChanged.connect(self._start_anim)
@@ -87,9 +90,26 @@ class Toggle(QCheckBox):
         :param event: the paint event; not read, since the whole switch is
             redrawn from its state every time.
         """
+        lent = self._lent_to is not None
+        if lent and self._look() != self._pictured:
+            self._changing()
+            lent = False
+        if lent and not self.text():
+            return
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         palette = _painting_palette()
+        if not lent:
+            self._paint_switch(painter, palette)
+        if self.text():
+            self._paint_caption(painter, palette)
+
+    def _paint_switch(self, painter: QPainter, palette: dict) -> None:
+        """Draw the track and the knob.
+
+        :param painter: an antialiasing painter in the switch's coordinates.
+        :param palette: the painting palette.
+        """
         checked = self.isChecked()
         on_color = palette.get("button_accent", palette["accent"])
         off_color = palette.get(
@@ -114,18 +134,74 @@ class Toggle(QCheckBox):
         painter.setPen(Qt.NoPen)
         painter.setBrush(QBrush(state_color))
         painter.drawEllipse(QRect(knob_x, knob_y, self._knob_d, self._knob_d))
-        if self.text():
-            painter.setPen(QColor(palette["fg"]))
-            text_x = self._track_x + self._track_w + self._label_gap
-            if self._word_wrap:
-                painter.drawText(
-                    QRect(text_x, 0, max(1, self.width() - text_x), self.height()),
-                    Qt.AlignLeft | Qt.AlignVCenter | Qt.TextWordWrap, self.text())
-            else:
-                painter.drawText(
-                    text_x, (self.height() + painter.fontMetrics().ascent()) // 2 - 2,
-                    self.text(),
-                )
+
+    def _paint_caption(self, painter: QPainter, palette: dict) -> None:
+        """Draw the trailing label.
+
+        :param painter: the painter :meth:`paintEvent` drew the switch with.
+        :param palette: the painting palette.
+        """
+        painter.setPen(QColor(palette["fg"]))
+        text_x = self._track_x + self._track_w + self._label_gap
+        if self._word_wrap:
+            painter.drawText(
+                QRect(text_x, 0, max(1, self.width() - text_x), self.height()),
+                Qt.AlignLeft | Qt.AlignVCenter | Qt.TextWordWrap, self.text())
+        else:
+            painter.drawText(
+                text_x, (self.height() + painter.fontMetrics().ascent()) // 2 - 2,
+                self.text(),
+            )
+
+    def _spacr_static_picture(self):
+        """The track and knob as a picture, for the window's field to play.
+
+        Over a moving field every widget repaints on every frame, and the
+        switch paints in Python; the field composites this picture into its
+        frames off the GUI thread instead
+        (:class:`spacr.qt.widgets.ambient._CardTints`).
+
+        :returns: ``None`` while the knob moves or the pointer holds it.
+        """
+        if (self._mouse_pressed
+                or self._anim.state() == QAbstractAnimation.Running):
+            return None
+        picture = QPicture()
+        painter = QPainter(picture)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        self._paint_switch(painter, _painting_palette())
+        painter.end()
+        self._pictured = self._look()
+        return picture
+
+    def _look(self) -> tuple:
+        """What the track and knob are drawn from, besides the theme and
+        the size, which reach the field as events."""
+        return self.isChecked(), self.isEnabled(), self._knob_pos
+
+    def _spacr_lend_static(self, give_back) -> None:
+        """Stop drawing the track and knob; the field composites them.
+
+        :param give_back: called, before the switch changes, to put them
+            back; it must call :meth:`_spacr_take_back_static`.
+        """
+        self._lent_to = give_back
+
+    def _spacr_take_back_static(self) -> None:
+        """Draw the track and knob here again."""
+        self._lent_to = None
+
+    def _changing(self) -> None:
+        """Hand the track and knob back before the switch changes.
+
+        A state set while the signals are blocked passes no hook; the next
+        paint finds the switch is not what was pictured, hands it back then,
+        and draws it whole, so the field shows the old track under it for
+        that one frame.
+        """
+        give_back = self._lent_to
+        if give_back is not None:
+            give_back()
 
     def mousePressEvent(self, event: QMouseEvent) -> None:
         """Begin a click or drag without delegating a second toggle to Qt.
@@ -137,6 +213,7 @@ class Toggle(QCheckBox):
         if event.button() != Qt.LeftButton or not self.isEnabled():
             super().mousePressEvent(event)
             return
+        self._changing()
         self._anim.stop()
         self._mouse_pressed = True
         self._dragging = False
@@ -201,6 +278,7 @@ class Toggle(QCheckBox):
         :param _state: the new check state; the switch is re-read, so it is not
             used.
         """
+        self._changing()
         end_x = float(
             self._maximum_knob_x()
             if self.isChecked()
@@ -228,6 +306,7 @@ class Toggle(QCheckBox):
 
         :param v: the new horizontal position in pixels.
         """
+        self._changing()
         self._knob_pos = float(v)
         self.update()
 

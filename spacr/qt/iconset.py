@@ -129,7 +129,7 @@ def _glyph_provider(qta, glyph):
         expected = getattr(qta, "_MD5_HASHES", {}).get(entry[1])
         if expected and hashlib.md5((directory / entry[1]).read_bytes()).hexdigest() != expected:
             return qta
-        provider = qta.IconicFont(entry)
+        provider = _kept_pixmap_font(qta)(entry)
         if not provider.fontids or not all(QFontDatabase.applicationFontFamilies(font_id)
                                           for font_id in provider.fontids.values()):
             return qta
@@ -139,6 +139,82 @@ def _glyph_provider(qta, glyph):
     providers[key] = (qta, provider)
     app._spacr_glyph_providers = providers
     return provider
+
+
+#: The pixmap-keeping ``IconicFont`` subclass, per QtAwesome font and engine
+#: class; see :func:`_kept_pixmap_font`.
+_KEPT_FONTS: dict = {}
+
+
+def _kept_pixmap_font(qta):
+    """QtAwesome's ``IconicFont``, with icons that keep what they render.
+
+    A QtAwesome icon renders its glyph in Python every time Qt asks it for a
+    pixmap, and a button asks on every paint. Over the window's moving field
+    every widget repaints on every frame, so the one icon button on a
+    module screen (the preferences cog) cost a Python glyph render per
+    frame, about a third of a millisecond. The pixmap depends only on the
+    size, mode and state asked for, so each is rendered once and kept, and
+    the icon's pixels do not change. Animated icons are left as they are.
+
+    :param qta: the QtAwesome module.
+    :returns: the subclass; ``qta.IconicFont`` itself when it or its engine
+        is not a class this can extend.
+    """
+    font = qta.IconicFont
+    engine = getattr(getattr(qta, "iconic_font", None), "CharIconEngine",
+                     None)
+    if not isinstance(font, type) or not isinstance(engine, type):
+        return font
+    kept = _KEPT_FONTS.get((font, engine))
+    if kept is None:
+        kept = _KEPT_FONTS[(font, engine)] = _kept_pixmap_classes(font,
+                                                                  engine)
+    return kept
+
+
+def _kept_pixmap(self, size, mode, state):
+    """The glyph at ``size`` in ``mode`` and ``state``, rendered once.
+
+    The ``pixmap`` of the engine class :func:`_kept_pixmap_font` builds.
+
+    :returns: the pixmap rendered the first time it was asked for.
+    """
+    kept = self.__dict__.setdefault("_kept", {})
+    key = (size.width(), size.height(), mode, state)
+    pixmap = kept.get(key)
+    if pixmap is None:
+        pixmap = kept[key] = super(type(self), self).pixmap(size, mode, state)
+    return pixmap
+
+
+def _kept_icon_by_painter(self, painter, options):
+    """An icon on a pixmap-keeping engine, unless it is animated.
+
+    The ``_icon_by_painter`` of the font class :func:`_kept_pixmap_font`
+    builds.
+    """
+    if any(option.get("animation") for option in options):
+        return super(type(self), self)._icon_by_painter(painter, options)
+    return QIcon(type(self)._spacr_engine(self, painter, options))
+
+
+def _kept_pixmap_classes(font, engine):
+    """Build the subclass :func:`_kept_pixmap_font` returns.
+
+    :param font: QtAwesome's ``IconicFont``.
+    :param engine: QtAwesome's ``CharIconEngine``.
+    """
+    kept_engine = type("_KeptPixmapEngine", (engine,), {
+        "__doc__": "A glyph engine that renders each pixmap it is asked "
+                   "for once.",
+        "pixmap": _kept_pixmap,
+    })
+    return type("_KeptPixmapFont", (font,), {
+        "__doc__": "An ``IconicFont`` whose icons keep their pixmaps.",
+        "_icon_by_painter": _kept_icon_by_painter,
+        "_spacr_engine": kept_engine,
+    })
 
 
 def active_theme() -> str:

@@ -41,6 +41,27 @@ and 32-37 % after. Home has cards too and gains as much, so the ratio
 moves little; what is left between the screens is the form's other styled
 controls, and the ceiling stays where it was.
 
+Later still on 2026-10-12 the rest of the difference was profiled (native
+stack samples of the GUI thread in a repaint loop on each screen, and the
+Python entries per frame): Mask made 299 Python entries a frame against
+Home's 202. The fade's filter painted the chrome of 14 fields (a Python
+call, a painter and a blend each), the screen's hover-help filter sat on 45
+captions, buttons and headers and was asked about each of their paint
+events, six settings switches painted their track and knob in Python, and
+the preferences cog's QtAwesome icon rendered its glyph in Python on every
+paint. Now the field chrome and the switch tracks are composited with the
+cards on the shading thread (:func:`spacr.qt.widgets.ambient._static_part`,
+pixel-identical in dark, light and high contrast at pane opacity 0, 50 and
+100 %), the hover help is heard through the application event hub, and the
+icon keeps its pixmaps: 240 Python entries a Mask frame. Measured with the
+interleaved method (cheapest of 15, median of 6 rounds, five before/after
+pairs at load 8-24): Mask 6.5-8.8 ms before, 5.3-5.8 after; Home 4.6-7.0
+before, 4.6-5.6 after; the ratio 1.31-1.45 before (median of the runs
+1.39) and 1.03-1.17 after (1.08). This test measured 0.89-1.27 in eight
+runs at load 12-19, so the ceiling comes down to 1.4. The screen's
+captions, buttons and section headers still cost more than Home's tiles:
+that is Qt laying out and drawing their text on every frame.
+
 Three assertions. The ratio is a ceiling against a regression, load-robust
 because both screens are measured interleaved in one process, so a busy
 machine slows both alike. The store reads and the filter calls are counts
@@ -56,8 +77,10 @@ import pytest
 pytest.importorskip("PySide6")
 
 #: Most a Mask field frame may cost, in Home field frames.
-#: 1.05-1.42 measured after the fix, 1.36-1.52 before it.
-MASK_OVER_HOME = 1.6
+#: 1.05-1.42 measured after the first fix, 1.36-1.52 before it; 0.89-1.27
+#: in this test after the field chrome and switches were composited
+#: (2026-10-12).
+MASK_OVER_HOME = 1.4
 
 FRAMES = 15
 ROUNDS = 4
@@ -198,25 +221,31 @@ def test_no_paint_hook_is_asked_about_every_widget(big_window, qtbot):
     fade, which the hub asked about every paint): 2915 Python calls per
     Mask frame and 2056 per Home frame. Now the field hears the application
     only for the pointer, through the hub, and the fade is installed on the
-    fields themselves: 1101 and 691.
+    fields themselves: 1101 and 691. Later the same day the fade came off
+    the fields whose chrome is composited, and the screen's hover help off
+    the widgets that carry it: 802 a Mask frame.
     """
     import sys
 
     from PySide6.QtWidgets import QWidget
 
-    from spacr.qt.widgets.field_fade import FIELD_TYPES
+    from spacr.qt.screens.app_screen import AppScreen
+    from spacr.qt.widgets.field_fade import _LENT, FIELD_TYPES
 
     window, backdrop = big_window
     _show(window, "mask", qtbot)
-    backdrop._timer.stop()
+    _composited(backdrop, qtbot)
     backdrop.repaint()
-    asked = {"ambient.py": 0, "field_fade.py": 0}
+    asked = {"ambient.py": 0, "field_fade.py": 0, "hints": 0}
+    hints = AppScreen.eventFilter.__code__
 
     def profile(frame, event, _arg):
         if event == "call" and frame.f_code.co_name == "eventFilter":
             name = frame.f_code.co_filename.replace("\\", "/").rsplit("/", 1)[-1]
             if name in asked:
                 asked[name] += 1
+            if frame.f_code is hints:
+                asked["hints"] += 1
 
     frames = 4
     sys.setprofile(profile)
@@ -225,7 +254,10 @@ def test_no_paint_hook_is_asked_about_every_widget(big_window, qtbot):
             backdrop.repaint()
     finally:
         sys.setprofile(None)
-    fields = sum(1 for widget in window.findChildren(QWidget)
-                 if isinstance(widget, FIELD_TYPES) and widget.isVisible())
-    assert asked["field_fade.py"] / frames <= fields, asked
+    fields = [widget for widget in window.findChildren(QWidget)
+              if isinstance(widget, FIELD_TYPES) and widget.isVisible()]
+    lent = sum(1 for widget in fields if widget in _LENT)
+    assert lent, "no field chrome is composited on Mask"
+    assert asked["field_fade.py"] / frames <= len(fields) - lent, asked
     assert asked["ambient.py"] / frames <= 5, asked
+    assert asked["hints"] == 0, asked

@@ -9200,8 +9200,9 @@ _FILTERED_EVENTS = frozenset((
 class _CardPlan(NamedTuple):
     """The translucent card backgrounds the shading thread composites.
 
-    ``items`` holds ``(thread picture, GUI picture, x, y, clip)`` per card,
-    in paint order. Built on the GUI thread by :class:`_CardTints` from the
+    ``items`` holds ``(thread picture, GUI picture, x, y, clip)`` per card
+    background or static part (:func:`_static_part`), in paint order.
+    Built on the GUI thread by :class:`_CardTints` from the
     widgets' current geometry and style, and read-only after that, so the
     shading thread can paint from it without touching a widget.
     """
@@ -9235,6 +9236,31 @@ _CARD_PROBE = 64
 #: Widget states a composited background must not depend on.
 _CARD_STATES = (QStyle.State_MouseOver, QStyle.State_HasFocus,
                 QStyle.State_Active)
+
+#: Events after which a field's chrome may be drawn for another focus. They
+#: reach the widget that takes the focus, which for an editable combo box
+#: is the editor inside it, so any widget inside a planned part counts.
+_CARD_FOCUS = frozenset((QEvent.FocusIn, QEvent.FocusOut))
+
+
+class _ImagePlay:
+    """An image played at the origin, the way a ``QPicture`` plays.
+
+    Field chrome is a raster the fade draws with ``drawPixmap``; drawn from
+    the same pixels with ``drawImage`` it takes the same blend. A
+    ``QPicture`` would not do: copied for the second thread, it keeps only
+    the index of an image it holds, not the image.
+    """
+
+    __slots__ = ("image",)
+
+    def __init__(self, image: QImage):
+        """Hold ``image``; each thread gets its own instance and copy."""
+        self.image = image
+
+    def play(self, painter: QPainter) -> None:
+        """Draw the image with its top left at the painter's origin."""
+        painter.drawImage(0, 0, self.image)
 
 
 def _card_background(card, device, width: int, height: int, flip=None):
@@ -9311,14 +9337,65 @@ def _compose_cards(engine, frame: QImage, plan: _CardPlan):
     return plan, image, frame
 
 
-def _restore_card_backgrounds(cards: list) -> None:
-    """Let every card in ``cards`` paint its own background again."""
+def _static_part(widget):
+    """The part of ``widget``'s paint the field may composite, if any.
+
+    Two kinds, both drawn before the widget's own paint and changed only by
+    events the plan watches: the chrome :mod:`spacr.qt.widgets.field_fade`
+    paints under a form field, and the track and knob of a widget that
+    offers them as a picture through ``_spacr_static_picture`` (the settings
+    switch, :class:`spacr.qt.widgets.toggle.Toggle`).
+
+    :returns: ``(thread player, GUI player)``, or ``None``.
+    """
+    from .field_fade import _chrome_image
+
+    image = _chrome_image(widget)
+    if image is not None:
+        return _ImagePlay(image), _ImagePlay(image.copy())
+    offer = getattr(widget, "_spacr_static_picture", None)
+    picture = offer() if callable(offer) else None
+    if picture is None:
+        return None
+    return _own_picture(picture), _own_picture(picture)
+
+
+def _lend_part(widget, give_back) -> None:
+    """Take ``widget``'s static part off its own paint; see
+    :func:`_static_part`."""
+    from .field_fade import FIELD_TYPES, _lend_chrome
+
+    if isinstance(widget, FIELD_TYPES):
+        _lend_chrome(widget, give_back)
+    else:
+        widget._spacr_lend_static(give_back)
+
+
+def _take_back_part(widget) -> None:
+    """Let ``widget`` paint its static part again; a destroyed one is
+    skipped."""
+    from shiboken6 import isValid
+
+    from .field_fade import FIELD_TYPES, _take_back_chrome
+
+    if isinstance(widget, FIELD_TYPES):
+        _take_back_chrome(widget)
+    elif isValid(widget):
+        widget._spacr_take_back_static()
+
+
+def _restore_card_backgrounds(cards: list, parts: list) -> None:
+    """Let every card in ``cards`` paint its own background again, and every
+    widget in ``parts`` its static part."""
     from shiboken6 import isValid
 
     for card in cards:
         if isValid(card):
             card.setAttribute(Qt.WA_NoSystemBackground, False)
     del cards[:]
+    for widget in parts:
+        _take_back_part(widget)
+    del parts[:]
 
 
 class _CardTints(QObject):
@@ -9348,6 +9425,17 @@ class _CardTints(QObject):
     are composited, and none under a widget that fills its background
     opaquely. A backdrop with rounded corners or a device pixel ratio other
     than one keeps the classic paint.
+
+    The ramped chrome :mod:`spacr.qt.widgets.field_fade` draws under each
+    form field, and the track and knob of each settings switch, are
+    composited the same way, at the widget's place in the paint order
+    (:func:`_static_part`), and the widget stops drawing them while they
+    are. The chrome is composited for fields without the focus, and the
+    fade's filter is taken off the field meanwhile
+    (:func:`spacr.qt.widgets.field_fade._lend_chrome`). A focus change, a
+    switch being flipped or dragged, or the fade being switched off, puts
+    them back before the next paint. Small fields and switches are
+    composited too, as long as nothing of their own is painted under them.
     """
 
     #: Off keeps the classic paint, for comparing the two.
@@ -9361,24 +9449,38 @@ class _CardTints(QObject):
         self._producer = None
         self._quiet = 0
         self._cards: list = []
+        self._parts: list = []
         self._watched = frozenset()
         self._images: dict = {}
         shown = self._shown = []
+        lent = self._lent = []
         backdrop.destroyed.connect(
-            lambda *_: _restore_card_backgrounds(shown))
+            lambda *_: _restore_card_backgrounds(shown, lent))
         from ..gil_priority import _watch_application_events
 
-        _watch_application_events(QApplication.instance(), self, _CARD_EVENTS)
+        _watch_application_events(QApplication.instance(), self,
+                                  _CARD_EVENTS | _CARD_FOCUS)
 
     def eventFilter(self, watched, event) -> bool:
         """Invalidate on any event that can change what a card looks like."""
         kind = event.type()
+        if kind in _CARD_FOCUS:
+            if self._holds_a_part(watched):
+                self.invalidate()
+            return False
         if watched in self._watched or (
                 kind == QEvent.Show and self._may_hold_a_card(watched)):
             if kind in _CARD_RESTYLES:
                 self._images.clear()
             self.invalidate()
         return False
+
+    def _holds_a_part(self, widget) -> bool:
+        """Whether ``widget`` is, or is inside, a widget whose static part
+        the plan holds."""
+        return widget.isWidgetType() and any(
+            part is widget or part.isAncestorOf(widget)
+            for part in self._parts)
 
     def _may_hold_a_card(self, widget) -> bool:
         """Whether a widget being shown could be or hold a new card."""
@@ -9395,7 +9497,7 @@ class _CardTints(QObject):
             self._producer.cards = None
         if self.active:
             self.active = False
-            _restore_card_backgrounds(self._shown)
+            _restore_card_backgrounds(self._shown, self._lent)
             self.parent().update()
 
     def tick(self, producer) -> None:
@@ -9424,6 +9526,9 @@ class _CardTints(QObject):
             for card in self._cards:
                 card.setAttribute(Qt.WA_NoSystemBackground, True)
             self._shown[:] = self._cards
+            for widget in self._parts:
+                _lend_part(widget, self.invalidate)
+            self._lent[:] = self._parts
             self.active = True
             backdrop.update()
 
@@ -9431,10 +9536,10 @@ class _CardTints(QObject):
         """Plan the cards from the widgets as they are now."""
         host = backdrop.parentWidget()
         width, height = backdrop.width(), backdrop.height()
-        items, cards, images = [], [], {}
+        items, cards, parts, images = [], [], [], {}
         watched = {backdrop, host}
         self._walk(host, backdrop, -backdrop.pos(), QRect(0, 0, width, height),
-                   (), (items, cards, watched, images))
+                   (), (items, cards, parts, watched, images))
         base = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
         painter = QPainter(base)
         try:
@@ -9443,32 +9548,55 @@ class _CardTints(QObject):
             painter.end()
         self.plan = _CardPlan(width, height, base, tuple(items))
         self._cards = cards
+        self._parts = parts
         self._watched = frozenset(watched)
         self._images = images
         producer.cards = self.plan if items else None
 
     def _walk(self, parent, backdrop, offset, clip, lineage, out) -> None:
         """Collect the cards under ``parent`` in the order Qt paints them."""
-        items, cards, watched, images = out
+        items, cards, parts, watched, images = out
         for child in parent.children():
             if (not child.isWidgetType() or child is backdrop
                     or child.isWindow() or not child.isVisible()):
                 continue
             rect = child.geometry().translated(offset)
             visible = clip.intersected(rect)
+            below = lineage + (child,)
             if visible.width() * visible.height() < _CARD_MIN_AREA:
+                if not visible.isEmpty():
+                    self._add_part(child, rect, visible, below, out)
                 continue
             image = self._background_of(child, rect.width(), rect.height(),
                                         images)
             if image is False:
                 continue
-            below = lineage + (child,)
             if image is not None:
                 items.append((_own_picture(image), _own_picture(image),
                               rect.x(), rect.y(), visible))
                 cards.append(child)
                 watched.update(below)
+            self._add_part(child, rect, visible, below, out, image)
             self._walk(child, backdrop, rect.topLeft(), visible, below, out)
+
+    def _add_part(self, widget, rect, visible, lineage, out,
+                  background=None) -> None:
+        """Plan ``widget``'s static part (:func:`_static_part`), if it has
+        one and nothing of its own is painted under it.
+
+        :param background: its background as :meth:`_background_of` answered,
+            or ``None`` to ask here.
+        """
+        items, _cards, parts, watched, images = out
+        part = _static_part(widget)
+        if part is None:
+            return
+        if background is None and self._background_of(
+                widget, rect.width(), rect.height(), images) is not None:
+            return
+        items.append(part + (rect.x(), rect.y(), visible))
+        parts.append(widget)
+        watched.update(lineage)
 
     def _background_of(self, widget, width: int, height: int, images):
         """The background to composite for ``widget``.
