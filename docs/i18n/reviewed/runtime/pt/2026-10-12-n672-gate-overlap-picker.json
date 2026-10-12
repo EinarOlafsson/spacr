@@ -1,0 +1,35 @@
+{
+  "language": "pt",
+  "records": [
+    {
+      "key": "Anchor {number} · {gate}",
+      "source": "Anchor {number} · {gate}",
+      "source_sha256": "bf750f23aac27281fa1bd954229514070503732c960068e5d5e20a5368bc0c12",
+      "table": "ui",
+      "translation": "Âncora {number} · {gate}"
+    },
+    {
+      "key": "Elements under the click",
+      "source": "Elements under the click",
+      "source_sha256": "4065c71c89ee5cdb86ad8df09673fea95789ba188ad216213c03a26ca3430075",
+      "table": "ui",
+      "translation": "Elementos sob o clique"
+    },
+    {
+      "key": "Region · {gate}",
+      "source": "Region · {gate}",
+      "source_sha256": "5ea979f567306e42d5b2c8b83e7760a5d501be72aa183ab46103926357fc413f",
+      "table": "ui",
+      "translation": "Região · {gate}"
+    },
+    {
+      "key": "Surface {number} · {gate}",
+      "source": "Surface {number} · {gate}",
+      "source_sha256": "c452b239dda5de1e00b43ec2c37a99258a7c60f8a6feb120942576125f8407ef",
+      "table": "ui",
+      "translation": "Superfície {number} · {gate}"
+    }
+  ],
+  "review_scope": "AI technical review (Claude Opus 5.5); no native-speaker signoff.",
+  "schema": 1
+}

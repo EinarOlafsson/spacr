@@ -92,9 +92,11 @@ ROOT = Path(__file__).resolve().parents[2]
 # 615, 2026-10-05: exact reviewed additions/removals and preservation proof
 # are in features/data/615_runtime_watch_figures_storage_themes_2026-10-05.json.
 # Compact +6/-0 reproduces the prior fingerprint by exact subtraction.
-COMPACT_CAPTION_COUNT = 243
+# N672 Gate Editor keys (2026-10-12) add four reviewed rows: the three
+# plane-or-spin-axis keys and their screen scope.
+COMPACT_CAPTION_COUNT = 247
 COMPACT_CAPTION_SHA256 = (
-    "242aeff1d48cb75f5c2f7de16da3ed20fc189d0f3f992184c80f640776b80804"
+    "ba3685a44aaa62b6814016764a2369697c3fd106aa2b051699ab676d7ffe29cb"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are

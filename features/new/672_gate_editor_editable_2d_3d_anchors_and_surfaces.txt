@@ -61,3 +61,19 @@ offscreen, run_capped): every gate test file 1782 PASS; API/docstring guards
 hands-on desktop check of anchor dragging and wheel moves on a real display
 (Linux/macOS/Windows); AI-reviewed translations have no native-speaker
 signoff.
+
+2026-10-12 — maintainer desktop check 2026-10-12: editing accepted; modifications requested and built.
+Rebindable Gate Editor keys (scope "the Gate Editor screen", listed and
+editable in Change shortcuts), the same scheme as Make Masks' True 3D:
+Shift+E Edit, Shift+S Spin (free), Shift+D Draw, Shift+X/Y/Z the X/Y/Z plane,
+or the spin axis when pressed within 1.5 s of Shift+S.
+No clash with existing keys; Left/Right are no longer copied into scopes that
+have no images. Overlapping-element picker: in 3D Edit (and in 2D, which is
+always editable) a click with more than one sheet/anchor under it highlights
+them all and lists them top-left, layer order, sheets before anchors, top
+layer blue, white text; the click still grabs what it grabbed before, a row
+(click or Up/Down) picks the element the next press on that overlap selects
+and moves; Escape, empty space, leaving Edit, changing 2D/3D or replacing the
+gate set close it. 8 new captions (4 compact shortcut rows, 4 picker rows)
+with AI-reviewed translations in nine locales, no native-speaker signoff.
+Tests: tests/qt/test_gate_editor_mode_keys_and_overlap_picker.py.

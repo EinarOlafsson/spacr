@@ -469,6 +469,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         self.gates.mode_requested.connect(self._on_mode_requested)
         self.gates.projection_requested.connect(self._on_projection_requested)
         self.gates.spin_axis_changed.connect(self.gates.canvas.set_spin_axis)
+        self.gates._bind_mode_keys(self)
         self._install_graph_context_menu()
         self.gates.tool_row.insertLayout(0, axes, 3)
         self.gates.tool_row.insertLayout(0, self._chips)

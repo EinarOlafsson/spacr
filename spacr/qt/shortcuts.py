@@ -202,6 +202,19 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
     ShortcutSpec("Q",            "Quarantine or restore this field",
                  "Field browser",
                  "the QC field browser"),
+
+    ShortcutSpec("Shift+E",      "Edit mode",              "Gate Editor",
+                 "the Gate Editor screen"),
+    ShortcutSpec("Shift+S",      "Spin",                   "Gate Editor",
+                 "the Gate Editor screen"),
+    ShortcutSpec("Shift+D",      "Draw",                   "Gate Editor",
+                 "the Gate Editor screen"),
+    ShortcutSpec("Shift+X",      "X plane, or X spin after Shift+S",
+                 "Gate Editor", "the Gate Editor screen"),
+    ShortcutSpec("Shift+Y",      "Y plane, or Y spin after Shift+S",
+                 "Gate Editor", "the Gate Editor screen"),
+    ShortcutSpec("Shift+Z",      "Z plane, or Z spin after Shift+S",
+                 "Gate Editor", "the Gate Editor screen"),
 ]
 
 
@@ -416,7 +429,9 @@ _SCREEN_SCOPES = {
     "Annotate": "the Annotate screen",
     "Make Masks": "the Make Masks screen",
     "Field browser": "the QC field browser",
+    "Gate Editor": "the Gate Editor screen",
 }
+_ARROW_SCOPES = ("Annotate", "Make Masks", "Field browser")
 
 
 _ANNOTATE_SHORTCUTS = [
@@ -449,7 +464,7 @@ _ANNOTATE_SHORTCUTS = [
 def _screen_specs(scope: str) -> List[ShortcutSpec]:
     """Declared bindings for one screen, including shared navigation keys."""
     return [spec for spec in SCREEN_SHORTCUTS
-            if spec.keys in ("Left", "Right")
+            if (spec.keys in ("Left", "Right") and scope in _ARROW_SCOPES)
             or spec.scope == _SCREEN_SCOPES.get(scope)] + (
                 list(_ANNOTATE_SHORTCUTS) if scope == "Annotate" else [])
 
