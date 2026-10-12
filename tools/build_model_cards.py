@@ -547,11 +547,17 @@ def _written(card_dir: Path) -> List[Path]:
 
 
 def stale_files(card_dir: Path = CARD_DIR) -> List[str]:
-    """Names of cards that are missing, out of date or no longer published."""
+    """Names of cards that are missing, out of date or no longer published.
+
+    A score card's embedded font bytes are left out of the comparison: they
+    depend on the fontTools version that subset them, not on the record.
+    """
     expected = expected_files()
+    same = score_cards().without_font_data
     stale = [name for name, text in expected.items()
              if not (card_dir / name).is_file()
-             or (card_dir / name).read_text(encoding="utf-8") != text]
+             or same((card_dir / name).read_text(encoding="utf-8"))
+             != same(text)]
     if card_dir.is_dir():
         stale += sorted(path.relative_to(card_dir).as_posix()
                         for path in _written(card_dir)

@@ -908,8 +908,10 @@ def _readme_model_zoo_block(prefix: str = "docs/models/",
     ``tools/build_score_cards.py`` through ``tools/build_model_cards.py``),
     two to a line. The block is an RST line block of image substitutions
     joined by escaped spaces: no table, so GitHub draws no cell borders,
-    padding or row stripes, and every card is exactly half the column wide
-    with its gutter inside the SVG. Each card links its Markdown card; there
+    padding or row stripes. Each card is just under half the column wide,
+    because GitHub's HTML leaves one space inside each image link and two
+    exact halves plus that space would wrap; the rest of the gutter is the
+    card's own transparent margin. Each card links its Markdown card; there
     is no text under it. The image's alt text carries the record's own
     ``versus_stock`` sentence, so the numbers are readable without the
     picture. The other versions follow on one line each, older models and
@@ -933,9 +935,10 @@ def _readme_model_zoo_block(prefix: str = "docs/models/",
         "",
         f".. |zoo_heading| image:: {prefix}{scores.HEADING_NAME}",
         f"   :alt: {scores.HEADING_TEXT}",
+        f"   :target: {prefix}{build_model_cards.INDEX_NAME}",
         "   :width: 100%",
     ]
-    width = f"{100 // per_row}%"
+    width = f"{100 / per_row - 0.5:g}%"
     for start in range(0, len(defaults), per_row):
         row = [build_model_cards.key_of(entry)
                for entry in defaults[start:start + per_row]]

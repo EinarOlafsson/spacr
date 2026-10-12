@@ -40,7 +40,9 @@ def test_every_published_model_has_a_current_score_card():
             path = cards.CARD_DIR / scores.card_name(key)
             assert path.is_file(), key
             text = path.read_text(encoding="utf-8")
-            assert text == scores.render_svg(entry, family["status"][key]), (
+            expected = scores.render_svg(entry, family["status"][key])
+            assert (scores.without_font_data(text)
+                    == scores.without_font_data(expected)), (
                 f"{path.name} is stale; run python tools/build_model_cards.py")
             root = ET.fromstring(text)
             assert root.tag == f"{SVG}svg"
@@ -94,11 +96,46 @@ def test_the_card_face_is_spacr_teal_with_no_warm_grey():
             assert not warm(colour), (cards.key_of(entry), colour)
 
 
+def test_the_cards_embed_open_sans_for_every_character_they_draw():
+    """2026-10-12: titles and the version tag in Open Sans Regular, all other
+    text in Open Sans Light, embedded because an SVG shown through <img>
+    cannot load a web font."""
+    import base64
+    import io
+    from html import unescape
+
+    from fontTools.ttLib import TTFont
+
+    cards = _cards()
+    scores = cards.score_cards()
+    names = [scores.card_name(cards.key_of(e)) for e in cards.published_models()]
+    for name in names + [scores.HEADING_NAME]:
+        text = (cards.CARD_DIR / name).read_text(encoding="utf-8")
+        faces = dict(re.findall(
+            r"font-weight:(\d+);src:url\(data:font/woff;base64,([^)]+)\)", text))
+        drawn = {}
+        for weight, value in re.findall(
+                r'<text [^>]*font-weight="(\d+)"[^>]*>([^<]*)</text>', text):
+            drawn.setdefault(weight, set()).update(unescape(value))
+        assert set(drawn) <= {"300", "400"}, name
+        assert set(drawn) == set(faces), name
+        for weight, characters in drawn.items():
+            font = TTFont(io.BytesIO(base64.b64decode(faces[weight])))
+            family = font["name"].getDebugName(1)
+            assert family.startswith("Open Sans") and (
+                font["OS/2"].usWeightClass == int(weight)), (name, weight)
+            missing = {c for c in characters - {" "}
+                       if ord(c) not in font.getBestCmap()}
+            assert not missing, (name, weight, missing)
+        assert len(text) < 40_000, (name, len(text))
+
+
 def test_the_grid_heading_is_current():
     cards = _cards()
     scores = cards.score_cards()
     path = cards.CARD_DIR / scores.HEADING_NAME
-    assert path.read_text(encoding="utf-8") == scores.render_heading()
+    assert (scores.without_font_data(path.read_text(encoding="utf-8"))
+            == scores.without_font_data(scores.render_heading()))
 
 
 def test_the_card_numbers_come_from_the_zoo_record():
@@ -154,4 +191,4 @@ def test_every_readme_embeds_the_default_score_cards():
         assert "`" not in grid, (readme.name, "a text link in the card grid")
         heading = cards.score_cards().HEADING_NAME
         assert f"image:: {prefix}{heading}" in block, readme.name
-        assert block.count(":width: 50%") == len(defaults), readme.name
+        assert block.count(":width: 49.5%") == len(defaults), readme.name

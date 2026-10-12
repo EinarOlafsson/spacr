@@ -27,9 +27,14 @@ transparent margin that makes the gutters of the README grid.
 """
 from __future__ import annotations
 
+import base64
+import functools
+import io
 import re
 from html import escape
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
+from pathlib import Path
+from typing import (Any, Dict, Iterable, List, Mapping, Optional, Sequence,
+                    Set, Tuple)
 
 CARD_SUBDIR = "cards"
 HEADING_NAME = f"{CARD_SUBDIR}/heading.svg"
@@ -37,8 +42,8 @@ HEADING_TEXT = "Default models · held-out scores"
 
 #: Outer size of every card, its transparent margin and the card inside it.
 WIDTH = 400
-MARGIN_X = 8
-MARGIN_Y = 8
+MARGIN_X = 6
+MARGIN_Y = 5
 CARD_W = WIDTH - 2 * MARGIN_X
 CARD_H = 252
 HEIGHT = CARD_H + 2 * MARGIN_Y
@@ -46,8 +51,19 @@ HEADING_H = 52
 PAD = 22
 ROWS = 3
 ROW_PITCH = 25
-FONT = ("-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', "
-        "Helvetica, Arial, sans-serif")
+FONT = ("'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', "
+        "'Noto Sans', Helvetica, Arial, sans-serif")
+#: Open Sans Regular for the title and the version tag, Open Sans Light for
+#: everything else. An SVG shown through ``<img>`` cannot fetch a web font,
+#: so each card embeds the two faces, subset to the characters it draws.
+TITLE_WEIGHT = 400
+TEXT_WEIGHT = 300
+FONT_DIR = (Path(__file__).resolve().parent.parent / "docs" / "resources"
+            / "font" / "open_sans" / "static")
+FONT_FILES = {400: "OpenSans-Regular.ttf", 300: "OpenSans-Light.ttf"}
+#: The embedded fonts as they appear in a card, for comparisons that must
+#: not depend on the fontTools version that subset them.
+FONT_DATA = re.compile(r"url\(data:font/woff;base64,[A-Za-z0-9+/=]+\)")
 
 #: spaCR's palette: the dark teal surface of the app's cell theme, the teal
 #: glow of the photomosaic logo, the blue accent of the space theme and a cool
@@ -390,15 +406,54 @@ def alt_text(entry: Mapping[str, Any], status: str = "default") -> str:
     return text + "."
 
 
-def _width(text: str, size: float, weight: int = 400) -> float:
-    """Rough rendered width of ``text`` in the card's sans-serif."""
-    wide = sum(1 for c in text if c in "mwMW@%")
-    narrow = sum(1 for c in text if c in "il.,:;|!'·-()[] ")
-    factor = 0.58 if weight >= 600 else 0.55
-    return size * factor * (len(text) + 0.4 * wide - 0.45 * narrow)
+@functools.lru_cache(maxsize=None)
+def _font(weight: int):
+    """The Open Sans face of ``weight`` as a fontTools ``TTFont``."""
+    from fontTools.ttLib import TTFont
+
+    return TTFont(str(FONT_DIR / FONT_FILES[weight]))
 
 
-def _fit(text: str, size: float, width: float, weight: int = 400) -> str:
+def _width(text: str, size: float, weight: int = TEXT_WEIGHT) -> float:
+    """Rendered width of ``text`` in Open Sans, from the font's advances."""
+    font = _font(weight)
+    cmap = font.getBestCmap()
+    metrics = font["hmtx"].metrics
+    units = sum(metrics[cmap.get(ord(c), ".notdef")][0] for c in text)
+    return units * size / font["head"].unitsPerEm
+
+
+@functools.lru_cache(maxsize=None)
+def _font_face(weight: int, characters: str) -> str:
+    """An ``@font-face`` rule embedding ``weight`` subset to ``characters``."""
+    from fontTools import subset
+
+    options = subset.Options()
+    options.flavor = "woff"
+    options.hinting = False
+    options.desubroutinize = True
+    options.name_IDs = [1, 2]
+    options.notdef_outline = True
+    options.layout_features = ["kern"]
+    font = subset.load_font(str(FONT_DIR / FONT_FILES[weight]), options)
+    subsetter = subset.Subsetter(options)
+    subsetter.populate(text=characters)
+    subsetter.subset(font)
+    buffer = io.BytesIO()
+    subset.save_font(font, buffer, options)
+    data = base64.b64encode(buffer.getvalue()).decode("ascii")
+    return ("@font-face{font-family:'Open Sans';font-style:normal;"
+            f"font-weight:{weight};src:url(data:font/woff;base64,{data})"
+            " format('woff')}")
+
+
+def without_font_data(svg: str) -> str:
+    """``svg`` with its embedded font bytes blanked, for staleness checks."""
+    return FONT_DATA.sub("url(data:font/woff;base64,)", svg)
+
+
+def _fit(text: str, size: float, width: float,
+         weight: int = TEXT_WEIGHT) -> str:
     if _width(text, size, weight) <= width:
         return text
     while text and _width(text + "…", size, weight) > width:
@@ -415,10 +470,12 @@ def _bar(x: float, y: float, w: float, h: float, cls: str) -> str:
             f'a{r:g} {r:g} 0 0 1 -{r:g} {r:g}h-{w - r:.1f}z"/>')
 
 
-def _style() -> str:
+def _style(used: Mapping[int, Iterable[str]]) -> str:
     p = PALETTE
+    faces = "".join(_font_face(weight, "".join(sorted(set(used[weight]))))
+                    for weight in sorted(used) if used[weight])
     return (
-        "<style>"
+        "<style>" + faces +
         f".card{{fill:{p['card']};stroke:{p['edge']}}}"
         f".i1{{fill:{p['ink']}}}.i2{{fill:{p['ink2']}}}.i3{{fill:{p['ink3']}}}"
         f".m{{fill:{p['model']}}}.b{{fill:{p['base']}}}.tr{{fill:{p['track']}}}"
@@ -456,8 +513,10 @@ def render_svg(entry: Mapping[str, Any], status: str = "default") -> str:
     x0, y0 = MARGIN_X, MARGIN_Y
     left, right = x0 + PAD, x0 + CARD_W - PAD
     parts: List[str] = _frame(uid, x0, y0, CARD_W, CARD_H)
+    used: Dict[int, Set[str]] = {TITLE_WEIGHT: set(), TEXT_WEIGHT: set()}
 
-    def text(x, y, value, cls, size, weight=400, anchor="start"):
+    def text(x, y, value, cls, size, weight=TEXT_WEIGHT, anchor="start"):
+        used[weight].update(value)
         parts.append(
             f'<text x="{x:.1f}" y="{y:.1f}" class="{cls}" font-size="{size}"'
             f' font-weight="{weight}" text-anchor="{anchor}">'
@@ -466,19 +525,20 @@ def render_svg(entry: Mapping[str, Any], status: str = "default") -> str:
     tag = _version(key)
     if status in TAG_WORDS:
         tag += f" · {TAG_WORDS[status]}"
-    tag_w = _width(tag, 12, 600) + 18
+    tag_w = _width(tag, 12, TITLE_WEIGHT) + 18
     title_y = y0 + 40
     parts.append(f'<rect class="tag" x="{right - tag_w:.1f}" y="{title_y - 16}"'
                  f' width="{tag_w:.1f}" height="21" rx="10.5"/>')
-    text(right - tag_w / 2, title_y - 1.5, tag, "tagt", 12, 600, "middle")
+    text(right - tag_w / 2, title_y - 1.5, tag, "tagt", 12, TITLE_WEIGHT,
+         "middle")
     text(left, title_y, _fit(title_of(entry), 19, right - left - tag_w - 12,
-                             600), "i1", 19, 600)
+                             TITLE_WEIGHT), "i1", 19, TITLE_WEIGHT)
 
     number_y = y0 + 110
     side = left + 150
     if head:
         label, mine, theirs = head
-        text(left, number_y, f"{mine:.3f}", "i1", 54, 600)
+        text(left, number_y, f"{mine:.3f}", "i1", 54)
         caption = f"{label} · {card['holdout']}" if card["holdout"] else (
             f"{label} at IoU 0.5")
         text(side, number_y - 33, _fit(caption, 13, right - side), "i3", 13)
@@ -491,13 +551,13 @@ def render_svg(entry: Mapping[str, Any], status: str = "default") -> str:
             chip = ("no stock detector" if is_detector(entry)
                     else "no baseline recorded")
             cls = "na"
-        chip_w = _width(chip, 13, 600) + 22
+        chip_w = _width(chip, 13) + 22
         parts.append(f'<rect class="{cls}" x="{side}" y="{number_y - 22}"'
                      f' width="{chip_w:.1f}" height="24" rx="12"/>')
         text(side + chip_w / 2, number_y - 5.5, chip,
-             "i1" if cls != "na" else "i3", 13, 600, "middle")
+             "i1" if cls != "na" else "i3", 13, anchor="middle")
     else:
-        text(left, number_y, "—", "i3", 54, 600)
+        text(left, number_y, "\u2014", "i3", 54)
         text(side, number_y - 12, "Held-out score not recorded", "i3", 13)
 
     rows_y = y0 + 140
@@ -507,7 +567,7 @@ def render_svg(entry: Mapping[str, Any], status: str = "default") -> str:
     for index, (label, mine, theirs) in enumerate(card["rows"]):
         y = rows_y + index * ROW_PITCH
         if mine is None:
-            text(left, y + 12, "—", "i3", 12.5)
+            text(left, y + 12, "\u2014", "i3", 12.5)
             continue
         text(left, y + 12.5, label, "i2", 12.5)
         parts.append(f'<rect class="tr" x="{track_x}" y="{y}"'
@@ -517,7 +577,7 @@ def render_svg(entry: Mapping[str, Any], status: str = "default") -> str:
             parts.append(f'<rect class="tr" x="{track_x}" y="{y + 10}"'
                          f' width="{track_w}" height="6" rx="3"/>')
             parts.append(_bar(track_x, y + 10, track_w * theirs, 6, "b"))
-        text(right, y + 12.5, f"{mine:.3f}", "i1", 12.5, 600, "end")
+        text(right, y + 12.5, f"{mine:.3f}", "i1", 12.5, anchor="end")
 
     legend_y = y0 + CARD_H - 20
     parts.append(f'<rect class="m" x="{left}" y="{legend_y - 9}" width="10"'
@@ -539,7 +599,7 @@ def render_svg(entry: Mapping[str, Any], status: str = "default") -> str:
         f' aria-labelledby="t d">\n'
         f'<title id="t">{escape(title)}</title>\n'
         f'<desc id="d">{escape(desc)}</desc>\n'
-        f'{_style()}\n{body}\n</svg>\n')
+        f'{_style(used)}\n{body}\n</svg>\n')
 
 
 def render_heading() -> str:
@@ -549,15 +609,15 @@ def render_heading() -> str:
     parts = _frame("heading", MARGIN_X, MARGIN_Y, width - 2 * MARGIN_X,
                    HEADING_H)
     parts.append(f'<text x="{width / 2:.1f}" y="{MARGIN_Y + 33}" class="i1"'
-                 f' font-size="19" font-weight="600" text-anchor="middle">'
-                 f'{escape(HEADING_TEXT)}</text>')
+                 f' font-size="19" font-weight="{TITLE_WEIGHT}"'
+                 f' text-anchor="middle">{escape(HEADING_TEXT)}</text>')
     body = "\n".join(parts)
     return (
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}"'
         f' height="{height}" viewBox="0 0 {width} {height}" role="img"'
         f' aria-labelledby="t">\n'
         f'<title id="t">{escape(HEADING_TEXT)}</title>\n'
-        f'{_style()}\n{body}\n</svg>\n')
+        f'{_style({TITLE_WEIGHT: HEADING_TEXT})}\n{body}\n</svg>\n')
 
 
 def card_name(key: str) -> str:
