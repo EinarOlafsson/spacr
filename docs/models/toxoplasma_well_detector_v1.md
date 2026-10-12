@@ -4,9 +4,9 @@
 
 `toxoplasma_well_detector_v1` · YOLO11n · older version in the `toxoplasma_well_detector` family
 
-The family's default is [toxoplasma_well_detector_v2](toxoplasma_well_detector_v2.md).
+The family's default is [toxoplasma_well_detector_v3](toxoplasma_well_detector_v3.md).
 
-Other versions: [toxoplasma_well_detector_v3](toxoplasma_well_detector_v3.md) (candidate), [toxoplasma_well_detector_v2](toxoplasma_well_detector_v2.md).
+Other versions: [toxoplasma_well_detector_v3](toxoplasma_well_detector_v3.md), [toxoplasma_well_detector_v2](toxoplasma_well_detector_v2.md).
 
 ## Training data
 
