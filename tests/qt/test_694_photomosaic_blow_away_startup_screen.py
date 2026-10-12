@@ -617,9 +617,12 @@ def test_the_preload_ending_hands_the_cover_to_the_blow_away(
 
     host = cover.parent()
     host._loading_screen = cover
+    released = []
+    host._release_the_startup_dialogs = lambda: released.append(1)
     cover.grab()
     qt_app.MainWindow._on_preload_done(host)
     assert host._loading_screen is None
+    assert host._blowing_cover is cover and released == []
     assert cover._state == "holding"
     cover._finish()
 
