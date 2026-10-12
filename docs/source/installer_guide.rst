@@ -134,11 +134,11 @@ in ``~/.spacr/logs/update.log`` and does not trigger a successful-update
 relaunch. The update also stops if spaCR cannot finish closing safely. The
 separate frozen application bundle uses its bundle replacement workflow.
 
-Older installations and full installers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Existing installations and full installers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The full installers and other installer update paths look for spaCR
-installations an earlier installer made and remove them, so that only one
+installations made by another spaCR installer and remove them, so that only one
 installer-made copy remains. They find
 the Windows online and offline installs, the macOS application and its
 per-user environment, the Linux online install and the Debian package,
@@ -484,7 +484,7 @@ built it fails.
 The public `GHCR package page
 <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_ lists available
 versions. The commands below use the published **1.5.1.0** images; not every
-older spaCR release has a container image.
+spaCR release has a container image.
 
 The images run spaCR without a display: the CLI, the pipelines, cluster jobs
 and reruns of an earlier analysis with a pinned version. Use the platform

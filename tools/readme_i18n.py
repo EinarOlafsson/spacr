@@ -143,6 +143,16 @@ for _language, _label in {'sv': 'Organism', 'de': 'Organismus', 'es': 'Organismo
     WORKFLOW_SECTION_LABELS[_language]["Organism"] = _label
 
 
+#: Labels of the README's generated model-zoo block, by language. English is
+#: the key; a language or label missing here is written in English.
+MODEL_ZOO_LABELS: dict[str, dict[str, str]] = {}
+
+
+def localize_model_zoo_label(label: str, language: str) -> str:
+    """The README model-zoo ``label`` in ``language``, English when absent."""
+    return MODEL_ZOO_LABELS.get(language, {}).get(label, label)
+
+
 def localize_workflow_markup(text: str, language: str) -> str:
     """Localize generated workflow headings/actions, retaining module names."""
     template = WORKFLOW_MODULE_ALT_TEMPLATES[language]

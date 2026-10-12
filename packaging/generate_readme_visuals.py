@@ -29,8 +29,10 @@ sys.path.insert(0, str(ROOT))
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from tools.readme_i18n import (  # noqa: E402
-    localize_hardware_markup, localize_workflow_markup,
+    localize_hardware_markup, localize_model_zoo_label,
+    localize_workflow_markup,
 )
+from tools import build_model_cards  # noqa: E402
 
 ICON_DIR = ROOT / "spacr" / "resources" / "icons"
 DATABANK_DIR = ICON_DIR / "databanks"
@@ -884,6 +886,70 @@ def _model_zoo_table() -> str:
     return "\n".join(lines)
 
 
+def _readme_language(path) -> str:
+    """``README.de.rst`` -> ``de``; the English README is ``en``."""
+    parts = Path(path).name.split(".")
+    return parts[1] if len(parts) == 3 else "en"
+
+
+def _card_prefix(path) -> str:
+    """Where ``docs/models`` is, relative to the README at ``path``."""
+    return ("../../models/" if Path(path).parent.name == "readme"
+            else "docs/models/")
+
+
+def _readme_model_zoo_block(prefix: str = "docs/models/",
+                            language: str = "en") -> str:
+    """The README's model-zoo block: the default model of each family.
+
+    Each row links the model's card in ``docs/models`` (written by
+    ``tools/build_model_cards.py``). The other versions follow on one line
+    each, older models and alternatives, linking their cards. Every number
+    comes from the zoo record, so a re-score reaches the README by
+    re-running this generator.
+    """
+    def label(text: str) -> str:
+        return localize_model_zoo_label(text, language)
+
+    def link(entry) -> str:
+        key = build_model_cards.key_of(entry)
+        return f"`{key} <{prefix}{build_model_cards.card_file(key)}>`__"
+
+    published = _published_models()
+    lines = [
+        ".. list-table::",
+        "   :header-rows: 1",
+        "   :widths: 24 34 42",
+        "",
+        f"   * - {label('Model')}",
+        f"     - {label('Training data')}",
+        f"     - {label('Hold-out performance')}",
+    ]
+    for entry in build_model_cards.default_records(published):
+        architecture = str(entry.get("architecture") or "").strip().rstrip(".")
+        dataset = str(entry.get("dataset") or "").strip().rstrip(".")
+        versus = str(entry.get("versus_stock") or "").strip().rstrip(".")
+        lines.extend([
+            f"   * - {link(entry)}",
+            f"       ({architecture})",
+            f"     - {dataset}",
+            f"     - {versus}",
+        ])
+    others = build_model_cards.other_records(published)
+    older = [entry for entry, status in others if status == "older"]
+    alternatives = [(entry, status) for entry, status in others
+                    if status != "older"]
+    if older:
+        lines += ["", f"{label('Older models')}: "
+                  + ", ".join(link(entry) for entry in older)]
+    if alternatives:
+        lines += ["", f"{label('Alternatives')}: " + ", ".join(
+            link(entry) + (f" ({label('candidate')})"
+                           if status == "candidate" else "")
+            for entry, status in alternatives)]
+    return "\n".join(lines)
+
+
 #: "Languages" written in each translated README's own language.
 #:
 #: A DELIBERATE MIRROR of ``LANGUAGE_PICKER_LABELS`` in
@@ -1071,7 +1137,8 @@ def _write_the_model_zoo_table(path) -> bool:
     if start < 0 or end < 0:
         return False
     end += len(MODEL_ZOO_END)
-    block = f"{MODEL_ZOO_BEGIN}\n\n{_model_zoo_table()}\n\n{MODEL_ZOO_END}"
+    zoo = _readme_model_zoo_block(_card_prefix(path), _readme_language(path))
+    block = f"{MODEL_ZOO_BEGIN}\n\n{zoo}\n\n{MODEL_ZOO_END}"
     updated = text[:start] + block + text[end:]
     if updated != text:
         path.write_text(updated, encoding="utf-8")
@@ -1674,6 +1741,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     MODEL_ZOO_SECTIONS.write_text(_model_zoo_sections(),
                                   encoding="utf-8")
     print(MODEL_ZOO_TABLE.relative_to(ROOT))
+    for name in build_model_cards.write():
+        print(f"docs/models/{name}")
     # The picker page before the pickers that point at it, so a fresh
     # checkout never has ten links to a file that is not there yet.
     LANGUAGE_PICKER_PAGE.parent.mkdir(parents=True, exist_ok=True)

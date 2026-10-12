@@ -55,8 +55,8 @@ their inclusion flags, output object labels, parent IDs, coordinates, noise,
 local background, exact 10/20/40-pixel centre means and the selected N-pixel
 mean. Exact centre means retain overlapping samples independently of label
 ownership. Use ``center_corrected`` for the selected N-pixel mean minus local
-background, or ``corrected20`` for the fixed 20-pixel variant. The legacy
-``corrected`` column retains the reference's three-by-three-window result.
+background, or ``corrected20`` for the fixed 20-pixel variant. The
+``corrected`` column holds the reference's three-by-three-window result.
 The receipt binds the image, parent mask, output mask, CSV and detector
 settings to checksums. Edited or combined labels cannot silently receive the
 old centre measurements. Local previews estimate noise within their crop;
@@ -376,7 +376,7 @@ checkpoint supported by the installed preview runtime. See
        flow-error threshold, cell-probability threshold and normalization.
        Inspect its cell-probability and flow panes alongside accepted labels.
 
-Ordinary Otsu retains a legacy magnifier preprocessing path. Its cropped
+Ordinary Otsu uses a separate magnifier preprocessing path, so its cropped
 preview and whole-field detection are not guaranteed to be pixel-identical.
 Other threshold modes run the shared engine on the requested crop; a crop
 can still have a different histogram from the whole field. Tune on several

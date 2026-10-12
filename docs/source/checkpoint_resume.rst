@@ -68,8 +68,8 @@ Damaged archives are set aside as ``<name>.damaged``. With preprocessing
 disabled, the run stops and explains how to recover them. The same quarantine
 still prevents a later run from silently omitting those fields. It is resolved
 by a valid same-name replacement, or by readable archives covering every
-existing field in ``stack/``. Legacy object-valued filename arrays cannot
-prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt
+existing field in ``stack/``. Archives that store filenames as object-valued
+arrays cannot prove that coverage. Enabling preprocessing lets recoverable fields be rebuilt
 from the available source data; valid archives and quarantined evidence are
 preserved.
 

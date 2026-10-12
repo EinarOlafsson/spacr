@@ -3823,6 +3823,17 @@ README_RESOURCE_SUBSTITUTIONS = (
 )
 README_WORKFLOW_BEGIN = ".. spacr-workflow-begin"
 README_WORKFLOW_END = ".. spacr-workflow-end"
+README_MODEL_ZOO_BEGIN = ".. spacr-model-zoo-begin"
+README_MODEL_ZOO_END = ".. spacr-model-zoo-end"
+
+
+def _model_zoo_block_span(text: str) -> tuple[int, int] | None:
+    """Return the character span between the model-zoo markers."""
+    start = text.find(README_MODEL_ZOO_BEGIN)
+    end = text.find(README_MODEL_ZOO_END)
+    if start < 0 or end < start:
+        return None
+    return start + len(README_MODEL_ZOO_BEGIN), end
 
 
 def _readme_substitution_alt_text(text: str, names: Iterable[str]) -> list[str]:
@@ -4349,17 +4360,20 @@ def translatable_blocks(
         # headings and accessibility actions are localized deterministically
         # after prose reconstruction; sending rows or substitutions through a
         # model can corrupt their RST delimiters and links.
-        if line.strip() == README_WORKFLOW_BEGIN:
+        if line.strip() in (README_WORKFLOW_BEGIN, README_MODEL_ZOO_BEGIN):
+            block_end = (README_WORKFLOW_END
+                         if line.strip() == README_WORKFLOW_BEGIN
+                         else README_MODEL_ZOO_END)
             literal = [line]
             index += 1
             while (
                 index < len(lines)
-                and lines[index].strip() != README_WORKFLOW_END
+                and lines[index].strip() != block_end
             ):
                 literal.append(lines[index])
                 index += 1
             if index >= len(lines):
-                raise ValueError("README workflow block has no end marker")
+                raise ValueError(f"README block {line.strip()} has no end marker")
             literal.append(lines[index])
             index += 1
             layout.append(("raw_lines", literal))
@@ -7020,6 +7034,9 @@ def main() -> int:
         citing = _citing_block_span(readme)
         if citing and citing[0] <= match.start() < citing[1]:
             continue
+        zoo = _model_zoo_block_span(readme)
+        if zoo and zoo[0] <= match.start() < zoo[1]:
+            continue
         key = f"__readme_link_{index}__"
         readme_links.append((key, label, target))
     for language in args.languages:
@@ -7098,6 +7115,8 @@ def main() -> int:
                 " image:: docs/source/", " image:: ../../source/",
             ).replace(
                 "<docs/source/", "<../../source/",
+            ).replace(
+                "<docs/models/", "<../../models/",
             ).replace(
                 ":target: docs/source/", ":target: ../../source/",
             ).replace(

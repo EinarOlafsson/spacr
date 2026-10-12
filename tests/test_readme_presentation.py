@@ -631,16 +631,13 @@ print("SPACR_COLUMNS=" + json.dumps(order))
     assert clean == settings_first
 
 
-def test_the_readme_lists_every_published_model_with_its_limits():
+def test_the_readme_lists_the_default_model_of_each_family():
     """The model zoo section is generated from the catalogue, not typed.
 
-    Asked for on 2026-09-02: "add the uploaded modules in the current model
-    zoo to readme in a model zoo section".
-
-    GENERATED, because a hand-written table is a second copy of the
-    catalogue and a second copy goes stale -- which is the fault the module
-    grid above spent a day having removed. Publishing a fourth model must
-    make this test fail until the generator is re-run.
+    Asked for on 2026-09-02, narrowed on 2026-10-12: the README shows only
+    the default model of each family, each linking its card in docs/models,
+    with the older models and alternatives on one line each. A re-score in
+    the zoo must make this test fail until the generator is re-run.
     """
     import importlib.util
 
@@ -648,43 +645,67 @@ def test_the_readme_lists_every_published_model_with_its_limits():
     spec = importlib.util.spec_from_file_location("spacr_readme_visuals", path)
     generator = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(generator)
+    cards = generator.build_model_cards
 
     text = _read(README)
     block = text.partition(generator.MODEL_ZOO_BEGIN)[2]
     block = block.partition(generator.MODEL_ZOO_END)[0]
     assert block.strip(), "the README has no model zoo block"
-    assert block.strip() == generator._model_zoo_table().strip(), (
-        "the README's model zoo table is not what the catalogue produces; "
+    assert block.strip() == generator._readme_model_zoo_block().strip(), (
+        "the README's model zoo block is not what the catalogue produces; "
         "re-run packaging/generate_readme_visuals.py")
 
-    rows = generator._model_zoo_rows()
-    assert rows, "the catalogue published nothing"
-    for key, name, trained_on, limits in rows:
-        assert f"``{key}``" in block, f"{key} is published but not in the README"
-        assert name in block
-        # THE LIMITS TOO, not only the headline number. Every entry's notes
-        # carry the caveat that says what the model is not for -- "accuracy
-        # falls sharply above IoU 0.8", "locates WELLS, not plaques" -- and
-        # a table that prints only the good number is the sort of claim
-        # instruction 316 exists to prevent.
-        assert limits, f"{key} publishes no notes at all"
-        assert limits in block, f"{key}'s stated limits are missing"
-        assert trained_on in block, f"{key} does not say what it was trained on"
+    published = generator._published_models()
+    defaults = cards.default_records(published)
+    assert defaults, "the catalogue published nothing"
+    table = block.partition("\n\n" + "Older models")[0]
+    for entry in defaults:
+        key = cards.key_of(entry)
+        assert f"`{key} <docs/models/{key}.md>`__" in table, key
+        assert str(entry["versus_stock"]).strip().rstrip(".") in table, key
+        assert str(entry["dataset"]).strip().rstrip(".") in table, key
+    for entry, _status in cards.other_records(published):
+        key = cards.key_of(entry)
+        assert f"`{key} <docs/models/{key}.md>`__" in block, key
+        assert f"<docs/models/{key}.md>`__\n       (" not in table, (
+            f"{key} is not a family default but has a table row")
+    assert "Older models: " in block
 
-    # The table must not depend on the machine that generated it: a
-    # developer with a local checkpoint installed, a plugin, or the
-    # catalogue environment variable set must all produce the same README.
+    for key in ("toxoplasma_pv", "toxoplasma_plaque", "live_cell"):
+        family = next(f for f in cards.families(published) if f["stem"] == key)
+        assert family["status"][cards.key_of(family["default"])] == "default"
+
     import os
 
     from spacr.model_zoo import CATALOGUE_ENV_VAR
 
+    before = generator._readme_model_zoo_block()
     os.environ[CATALOGUE_ENV_VAR] = "/nonexistent/catalogue.json"
     try:
-        assert generator._model_zoo_rows() == rows, (
-            "the generated table changed with the environment; the README "
-            "would differ depending on who ran the generator")
+        assert generator._readme_model_zoo_block() == before, (
+            "the generated block changed with the environment")
+        assert generator._published_models() == published
     finally:
         os.environ.pop(CATALOGUE_ENV_VAR, None)
+
+
+def test_every_readme_carries_the_same_model_zoo_block():
+    import importlib.util
+
+    path = ROOT / "packaging" / "generate_readme_visuals.py"
+    spec = importlib.util.spec_from_file_location("spacr_readme_visuals", path)
+    generator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(generator)
+    for readme in generator.README_PATHS:
+        text = readme.read_text(encoding="utf-8")
+        block = text.partition(generator.MODEL_ZOO_BEGIN)[2]
+        block = block.partition(generator.MODEL_ZOO_END)[0]
+        expected = generator._readme_model_zoo_block(
+            generator._card_prefix(readme), generator._readme_language(readme))
+        assert block.strip() == expected.strip(), readme.name
+        for target in re.findall(r"<([^<>]+\.md)>`__", block):
+            assert (readme.parent / target).resolve().is_file(), (
+                readme.name, target)
 
 
 def test_installer_guide_is_distinct_from_the_version_archive():

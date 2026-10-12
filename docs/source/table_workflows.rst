@@ -226,7 +226,7 @@ Recover original filenames before labelling conditions
 
 If images were renamed to Yokogawa format, use **Merge original filenames…**
 inside **Merge tables** to recover the names recorded during conversion.
-Select ``conversion_map.csv``, a legacy ``rename_log.csv``, a
+Select ``conversion_map.csv``, a ``rename_log.csv``, a
 ``channel_sorting_manifest.csv``, or a SQLite database containing the
 ``conversion_map`` table. The file picker starts near a known mapping when
 one is found beside the measurement database or in its parent folders.
