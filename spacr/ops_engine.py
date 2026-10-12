@@ -4268,6 +4268,8 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
         frame_xy = _st_field_frame(xy0, field)
         gene = str(settings.get("spatial_gene") or "")
         figure = Figure(figsize=(7.0, 6.0))
+        from .figures.bundle import _register_figure_data
+        _register_figure_data(figure, image, kind="overlay", gene=gene)
         _st_draw_overlay(figure, image, frame_xy,
                          _st_gene_values(bundle, gene),
                          radius=radius0 / float(field["scale_x"]),
