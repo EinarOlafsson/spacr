@@ -12245,6 +12245,12 @@ class AppScreen(QWidget):
         Registered as CALLABLES returning the attribute, never as the widget:
         `_results_panel` is rebuilt when the module changes, and a captured
         reference would hand a run journal a deleted C++ peer to ask.
+
+        The callable reads the attribute with :meth:`_if_built`, so asking for
+        a section never builds a deferred panel. The run journal asks from the
+        worker thread that ran the pipeline, and a panel built there is a
+        widget created off the GUI thread; a panel that was never built has
+        no state to save.
         """
         from ...workspace import register
 
@@ -12252,7 +12258,7 @@ class AppScreen(QWidget):
         register(f"{key}:settings", lambda: self)
         for name, attribute in self._WORKSPACE_PANELS.items():
             register(f"{key}:{name}",
-                     lambda attribute=attribute: getattr(self, attribute, None))
+                     lambda attribute=attribute: self._if_built(attribute))
 
     def unregister_workspace(self) -> None:
         """Withdraw this screen's sections. Called when it is torn down."""
