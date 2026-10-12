@@ -2532,6 +2532,30 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How much of the machine the run may use: whether the graphics card "
         "is used, and how many fields are decoded at once. Nothing here "
         "changes the result, only what it costs.",
+    "SPATIAL INPUT":
+        "Which spatial transcriptomics run is read and where its results "
+        "go: the Xenium or Visium HD output folder, the platform that wrote "
+        "it, and either the folder the segmented fields are written to or "
+        "the masks folder the barcodes are mapped onto. Set these first; "
+        "every other spatial group assumes they are right.",
+    "SPATIAL REGION & TILING":
+        "How much of the slide image is segmented and in what pieces: the "
+        "pyramid level, an optional window, and the tile size and overlap "
+        "the image is cut into so a whole slide fits in memory.",
+    "SPATIAL SEGMENTATION":
+        "How cells and nuclei are found in the slide image: the segmenter, "
+        "which stain it reads, the Cellpose model and diameter, how far a "
+        "nucleus is grown to make its cell, and whether the graphics card "
+        "is used.",
+    "SPATIAL MAPPING":
+        "How transcripts or bins are counted into the segmented objects: "
+        "the Visium HD bin size, the minimum Xenium quality value, which "
+        "objects receive counts, the gene drawn on the overlay, and whether "
+        "an AnnData file is written.",
+    "SPATIAL INFECTION":
+        "Which genes belong to the pathogen and how many of their "
+        "transcripts make an object infected. Every object's distance to "
+        "the nearest infected one is measured from this call.",
 
     "PATHS":
         "Where the module reads its images or tables from, plus any lookup "
