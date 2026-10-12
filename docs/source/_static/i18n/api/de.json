@@ -71438,6 +71438,22 @@
         "f455446bb2e0c3efeac6e4ad156515a274398837c673ee1f9055f96e74b1b8dc"
       ]
     },
+    "spacr.qt.app.MainWindow.refresh_after_preferences": {
+      "source_blocks_sha256": [
+        "931a376a36dda631494a58c6cb9ccefd4296e1853609f15bb92554f5ce7b33b8",
+        "ef2d672a8c89d90621ee7e71c59730cd62e9bf84341ebc4e11113842043b8d4b",
+        "6b869f8fce5e4bcf0df014b1c72f3e2036cad8499f16dcc63e5ffec996554c9b",
+        "9de1194d14451b92f7c8b0819d94cef5741d661cc527342157e221b1818d1b40"
+      ],
+      "source_sha256": "9585dc48c996c325d739397b84d731c98a5deca2216c3df58a7bd8afccf3f5d2",
+      "text": "Neu zeichnen, was ein Preferences-Apply geändert hat, und sonst nichts.\n\nDER APPLY, DER EINEN REGLER ÄNDERTE, BAUTE HOME NEU AUF. Die Seitendeckkraft steckt in der Signatur des Fensters, sodass ihr Verschieben :meth:`refresh_theme` ausführte -- Home neu aufgebaut (2.1-2.6 s auf einem ausgelasteten Rechner), der Baum neu übersetzt (0.3 s), jedes Alpha-Gate durchlaufen -- obwohl auf Home nur drei Regeln die Deckkraft übernommen hatten, die :meth:`HomePage.refresh_pane_surfaces` an Ort und Stelle erneut setzt.\n\n:param changed: Namen aus der Signatur des Fensters, deren Werte sich geändert haben (:func:`spacr.qt.preferences._window_changes`).\n:returns: ``\"rebuilt\"``, ``\"in place\"`` oder ``\"nothing\"``, sodass ein Test sagen kann, welches.",
+      "translation_source_blocks_sha256": [
+        "931a376a36dda631494a58c6cb9ccefd4296e1853609f15bb92554f5ce7b33b8",
+        "f6ee18e22be9a2ecdcf677caca947984b7c19a82fc9421d0c0e700ff254cb025",
+        "6b869f8fce5e4bcf0df014b1c72f3e2036cad8499f16dcc63e5ffec996554c9b",
+        "9de1194d14451b92f7c8b0819d94cef5741d661cc527342157e221b1818d1b40"
+      ]
+    },
     "spacr.qt.app.MainWindow.refresh_language": {
       "source_blocks_sha256": [
         "def23a9dee1fc5ab3d529b5ef503ebb20891b04daa21121a7d538a546f2ac39e"
@@ -89192,6 +89208,16 @@
         "77a63517fc4760828600e1e819458bb83059ebbd844b530f2c392049e79e2b6c"
       ]
     },
+    "spacr.qt.preferences._refresh_owner_window._redraw_what_changed": {
+      "source_blocks_sha256": [
+        "03e9cd32d714e22d401d4ef9e0a75fe23118f04227e74e270cc6bc800b1e952f"
+      ],
+      "source_sha256": "03e9cd32d714e22d401d4ef9e0a75fe23118f04227e74e270cc6bc800b1e952f",
+      "text": "Das Fenster für ``changes`` neu zeichnen, falls es noch da ist.",
+      "translation_source_blocks_sha256": [
+        "03e9cd32d714e22d401d4ef9e0a75fe23118f04227e74e270cc6bc800b1e952f"
+      ]
+    },
     "spacr.qt.preferences._start_disk_report.done": {
       "source_blocks_sha256": [
         "14825ecee6c6e5732c7c5fdbdb185ac73cf23a96ad64d6ac03bc685603ca4821"
@@ -89294,14 +89320,16 @@
       "source_blocks_sha256": [
         "88875113abff77bdf763f6532b00441a84dd8ee1b5a3aba467dd6c0022861817",
         "34363b6666905926b49273d74aa63116c52dcd18ae3e215068713a135ad5d23e",
-        "23ca3be5bb5667b12ea2d0b5fdf11105e326e6fdf419ca6190135c08d7339cc2"
+        "23ca3be5bb5667b12ea2d0b5fdf11105e326e6fdf419ca6190135c08d7339cc2",
+        "0d512ddb7a251112e550c02cdf711af54a786c95ff0e961482a336ea019e9086"
       ],
-      "source_sha256": "e56b3cedfdb711bf944af76b476e5547b5e74f21f138b6b4fc4c2fc48d6bc7a7",
-      "text": "Sprache, Thema und Schriftskala auf ``QApplication`` neu anwenden.\n\nBeim Start von :func:`spacr.qt.app.launch` aufgerufen, und wieder, wenn der Benutzer eine Präferenz ändert (über :class:`PreferencesDialog` ``accepted`` Signal).\n\n:param app: optional QApplication. Rückfall auf ``QApplication.instance()``.",
+      "source_sha256": "f2f9b2c759f37fa04aef41fa82bc3c3f5dc32940c4c4479f1f8d427e9e20856c",
+      "text": "Sprache, Design und Schriftskalierung erneut auf ``QApplication`` anwenden.\n\nWird beim Start von :func:`spacr.qt.app.launch` aufgerufen und erneut, sobald der Benutzer eine Einstellung ändert (über :class:`PreferencesDialog` und dessen Signal ``accepted``).\n\n:param app: optionale QApplication. Greift auf ``QApplication.instance()`` zurück.\n:param in_slices: Apply und Zurücksetzen von Preferences: Ein neues Stylesheet wird den Fenstern pro Durchlauf der Ereignisschleife eines nach dem anderen nach dem nächsten Zeichnen aufgelegt (:func:`spacr.qt.theme.apply_stylesheet_per_window`), und die Symbolgrößen werden nur dann neu abgeleitet, wenn sich eine Skalierung geändert hat.",
       "translation_source_blocks_sha256": [
         "88875113abff77bdf763f6532b00441a84dd8ee1b5a3aba467dd6c0022861817",
         "34363b6666905926b49273d74aa63116c52dcd18ae3e215068713a135ad5d23e",
-        "23ca3be5bb5667b12ea2d0b5fdf11105e326e6fdf419ca6190135c08d7339cc2"
+        "23ca3be5bb5667b12ea2d0b5fdf11105e326e6fdf419ca6190135c08d7339cc2",
+        "0d512ddb7a251112e550c02cdf711af54a786c95ff0e961482a336ea019e9086"
       ]
     },
     "spacr.qt.preferences.apply_quality_preset": {
@@ -118950,12 +118978,13 @@
         "4ed48e0f23bbdb8b4a0b2bac57ab1fcda353b3522c51fbbb2491d643e9265add",
         "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
         "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
-        "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd",
+        "5cb327cb2b60ae6053d190342ca134e0162182beb2182777055e9530a2ad47db",
+        "12579956c850cfc31100a691898e99c00df25c176f4c0d6f7398ff765ff3c39e",
         "8f7c4e673d2a761035757863dfab9209fd048b51deeb67c07973e4cf295bde41",
         "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b"
       ],
-      "source_sha256": "27e84d6f54ff05ab155e9161ea0dc2c20abce882b39b8f66b9633fc600a82da1",
-      "text": "``sheet`` auf jedem Top-Level-Fenster installieren statt auf ``app``.\n\nWARUM, MIT ZAHLEN. `QApplication.setStyleSheet` poliert jedes Widget neu, das der Prozess besitzt, und eine Sitzung, in der einige Module geöffnet wurden, besitzt Tausende, die sie nicht sieht -- `MainWindow` baut eine Modulansicht bei der ersten Navigation und behält sie danach im Stapel. Gemessen auf diesem Rechner, offscreen, vier Module offen, 9,045 lebende Widgets, von denen 6,111 auf Ansichten liegen, die niemand ansieht:\n\n    app.setStyleSheet            2,836 ms zuerst, ~7,500 ms danach jedes Top-Level-Fenster       1,684 ms zuerst, ~1,900 ms danach die sichtbare Ansicht allein       222 ms\n\nEIN VIERTEL DER KOSTEN FÜR DASSELBE BILD. Die Untergrenze liegt noch tiefer -- 222 ms kostet die sichtbare Ansicht allein --, und sie zu erreichen hieße, auch die verborgenen Ansichten nicht mit dem Stylesheet zu versehen, was eine größere Änderung ist als diese.\n\n:param app: die ``QApplication``, deren Fenster das Stylesheet tragen und wo das Stylesheet selbst abgelegt wird, damit ein später erzeugtes Fenster es finden kann. ``None`` wird akzeptiert und bewirkt nichts, sodass ein Aufrufer ohne Anwendung nicht erst prüfen muss.\n:param sheet: das vollständige Anwendungs-Stylesheet, wie :func:`stylesheet` es zusammenstellt.\n:returns: die Anzahl der Fenster, auf die das Stylesheet gelegt wurde.\n\nEin verborgenes Fenster mit der Markierung :data:`SHEETED_WHEN_SHOWN` bleibt für sein nächstes ``Show``, wo :class:`_SheetsEveryWindowThatAppears` es vor dem Zeichnen mit dem Stylesheet versieht: Das für das nächste Öffnen behaltene Preferences-Fenster sind ~750 Widgets, die niemand sieht.\n\nDer Rumpf einer Einstellungskategorie, der außerhalb der Seite wartet, hat kein Elternteil, daher führt Qt ihn unter den Widgets der obersten Ebene, aber er ist kein Fenster: Er kehrt unter seine Seite zurück, bevor ihn jemand sieht, und trägt von dort das Stylesheet der Seite. Ihm hier ein Stylesheet zu geben würde ihn mit einer Kopie des Stylesheets vom Moment seiner Rückkehr zurücklassen, die die nächste Themenänderung nicht erreichen würde. Siehe :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`.",
+      "source_sha256": "5d7cadba61edfa69cbeeb65018ef54cec8e68c0a86679788aa2e4e504495ec38",
+      "text": "``sheet`` auf jedem Top-Level-Fenster installieren statt auf ``app``.\n\nWARUM, MIT ZAHLEN. `QApplication.setStyleSheet` poliert jedes Widget neu, das der Prozess besitzt, und eine Sitzung, in der einige Module geöffnet wurden, besitzt Tausende, die sie nicht sieht -- `MainWindow` baut eine Modulansicht bei der ersten Navigation und behält sie danach im Stapel. Gemessen auf diesem Rechner, offscreen, vier Module offen, 9,045 lebende Widgets, von denen 6,111 auf Ansichten liegen, die niemand ansieht:\n\n    app.setStyleSheet            2,836 ms zuerst, ~7,500 ms danach jedes Top-Level-Fenster       1,684 ms zuerst, ~1,900 ms danach die sichtbare Ansicht allein       222 ms\n\nEIN VIERTEL DER KOSTEN FÜR DASSELBE BILD. Die Untergrenze liegt noch tiefer -- 222 ms kostet die sichtbare Ansicht allein --, und sie zu erreichen hieße, auch die verborgenen Ansichten nicht mit dem Stylesheet zu versehen, was eine größere Änderung ist als diese.\n\n:param app: die ``QApplication``, deren Fenster das Stylesheet tragen und wo das Stylesheet selbst abgelegt wird, damit ein später erzeugtes Fenster es finden kann. ``None`` wird akzeptiert und bewirkt nichts, sodass ein Aufrufer ohne Anwendung nicht erst prüfen muss.\n:param sheet: das vollständige Anwendungs-Stylesheet, wie :func:`stylesheet` es zusammenstellt.\n:param in_slices: das Stylesheet jetzt auf nichts legen: Die Fenster beim Anzeigen erhalten es pro Durchlauf der Ereignisschleife eines nach dem anderen nach dem nächsten Zeichnen, die verborgenen danach (:func:`_sheet_the_windows_in_slices`). Ein Fenster, das vor seiner Reihe poliert oder angezeigt wird, erhält es dann, wie jedes Fenster. Apply von Preferences verlangt dies.\n:returns: die Anzahl der Fenster, auf die das Stylesheet gelegt wurde; mit ``in_slices`` die Anzahl derer, die auf ihre Scheibe warten.\n\nEin verborgenes Fenster mit der Markierung :data:`SHEETED_WHEN_SHOWN` bleibt für sein nächstes ``Show``, wo :class:`_SheetsEveryWindowThatAppears` es vor dem Zeichnen mit dem Stylesheet versieht: Das für das nächste Öffnen behaltene Preferences-Fenster sind ~750 Widgets, die niemand sieht.\n\nDer Rumpf einer Einstellungskategorie, der außerhalb der Seite wartet, hat kein Elternteil, daher führt Qt ihn unter den Widgets der obersten Ebene, aber er ist kein Fenster: Er kehrt unter seine Seite zurück, bevor ihn jemand sieht, und trägt von dort das Stylesheet der Seite. Ihm hier ein Stylesheet zu geben würde ihn mit einer Kopie des Stylesheets vom Moment seiner Rückkehr zurücklassen, die die nächste Themenänderung nicht erreichen würde. Siehe :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`.",
       "translation_source_blocks_sha256": [
         "71cc86f222afb0fe56545f6956139187d3676caefdb63ae6875f54eb60e702b0",
         "b010a6f9c65980ef40e9f0e337e14d43cb0d63ec4cb9be1e4bf51ae7302926bc",
@@ -118963,7 +118992,8 @@
         "fa85d6fe6ebad42a2c3a2dd6ee9b6128d15817c4b318532a9bf02da79bfd27c7",
         "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
         "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
-        "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd",
+        "5cb327cb2b60ae6053d190342ca134e0162182beb2182777055e9530a2ad47db",
+        "12579956c850cfc31100a691898e99c00df25c176f4c0d6f7398ff765ff3c39e",
         "8f7c4e673d2a761035757863dfab9209fd048b51deeb67c07973e4cf295bde41",
         "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b"
       ]
@@ -119294,6 +119324,18 @@
       "translation_source_blocks_sha256": [
         "f2cd1977c02c44adbd8048992e8290fffaeb18c70f89694dac868d76fcc749bd",
         "7b3b07496a4b77c31dee0c30e1a113660f0d89aa33591e279f9c9092ce7ee04a"
+      ]
+    },
+    "spacr.qt.theme.finish_the_sliced_sheeting": {
+      "source_blocks_sha256": [
+        "20102b5f79dc84f7c0dd87a6dac7a0c54c09a12fbfdd004cbb50c0597e017cea",
+        "696512e489778ae61e05f83bfbcda66fc152945c8ecbe77b812389fd6866a443"
+      ],
+      "source_sha256": "59be874621f968345146fd85adc9f53f53b1f48c69ea695a48ab0d912700b59b",
+      "text": "Jede noch ausstehende Wurzel sofort mit ihrem Stylesheet versehen. Für Tests und das Herunterfahren.\n\n:returns: wie viele Wurzeln mit dem Stylesheet versehen wurden.",
+      "translation_source_blocks_sha256": [
+        "20102b5f79dc84f7c0dd87a6dac7a0c54c09a12fbfdd004cbb50c0597e017cea",
+        "696512e489778ae61e05f83bfbcda66fc152945c8ecbe77b812389fd6866a443"
       ]
     },
     "spacr.qt.theme.font_px": {
@@ -120052,6 +120094,18 @@
         "d3e44fd748d5e81ff6522bce07f5fd05b875dd0147c9949974b386e614baf4fb",
         "d0c13e13cc5004bf03adb2069d5f600e9368705f35b74edd532c5c355f5a65a8",
         "3b8b1155011863b6545cace955fedd70233e79a655384aabb8ceaa0af7570ca9"
+      ]
+    },
+    "spacr.qt.theme.sliced_sheeting_owed": {
+      "source_blocks_sha256": [
+        "230b5754b48c907d18d8b7451d0614b4d58629020468f67ca483aa9e1e85c044",
+        "0e62f6fc8b0ef12d9ed2cd739ca3854f70de89aae9f1c13d15ebf65e2ef7843f"
+      ],
+      "source_sha256": "905712dd8808ac6bf84d81ceece294ae954f106214b336a8f26ba566234d9325",
+      "text": "Wie viele Wurzeln noch auf ein scheibenweises Stylesheet warten.\n\n:returns: die Länge der Warteschlange.",
+      "translation_source_blocks_sha256": [
+        "230b5754b48c907d18d8b7451d0614b4d58629020468f67ca483aa9e1e85c044",
+        "9ef5f7a666fff9baefed9d3b1aaee588bee187deb2bd14d45a4ae429bbb051bc"
       ]
     },
     "spacr.qt.theme.solve_scrim_alpha": {
@@ -153200,6 +153254,32 @@
         "43021b232839841c02180bafa3e04e0cd6e63a878221307a9554ec9592979b61"
       ]
     },
+    "spacr.qt.widgets.home.HomePage.refresh_pane_surfaces": {
+      "source_blocks_sha256": [
+        "423182a91341ba54b242501e60e8b48ee8e1779c9f0c62d9b3ac642e368c5532",
+        "21b52f454fa78202d4aea9580df6e2d459d7a545c11c6d4833e53d0a64357b0a",
+        "abf455943602ccbc209c157ecc91892c0f3447f62c35265483b715d46cbfbe6f",
+        "61bf52d3df9083ad66d2a6ac53db02eaf991cea63ffd8c707d2d1f5a1056aab3"
+      ],
+      "source_sha256": "6ba9ef818031ba08efb5dd35738add05f838b275f2f3726f8f1be8f2836a2faa",
+      "text": "Dem Kopfbereich, den Panels und den Tabs die jetzt eingestellte Seitendeckkraft geben.\n\nSie übernahmen sie beim Aufbau von Home, und eine neue Deckkraft baute Home früher neu auf: 2.1-2.6 s des GUI-Threads auf einem ausgelasteten Rechner, für drei Arten von Regeln. Jede wird jetzt an Ort und Stelle erneut gesetzt, ein Widget pro Durchlauf der Ereignisschleife und nur dort, wo sich die Regel geändert hat, da das Setzen einer Regel alles darunter neu formatiert.\n\nDIE TABS WERDEN AUF IHRER LEISTE ANGESPROCHEN. Die Regel des Tab-Widgets umfasst ganz Home unter sich, und ihr erneutes Setzen formatierte jede Kachel neu (1.1 s ausgelastet), um die Füllung eines Tabs zu ändern; die Leiste nimmt die Füllung des gewählten Tabs als eigene Regel, die über die geerbte gewinnt.\n\n:returns: wie viele Widgets eine neue Regel übernehmen werden.",
+      "translation_source_blocks_sha256": [
+        "423182a91341ba54b242501e60e8b48ee8e1779c9f0c62d9b3ac642e368c5532",
+        "7b0283ba758505c5141ca101bf5d1942ff2f6097e72e5943b6a88ea609dd6679",
+        "892f4478b00331ed690799cdb5bdc4c3d4c8553f370a58085b89c9070bbf5811",
+        "61bf52d3df9083ad66d2a6ac53db02eaf991cea63ffd8c707d2d1f5a1056aab3"
+      ]
+    },
+    "spacr.qt.widgets.home.HomePage.refresh_pane_surfaces._next": {
+      "source_blocks_sha256": [
+        "181686b7fe56fdc00379ba0a25c80495afb516c86142d1443a9326c5824b203f"
+      ],
+      "source_sha256": "181686b7fe56fdc00379ba0a25c80495afb516c86142d1443a9326c5824b203f",
+      "text": "Eine ausstehende Regel setzen, dann auf den nächsten Durchlauf warten.",
+      "translation_source_blocks_sha256": [
+        "181686b7fe56fdc00379ba0a25c80495afb516c86142d1443a9326c5824b203f"
+      ]
+    },
     "spacr.qt.widgets.home.HomePage.resizeEvent": {
       "source_blocks_sha256": [
         "276b6305a06e29afa2bdf0486e3a819c575c27b4531a8cf9e80bab3ee13dd3fc",
@@ -153888,6 +153968,32 @@
         "6cc9ff8d63db629c7a78a4721c1be3253ec51935965a38ad58f7e1d2afa4b154",
         "cbe604c2f8e94e1f84da4432a02b38a1d8fee9e8cc4e39f4fee151b469c3eabe",
         "925e82df2390cbc2309e6f947064882ab4b00a7a3b67053832236095049f172a"
+      ]
+    },
+    "spacr.qt.widgets.home.hero_qss": {
+      "source_blocks_sha256": [
+        "803eea3a833da39bbca44b8f749c623af4ae23723c3e0662c50ac10a641c8089",
+        "f9ea90e5e8412f893331152cab942e89d49b73bd48bf2ce9c54460e297441a1e"
+      ],
+      "source_sha256": "5600ecfe25b1a14b7b0d17b915383f09f4b91eeaca9e45069afc5561ed4c673b",
+      "text": "Die Regel des Kopfbereichs bei der jetzt geltenden Seitendeckkraft.\n\n:returns: die eigene QSS des Kopfbereichs.",
+      "translation_source_blocks_sha256": [
+        "803eea3a833da39bbca44b8f749c623af4ae23723c3e0662c50ac10a641c8089",
+        "f9ea90e5e8412f893331152cab942e89d49b73bd48bf2ce9c54460e297441a1e"
+      ]
+    },
+    "spacr.qt.widgets.home.panel_box_qss": {
+      "source_blocks_sha256": [
+        "7c78f8a26edfb255f2fc9548693d56f4056fac30553bba2fc3525dd377d36cf6",
+        "f1ac54c7d629146697578e7d64dd04bcb3473f29203b8ea802c1bb7b0616d66e",
+        "6ac1f0064fa06cf0973f1b0100e62afa98fb378e250a640d25352909902122d8"
+      ],
+      "source_sha256": "88c3e114cb803ef1c38dab159727c82fdd15840c4ee36ceddfdb24b62521579e",
+      "text": "Die Regel des Kastens eines Home-Panels bei der jetzt geltenden Seitendeckkraft.\n\n:param P: die aktive Palette.\n:returns: die eigene QSS des Kastens.",
+      "translation_source_blocks_sha256": [
+        "7c78f8a26edfb255f2fc9548693d56f4056fac30553bba2fc3525dd377d36cf6",
+        "f1ac54c7d629146697578e7d64dd04bcb3473f29203b8ea802c1bb7b0616d66e",
+        "6ac1f0064fa06cf0973f1b0100e62afa98fb378e250a640d25352909902122d8"
       ]
     },
     "spacr.qt.widgets.host_pathogen_preview": {

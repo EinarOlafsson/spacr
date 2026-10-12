@@ -71438,6 +71438,22 @@
         "f455446bb2e0c3efeac6e4ad156515a274398837c673ee1f9055f96e74b1b8dc"
       ]
     },
+    "spacr.qt.app.MainWindow.refresh_after_preferences": {
+      "source_blocks_sha256": [
+        "931a376a36dda631494a58c6cb9ccefd4296e1853609f15bb92554f5ce7b33b8",
+        "ef2d672a8c89d90621ee7e71c59730cd62e9bf84341ebc4e11113842043b8d4b",
+        "6b869f8fce5e4bcf0df014b1c72f3e2036cad8499f16dcc63e5ffec996554c9b",
+        "9de1194d14451b92f7c8b0819d94cef5741d661cc527342157e221b1818d1b40"
+      ],
+      "source_sha256": "9585dc48c996c325d739397b84d731c98a5deca2216c3df58a7bd8afccf3f5d2",
+      "text": "Preferences의 적용이 바꾼 것만 다시 그리고, 그 밖에는 아무것도 하지 않습니다.\n\n슬라이더 하나를 바꾼 적용이 Home을 다시 만들었습니다. 페이지 불투명도는 창의 시그니처에 들어 있으므로 이를 움직이면 :meth:`refresh_theme` 이 실행되었습니다 -- Home이 다시 만들어지고(부하가 걸린 컴퓨터에서 2.1-2.6 s), 트리가 다시 번역되고(0.3 s), 모든 알파 게이트가 순회되었습니다 -- 그런데 Home에서 불투명도를 받은 것은 세 개의 규칙뿐이었고, 이는 :meth:`HomePage.refresh_pane_surfaces` 가 그 자리에서 다시 설정합니다.\n\n:param changed: 값이 바뀐 창 시그니처의 이름(:func:`spacr.qt.preferences._window_changes`).\n:returns: ``\"rebuilt\"``, ``\"in place\"`` 또는 ``\"nothing\"`` 이며, 테스트가 어느 쪽인지 말할 수 있게 합니다.",
+      "translation_source_blocks_sha256": [
+        "931a376a36dda631494a58c6cb9ccefd4296e1853609f15bb92554f5ce7b33b8",
+        "f6ee18e22be9a2ecdcf677caca947984b7c19a82fc9421d0c0e700ff254cb025",
+        "6b869f8fce5e4bcf0df014b1c72f3e2036cad8499f16dcc63e5ffec996554c9b",
+        "9de1194d14451b92f7c8b0819d94cef5741d661cc527342157e221b1818d1b40"
+      ]
+    },
     "spacr.qt.app.MainWindow.refresh_language": {
       "source_blocks_sha256": [
         "def23a9dee1fc5ab3d529b5ef503ebb20891b04daa21121a7d538a546f2ac39e"
@@ -89192,6 +89208,16 @@
         "77a63517fc4760828600e1e819458bb83059ebbd844b530f2c392049e79e2b6c"
       ]
     },
+    "spacr.qt.preferences._refresh_owner_window._redraw_what_changed": {
+      "source_blocks_sha256": [
+        "03e9cd32d714e22d401d4ef9e0a75fe23118f04227e74e270cc6bc800b1e952f"
+      ],
+      "source_sha256": "03e9cd32d714e22d401d4ef9e0a75fe23118f04227e74e270cc6bc800b1e952f",
+      "text": "창이 아직 있다면 ``changes`` 에 대해 창을 다시 그립니다.",
+      "translation_source_blocks_sha256": [
+        "03e9cd32d714e22d401d4ef9e0a75fe23118f04227e74e270cc6bc800b1e952f"
+      ]
+    },
     "spacr.qt.preferences._start_disk_report.done": {
       "source_blocks_sha256": [
         "14825ecee6c6e5732c7c5fdbdb185ac73cf23a96ad64d6ac03bc685603ca4821"
@@ -89294,14 +89320,16 @@
       "source_blocks_sha256": [
         "88875113abff77bdf763f6532b00441a84dd8ee1b5a3aba467dd6c0022861817",
         "34363b6666905926b49273d74aa63116c52dcd18ae3e215068713a135ad5d23e",
-        "23ca3be5bb5667b12ea2d0b5fdf11105e326e6fdf419ca6190135c08d7339cc2"
+        "23ca3be5bb5667b12ea2d0b5fdf11105e326e6fdf419ca6190135c08d7339cc2",
+        "0d512ddb7a251112e550c02cdf711af54a786c95ff0e961482a336ea019e9086"
       ],
-      "source_sha256": "e56b3cedfdb711bf944af76b476e5547b5e74f21f138b6b4fc4c2fc48d6bc7a7",
-      "text": "언어, 테마 및 글꼴 스케일을 ``QApplication``로 다시 적용합니다.\n\n:func:`spacr.qt.app.launch`에서 시작을 호출하고, 사용자가 선호도를 변경할 때마다 다시 (:class:`PreferencesDialog` ``accepted`` 신호를 통해)\n\n:param app: 선택 QApplication. ``QApplication.instance()``로 돌아갑니다.",
+      "source_sha256": "f2f9b2c759f37fa04aef41fa82bc3c3f5dc32940c4c4479f1f8d427e9e20856c",
+      "text": "언어, 테마, 글꼴 배율을 ``QApplication`` 에 다시 적용합니다.\n\n시작할 때 :func:`spacr.qt.app.launch` 에서 호출되며, 사용자가 환경설정을 바꿀 때마다 다시 호출됩니다(:class:`PreferencesDialog` 와 그 ``accepted`` 시그널을 통해).\n\n:param app: 선택적 QApplication. ``QApplication.instance()`` 로 대체됩니다.\n:param in_slices: Preferences의 적용과 되돌리기: 새 시트는 다음 그리기 뒤에 이벤트 루프의 한 차례마다 창 하나씩 놓이며(:func:`spacr.qt.theme.apply_stylesheet_per_window`), 아이콘 크기는 배율이 바뀌었을 때만 다시 계산됩니다.",
       "translation_source_blocks_sha256": [
         "88875113abff77bdf763f6532b00441a84dd8ee1b5a3aba467dd6c0022861817",
         "34363b6666905926b49273d74aa63116c52dcd18ae3e215068713a135ad5d23e",
-        "23ca3be5bb5667b12ea2d0b5fdf11105e326e6fdf419ca6190135c08d7339cc2"
+        "23ca3be5bb5667b12ea2d0b5fdf11105e326e6fdf419ca6190135c08d7339cc2",
+        "0d512ddb7a251112e550c02cdf711af54a786c95ff0e961482a336ea019e9086"
       ]
     },
     "spacr.qt.preferences.apply_quality_preset": {
@@ -118950,12 +118978,13 @@
         "4ed48e0f23bbdb8b4a0b2bac57ab1fcda353b3522c51fbbb2491d643e9265add",
         "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
         "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
-        "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd",
+        "5cb327cb2b60ae6053d190342ca134e0162182beb2182777055e9530a2ad47db",
+        "12579956c850cfc31100a691898e99c00df25c176f4c0d6f7398ff765ff3c39e",
         "8f7c4e673d2a761035757863dfab9209fd048b51deeb67c07973e4cf295bde41",
         "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b"
       ],
-      "source_sha256": "27e84d6f54ff05ab155e9161ea0dc2c20abce882b39b8f66b9633fc600a82da1",
-      "text": "모든 최상위 창에 ``sheet`` 를 설치하되 ``app`` 에는 설치하지 않습니다.\n\n왜인지, 수치와 함께. `QApplication.setStyleSheet` 는 프로세스가 가진 모든 위젯을 다시 다듬으며, 모듈 몇 개를 연 세션은 볼 수 없는 수천 개를 가집니다 -- `MainWindow` 는 첫 탐색에서 모듈 화면을 만들고 이후 스택에 유지합니다. 이 컴퓨터에서 offscreen으로 모듈 네 개를 연 채 측정한 결과, 살아 있는 위젯 9,045개 중 6,111개가 아무도 보지 않는 화면에 있습니다:\n\n    app.setStyleSheet            처음 2,836 ms, 이후 ~7,500 ms 모든 최상위 창       처음 1,684 ms, 이후 ~1,900 ms 보이는 화면만       222 ms\n\n같은 화면을 얻는 데 비용의 4분의 1. 하한은 더 낮습니다 -- 222 ms는 보이는 화면 하나만의 비용입니다 -- 거기에 이르려면 숨겨진 화면에도 시트를 적용하지 않아야 하며, 이는 이것보다 더 큰 변경입니다.\n\n:param app: 창이 시트를 가지는 ``QApplication`` 이며, 나중에 만들어진 창이 찾을 수 있도록 시트 자체가 보관되는 곳입니다. ``None`` 은 허용되며 아무 일도 하지 않으므로, 애플리케이션이 없는 호출자는 먼저 확인할 필요가 없습니다.\n:param sheet: :func:`stylesheet` 가 구성한 애플리케이션의 전체 스타일시트.\n:returns: 시트가 지정된 창의 수.\n\n:data:`SHEETED_WHEN_SHOWN` 으로 표시된 숨겨진 창은 다음 ``Show`` 로 미뤄지며, 거기서 :class:`_SheetsEveryWindowThatAppears` 가 그려지기 전에 시트를 적용합니다. 다음 열기를 위해 유지된 Preferences 창은 아무도 볼 수 없는 ~750개의 위젯입니다.\n\n페이지 밖에서 대기 중인 설정 범주의 본문은 부모가 없으므로 Qt 는 이를 최상위 위젯에 포함하지만, 이는 창이 아닙니다. 누가 보기 전에 페이지 아래로 돌아가며, 거기서부터 페이지의 시트를 입습니다. 여기서 시트를 적용하면 돌아간 순간의 시트 사본을 계속 지니게 되어 다음 테마 변경이 닿지 않습니다. :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden` 를 참조하십시오.",
+      "source_sha256": "5d7cadba61edfa69cbeeb65018ef54cec8e68c0a86679788aa2e4e504495ec38",
+      "text": "모든 최상위 창에 ``sheet`` 를 설치하되 ``app`` 에는 설치하지 않습니다.\n\n왜인지, 수치와 함께. `QApplication.setStyleSheet` 는 프로세스가 가진 모든 위젯을 다시 다듬으며, 모듈 몇 개를 연 세션은 볼 수 없는 수천 개를 가집니다 -- `MainWindow` 는 첫 탐색에서 모듈 화면을 만들고 이후 스택에 유지합니다. 이 컴퓨터에서 offscreen으로 모듈 네 개를 연 채 측정한 결과, 살아 있는 위젯 9,045개 중 6,111개가 아무도 보지 않는 화면에 있습니다:\n\n    app.setStyleSheet            처음 2,836 ms, 이후 ~7,500 ms 모든 최상위 창       처음 1,684 ms, 이후 ~1,900 ms 보이는 화면만       222 ms\n\n같은 화면을 얻는 데 비용의 4분의 1. 하한은 더 낮습니다 -- 222 ms는 보이는 화면 하나만의 비용입니다 -- 거기에 이르려면 숨겨진 화면에도 시트를 적용하지 않아야 하며, 이는 이것보다 더 큰 변경입니다.\n\n:param app: 창이 시트를 가지는 ``QApplication`` 이며, 나중에 만들어진 창이 찾을 수 있도록 시트 자체가 보관되는 곳입니다. ``None`` 은 허용되며 아무 일도 하지 않으므로, 애플리케이션이 없는 호출자는 먼저 확인할 필요가 없습니다.\n:param sheet: :func:`stylesheet` 가 구성한 애플리케이션의 전체 스타일시트.\n:param in_slices: 지금은 아무것에도 시트를 놓지 않습니다. 표시된 창은 다음 그리기 뒤에 이벤트 루프의 한 차례마다 하나씩 시트를 받고, 숨겨진 창은 그 뒤에 받습니다(:func:`_sheet_the_windows_in_slices`). 자기 차례 전에 다듬어지거나 표시되는 창은 다른 모든 창처럼 그때 시트를 받습니다. Preferences의 적용이 이것을 요청합니다.\n:returns: 시트가 놓인 창의 수. ``in_slices`` 와 함께이면 자기 조각을 기다리는 창의 수.\n\n:data:`SHEETED_WHEN_SHOWN` 으로 표시된 숨겨진 창은 다음 ``Show`` 로 미뤄지며, 거기서 :class:`_SheetsEveryWindowThatAppears` 가 그려지기 전에 시트를 적용합니다. 다음 열기를 위해 유지된 Preferences 창은 아무도 볼 수 없는 ~750개의 위젯입니다.\n\n페이지 밖에서 대기 중인 설정 범주의 본문은 부모가 없으므로 Qt 는 이를 최상위 위젯에 포함하지만, 이는 창이 아닙니다. 누가 보기 전에 페이지 아래로 돌아가며, 거기서부터 페이지의 시트를 입습니다. 여기서 시트를 적용하면 돌아간 순간의 시트 사본을 계속 지니게 되어 다음 테마 변경이 닿지 않습니다. :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden` 를 참조하십시오.",
       "translation_source_blocks_sha256": [
         "71cc86f222afb0fe56545f6956139187d3676caefdb63ae6875f54eb60e702b0",
         "b010a6f9c65980ef40e9f0e337e14d43cb0d63ec4cb9be1e4bf51ae7302926bc",
@@ -118963,7 +118992,8 @@
         "fa85d6fe6ebad42a2c3a2dd6ee9b6128d15817c4b318532a9bf02da79bfd27c7",
         "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
         "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
-        "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd",
+        "5cb327cb2b60ae6053d190342ca134e0162182beb2182777055e9530a2ad47db",
+        "12579956c850cfc31100a691898e99c00df25c176f4c0d6f7398ff765ff3c39e",
         "8f7c4e673d2a761035757863dfab9209fd048b51deeb67c07973e4cf295bde41",
         "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b"
       ]
@@ -119294,6 +119324,18 @@
       "translation_source_blocks_sha256": [
         "f2cd1977c02c44adbd8048992e8290fffaeb18c70f89694dac868d76fcc749bd",
         "7b3b07496a4b77c31dee0c30e1a113660f0d89aa33591e279f9c9092ce7ee04a"
+      ]
+    },
+    "spacr.qt.theme.finish_the_sliced_sheeting": {
+      "source_blocks_sha256": [
+        "20102b5f79dc84f7c0dd87a6dac7a0c54c09a12fbfdd004cbb50c0597e017cea",
+        "696512e489778ae61e05f83bfbcda66fc152945c8ecbe77b812389fd6866a443"
+      ],
+      "source_sha256": "59be874621f968345146fd85adc9f53f53b1f48c69ea695a48ab0d912700b59b",
+      "text": "아직 시트를 받지 못한 모든 루트에 지금 시트를 놓습니다. 테스트와 종료를 위한 것입니다.\n\n:returns: 시트가 놓인 루트의 수.",
+      "translation_source_blocks_sha256": [
+        "20102b5f79dc84f7c0dd87a6dac7a0c54c09a12fbfdd004cbb50c0597e017cea",
+        "696512e489778ae61e05f83bfbcda66fc152945c8ecbe77b812389fd6866a443"
       ]
     },
     "spacr.qt.theme.font_px": {
@@ -120052,6 +120094,18 @@
         "d3e44fd748d5e81ff6522bce07f5fd05b875dd0147c9949974b386e614baf4fb",
         "d0c13e13cc5004bf03adb2069d5f600e9368705f35b74edd532c5c355f5a65a8",
         "3b8b1155011863b6545cace955fedd70233e79a655384aabb8ceaa0af7570ca9"
+      ]
+    },
+    "spacr.qt.theme.sliced_sheeting_owed": {
+      "source_blocks_sha256": [
+        "230b5754b48c907d18d8b7451d0614b4d58629020468f67ca483aa9e1e85c044",
+        "0e62f6fc8b0ef12d9ed2cd739ca3854f70de89aae9f1c13d15ebf65e2ef7843f"
+      ],
+      "source_sha256": "905712dd8808ac6bf84d81ceece294ae954f106214b336a8f26ba566234d9325",
+      "text": "조각 단위 시트를 아직 기다리는 루트의 수.\n\n:returns: 대기열의 길이.",
+      "translation_source_blocks_sha256": [
+        "230b5754b48c907d18d8b7451d0614b4d58629020468f67ca483aa9e1e85c044",
+        "9ef5f7a666fff9baefed9d3b1aaee588bee187deb2bd14d45a4ae429bbb051bc"
       ]
     },
     "spacr.qt.theme.solve_scrim_alpha": {
@@ -153200,6 +153254,32 @@
         "43021b232839841c02180bafa3e04e0cd6e63a878221307a9554ec9592979b61"
       ]
     },
+    "spacr.qt.widgets.home.HomePage.refresh_pane_surfaces": {
+      "source_blocks_sha256": [
+        "423182a91341ba54b242501e60e8b48ee8e1779c9f0c62d9b3ac642e368c5532",
+        "21b52f454fa78202d4aea9580df6e2d459d7a545c11c6d4833e53d0a64357b0a",
+        "abf455943602ccbc209c157ecc91892c0f3447f62c35265483b715d46cbfbe6f",
+        "61bf52d3df9083ad66d2a6ac53db02eaf991cea63ffd8c707d2d1f5a1056aab3"
+      ],
+      "source_sha256": "6ba9ef818031ba08efb5dd35738add05f838b275f2f3726f8f1be8f2836a2faa",
+      "text": "머리글 영역, 패널, 탭에 지금 설정된 페이지 불투명도를 부여합니다.\n\n이들은 Home이 만들어질 때 불투명도를 받았으며, 새 불투명도는 Home을 다시 만들곤 했습니다. 세 종류의 규칙을 위해 부하가 걸린 컴퓨터에서 GUI 스레드를 2.1-2.6 s 사용했습니다. 이제 각각 그 자리에서, 이벤트 루프의 한 차례마다 위젯 하나씩, 규칙이 바뀐 곳에서만 다시 설정됩니다. 규칙을 설정하면 그 아래 모든 것의 스타일이 다시 적용되기 때문입니다.\n\n탭에는 해당 탭 막대에서 알려 줍니다. 탭 위젯의 규칙은 그 아래에 Home 전체를 담고 있어서, 이를 다시 설정하면 탭 하나의 채우기를 바꾸려고 모든 타일의 스타일이 다시 적용되었습니다(부하 시 1.1 s). 막대는 선택된 탭의 채우기를 자체 규칙으로 받으며, 이것이 상속받는 규칙보다 우선합니다.\n\n:returns: 새 규칙을 받을 위젯의 수.",
+      "translation_source_blocks_sha256": [
+        "423182a91341ba54b242501e60e8b48ee8e1779c9f0c62d9b3ac642e368c5532",
+        "7b0283ba758505c5141ca101bf5d1942ff2f6097e72e5943b6a88ea609dd6679",
+        "892f4478b00331ed690799cdb5bdc4c3d4c8553f370a58085b89c9070bbf5811",
+        "61bf52d3df9083ad66d2a6ac53db02eaf991cea63ffd8c707d2d1f5a1056aab3"
+      ]
+    },
+    "spacr.qt.widgets.home.HomePage.refresh_pane_surfaces._next": {
+      "source_blocks_sha256": [
+        "181686b7fe56fdc00379ba0a25c80495afb516c86142d1443a9326c5824b203f"
+      ],
+      "source_sha256": "181686b7fe56fdc00379ba0a25c80495afb516c86142d1443a9326c5824b203f",
+      "text": "밀린 규칙 하나를 설정한 다음 다음 차례를 기다립니다.",
+      "translation_source_blocks_sha256": [
+        "181686b7fe56fdc00379ba0a25c80495afb516c86142d1443a9326c5824b203f"
+      ]
+    },
     "spacr.qt.widgets.home.HomePage.resizeEvent": {
       "source_blocks_sha256": [
         "276b6305a06e29afa2bdf0486e3a819c575c27b4531a8cf9e80bab3ee13dd3fc",
@@ -153888,6 +153968,32 @@
         "6cc9ff8d63db629c7a78a4721c1be3253ec51935965a38ad58f7e1d2afa4b154",
         "cbe604c2f8e94e1f84da4432a02b38a1d8fee9e8cc4e39f4fee151b469c3eabe",
         "925e82df2390cbc2309e6f947064882ab4b00a7a3b67053832236095049f172a"
+      ]
+    },
+    "spacr.qt.widgets.home.hero_qss": {
+      "source_blocks_sha256": [
+        "803eea3a833da39bbca44b8f749c623af4ae23723c3e0662c50ac10a641c8089",
+        "f9ea90e5e8412f893331152cab942e89d49b73bd48bf2ce9c54460e297441a1e"
+      ],
+      "source_sha256": "5600ecfe25b1a14b7b0d17b915383f09f4b91eeaca9e45069afc5561ed4c673b",
+      "text": "지금 적용 중인 페이지 불투명도에서의 머리글 영역의 규칙.\n\n:returns: 머리글 영역 자체의 QSS.",
+      "translation_source_blocks_sha256": [
+        "803eea3a833da39bbca44b8f749c623af4ae23723c3e0662c50ac10a641c8089",
+        "f9ea90e5e8412f893331152cab942e89d49b73bd48bf2ce9c54460e297441a1e"
+      ]
+    },
+    "spacr.qt.widgets.home.panel_box_qss": {
+      "source_blocks_sha256": [
+        "7c78f8a26edfb255f2fc9548693d56f4056fac30553bba2fc3525dd377d36cf6",
+        "f1ac54c7d629146697578e7d64dd04bcb3473f29203b8ea802c1bb7b0616d66e",
+        "6ac1f0064fa06cf0973f1b0100e62afa98fb378e250a640d25352909902122d8"
+      ],
+      "source_sha256": "88c3e114cb803ef1c38dab159727c82fdd15840c4ee36ceddfdb24b62521579e",
+      "text": "지금 적용 중인 페이지 불투명도에서의 Home 패널 상자의 규칙.\n\n:param P: 활성 팔레트.\n:returns: 상자 자체의 QSS.",
+      "translation_source_blocks_sha256": [
+        "7c78f8a26edfb255f2fc9548693d56f4056fac30553bba2fc3525dd377d36cf6",
+        "f1ac54c7d629146697578e7d64dd04bcb3473f29203b8ea802c1bb7b0616d66e",
+        "6ac1f0064fa06cf0973f1b0100e62afa98fb378e250a640d25352909902122d8"
       ]
     },
     "spacr.qt.widgets.host_pathogen_preview": {

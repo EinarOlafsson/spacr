@@ -658,10 +658,12 @@
       "source_sha256": "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd",
       "context": "the number of windows the sheet was put on.",
       "translation": "시트가 지정된 창의 수.",
-      "review_basis": "written from the English"
+      "review_basis": "written from the English",
+      "retired": true,
+      "retired_reason": "2026-10-12: the English block was rewritten (Preferences Apply, Keep and Revert sliced and redrawn in place, 1878a7a60); kept verbatim as evidence, not loaded."
     },
     {
-      "label": "spacr.qt.theme.apply_stylesheet_per_window#7",
+      "label": "spacr.qt.theme.apply_stylesheet_per_window#8",
       "source": "A hidden window marked :data:`SHEETED_WHEN_SHOWN` is left for its next ``Show``, where :class:`_SheetsEveryWindowThatAppears` sheets it before it paints: the Preferences window kept for the next open is ~750 widgets nobody can see.",
       "source_sha256": "8f7c4e673d2a761035757863dfab9209fd048b51deeb67c07973e4cf295bde41",
       "context": "A hidden window marked :data:`SHEETED_WHEN_SHOWN` is left for its next ``Show``, where :class:`_SheetsEveryWindowThatAppears` sheets it before it paints: the Preferences window kept for the next open is ~750 widgets nobody can see.",

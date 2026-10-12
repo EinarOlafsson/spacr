@@ -71439,6 +71439,22 @@
         "f455446bb2e0c3efeac6e4ad156515a274398837c673ee1f9055f96e74b1b8dc"
       ]
     },
+    "spacr.qt.app.MainWindow.refresh_after_preferences": {
+      "source_blocks_sha256": [
+        "931a376a36dda631494a58c6cb9ccefd4296e1853609f15bb92554f5ce7b33b8",
+        "ef2d672a8c89d90621ee7e71c59730cd62e9bf84341ebc4e11113842043b8d4b",
+        "6b869f8fce5e4bcf0df014b1c72f3e2036cad8499f16dcc63e5ffec996554c9b",
+        "9de1194d14451b92f7c8b0819d94cef5741d661cc527342157e221b1818d1b40"
+      ],
+      "source_sha256": "9585dc48c996c325d739397b84d731c98a5deca2216c3df58a7bd8afccf3f5d2",
+      "text": "只重绘 Preferences 的 Apply 所更改的内容，别无其他。\n\n更改了一个滑块的 Apply 曾重建 Home。页面不透明度在窗口的签名中，因此移动它会运行 :meth:`refresh_theme` -- Home 被重建（负载较高的机器上 2.1-2.6 s），树被重新翻译（0.3 s），每个 alpha 检查关卡都被遍历 -- 而 Home 上唯一采用了该不透明度的只是三条规则，:meth:`HomePage.refresh_pane_surfaces` 会就地再次设置它们。\n\n:param changed: 窗口签名中值已更改的名称（:func:`spacr.qt.preferences._window_changes`）。\n:returns: ``\"rebuilt\"``、``\"in place\"`` 或 ``\"nothing\"``，以便测试能说明是哪一个。",
+      "translation_source_blocks_sha256": [
+        "931a376a36dda631494a58c6cb9ccefd4296e1853609f15bb92554f5ce7b33b8",
+        "f6ee18e22be9a2ecdcf677caca947984b7c19a82fc9421d0c0e700ff254cb025",
+        "6b869f8fce5e4bcf0df014b1c72f3e2036cad8499f16dcc63e5ffec996554c9b",
+        "9de1194d14451b92f7c8b0819d94cef5741d661cc527342157e221b1818d1b40"
+      ]
+    },
     "spacr.qt.app.MainWindow.refresh_language": {
       "source_blocks_sha256": [
         "def23a9dee1fc5ab3d529b5ef503ebb20891b04daa21121a7d538a546f2ac39e"
@@ -89193,6 +89209,16 @@
         "77a63517fc4760828600e1e819458bb83059ebbd844b530f2c392049e79e2b6c"
       ]
     },
+    "spacr.qt.preferences._refresh_owner_window._redraw_what_changed": {
+      "source_blocks_sha256": [
+        "03e9cd32d714e22d401d4ef9e0a75fe23118f04227e74e270cc6bc800b1e952f"
+      ],
+      "source_sha256": "03e9cd32d714e22d401d4ef9e0a75fe23118f04227e74e270cc6bc800b1e952f",
+      "text": "如果窗口仍然存在，则针对 ``changes`` 重绘该窗口。",
+      "translation_source_blocks_sha256": [
+        "03e9cd32d714e22d401d4ef9e0a75fe23118f04227e74e270cc6bc800b1e952f"
+      ]
+    },
     "spacr.qt.preferences._start_disk_report.done": {
       "source_blocks_sha256": [
         "14825ecee6c6e5732c7c5fdbdb185ac73cf23a96ad64d6ac03bc685603ca4821"
@@ -89295,14 +89321,16 @@
       "source_blocks_sha256": [
         "88875113abff77bdf763f6532b00441a84dd8ee1b5a3aba467dd6c0022861817",
         "34363b6666905926b49273d74aa63116c52dcd18ae3e215068713a135ad5d23e",
-        "23ca3be5bb5667b12ea2d0b5fdf11105e326e6fdf419ca6190135c08d7339cc2"
+        "23ca3be5bb5667b12ea2d0b5fdf11105e326e6fdf419ca6190135c08d7339cc2",
+        "0d512ddb7a251112e550c02cdf711af54a786c95ff0e961482a336ea019e9086"
       ],
-      "source_sha256": "e56b3cedfdb711bf944af76b476e5547b5e74f21f138b6b4fc4c2fc48d6bc7a7",
-      "text": "重新应用语言、主题和字体规模为 ``QApplication``。\n\n从 :func:`spacr.qt.app.launch` 开始,每次用户更改偏好(通过 :class:`PreferencesDialog` ``accepted`` 信号)。\n\n:param app: 可选 QApplication. 返回 ``QApplication.instance()``。",
+      "source_sha256": "f2f9b2c759f37fa04aef41fa82bc3c3f5dc32940c4c4479f1f8d427e9e20856c",
+      "text": "将语言、主题和字体缩放重新应用到 ``QApplication``。\n\n启动时由 :func:`spacr.qt.app.launch` 调用，此后用户每次更改偏好设置时再次调用（通过 :class:`PreferencesDialog` 及其 ``accepted`` 信号）。\n\n:param app: 可选的 QApplication。回退到 ``QApplication.instance()``。\n:param in_slices: Preferences 的 Apply 和 Revert：新的样式表在下一次绘制之后，每轮事件循环放到一个窗口上（:func:`spacr.qt.theme.apply_stylesheet_per_window`），图标大小仅在缩放发生变化时才重新推导。",
       "translation_source_blocks_sha256": [
         "88875113abff77bdf763f6532b00441a84dd8ee1b5a3aba467dd6c0022861817",
         "34363b6666905926b49273d74aa63116c52dcd18ae3e215068713a135ad5d23e",
-        "23ca3be5bb5667b12ea2d0b5fdf11105e326e6fdf419ca6190135c08d7339cc2"
+        "23ca3be5bb5667b12ea2d0b5fdf11105e326e6fdf419ca6190135c08d7339cc2",
+        "0d512ddb7a251112e550c02cdf711af54a786c95ff0e961482a336ea019e9086"
       ]
     },
     "spacr.qt.preferences.apply_quality_preset": {
@@ -118951,12 +118979,13 @@
         "4ed48e0f23bbdb8b4a0b2bac57ab1fcda353b3522c51fbbb2491d643e9265add",
         "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
         "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
-        "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd",
+        "5cb327cb2b60ae6053d190342ca134e0162182beb2182777055e9530a2ad47db",
+        "12579956c850cfc31100a691898e99c00df25c176f4c0d6f7398ff765ff3c39e",
         "8f7c4e673d2a761035757863dfab9209fd048b51deeb67c07973e4cf295bde41",
         "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b"
       ],
-      "source_sha256": "27e84d6f54ff05ab155e9161ea0dc2c20abce882b39b8f66b9633fc600a82da1",
-      "text": "在每个顶层窗口上安装 ``sheet``，而不是在 ``app`` 上。\n\n为什么，附数字。`QApplication.setStyleSheet` 会重新润色进程拥有的每个控件，而打开了几个模块的会话拥有成千上万个看不见的控件 -- `MainWindow` 在首次导航时构建模块界面，之后将其保留在堆栈中。在这台机器上测得，offscreen，打开四个模块，9,045 个存活控件，其中 6,111 个位于无人查看的界面上：\n\n    app.setStyleSheet            首次 2,836 ms，之后 ~7,500 ms 每个顶层窗口       首次 1,684 ms，之后 ~1,900 ms 仅可见界面       222 ms\n\n同一画面只需四分之一的开销。下限还要低得多 -- 222 ms 是仅可见界面本身的开销 -- 而要达到它，意味着也不要把样式表应用到隐藏界面，这是比本次更大的改动。\n\n:param app: 其窗口承载样式表的 ``QApplication``，以及样式表本身的存放处，以便稍后创建的窗口能找到它。接受 ``None`` 且不做任何事，因此没有应用程序的调用方不必先检查。\n:param sheet: 应用程序的完整样式表，由 :func:`stylesheet` 组合而成。\n:returns: 已设置样式表的窗口数量。\n\n标有 :data:`SHEETED_WHEN_SHOWN` 的隐藏窗口留待其下一次 ``Show``，届时 :class:`_SheetsEveryWindowThatAppears` 在其绘制之前为它应用样式表：为下一次打开而保留的 Preferences 窗口有 ~750 个无人能看到的控件。\n\n在页面之外等待的设置类别主体没有父对象，因此 Qt 会将其列为顶层控件，但它并不是窗口：它会在任何人看到之前回到其页面之下，并从那里沿用页面的样式表。如果在这里为它设置样式表，它就会携带一份回到页面时刻的样式表副本，而下一次主题更改将无法作用于它。参见 :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`。",
+      "source_sha256": "5d7cadba61edfa69cbeeb65018ef54cec8e68c0a86679788aa2e4e504495ec38",
+      "text": "在每个顶层窗口上安装 ``sheet``，而不是在 ``app`` 上。\n\n为什么，附数字。`QApplication.setStyleSheet` 会重新润色进程拥有的每个控件，而打开了几个模块的会话拥有成千上万个看不见的控件 -- `MainWindow` 在首次导航时构建模块界面，之后将其保留在堆栈中。在这台机器上测得，offscreen，打开四个模块，9,045 个存活控件，其中 6,111 个位于无人查看的界面上：\n\n    app.setStyleSheet            首次 2,836 ms，之后 ~7,500 ms 每个顶层窗口       首次 1,684 ms，之后 ~1,900 ms 仅可见界面       222 ms\n\n同一画面只需四分之一的开销。下限还要低得多 -- 222 ms 是仅可见界面本身的开销 -- 而要达到它，意味着也不要把样式表应用到隐藏界面，这是比本次更大的改动。\n\n:param app: 其窗口承载样式表的 ``QApplication``，以及样式表本身的存放处，以便稍后创建的窗口能找到它。接受 ``None`` 且不做任何事，因此没有应用程序的调用方不必先检查。\n:param sheet: 应用程序的完整样式表，由 :func:`stylesheet` 组合而成。\n:param in_slices: 现在不把样式表放到任何东西上：正在显示的窗口在下一次绘制之后每轮事件循环获得一个，隐藏的窗口排在它们之后（:func:`_sheet_the_windows_in_slices`）。在轮到之前被润色或显示的窗口会在那时获得样式表，与任何窗口一样。Preferences 的 Apply 会请求这样做。\n:returns: 已放置样式表的窗口数量；使用 ``in_slices`` 时，为等待其分片的数量。\n\n标有 :data:`SHEETED_WHEN_SHOWN` 的隐藏窗口留待其下一次 ``Show``，届时 :class:`_SheetsEveryWindowThatAppears` 在其绘制之前为它应用样式表：为下一次打开而保留的 Preferences 窗口有 ~750 个无人能看到的控件。\n\n在页面之外等待的设置类别主体没有父对象，因此 Qt 会将其列为顶层控件，但它并不是窗口：它会在任何人看到之前回到其页面之下，并从那里沿用页面的样式表。如果在这里为它设置样式表，它就会携带一份回到页面时刻的样式表副本，而下一次主题更改将无法作用于它。参见 :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`。",
       "translation_source_blocks_sha256": [
         "71cc86f222afb0fe56545f6956139187d3676caefdb63ae6875f54eb60e702b0",
         "b010a6f9c65980ef40e9f0e337e14d43cb0d63ec4cb9be1e4bf51ae7302926bc",
@@ -118964,7 +118993,8 @@
         "fa85d6fe6ebad42a2c3a2dd6ee9b6128d15817c4b318532a9bf02da79bfd27c7",
         "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
         "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
-        "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd",
+        "5cb327cb2b60ae6053d190342ca134e0162182beb2182777055e9530a2ad47db",
+        "12579956c850cfc31100a691898e99c00df25c176f4c0d6f7398ff765ff3c39e",
         "8f7c4e673d2a761035757863dfab9209fd048b51deeb67c07973e4cf295bde41",
         "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b"
       ]
@@ -119295,6 +119325,18 @@
       "translation_source_blocks_sha256": [
         "f2cd1977c02c44adbd8048992e8290fffaeb18c70f89694dac868d76fcc749bd",
         "7b3b07496a4b77c31dee0c30e1a113660f0d89aa33591e279f9c9092ce7ee04a"
+      ]
+    },
+    "spacr.qt.theme.finish_the_sliced_sheeting": {
+      "source_blocks_sha256": [
+        "20102b5f79dc84f7c0dd87a6dac7a0c54c09a12fbfdd004cbb50c0597e017cea",
+        "696512e489778ae61e05f83bfbcda66fc152945c8ecbe77b812389fd6866a443"
+      ],
+      "source_sha256": "59be874621f968345146fd85adc9f53f53b1f48c69ea695a48ab0d912700b59b",
+      "text": "立即为每个仍欠样式表的根补上样式表。用于测试和关闭。\n\n:returns: 已放置样式表的根的数量。",
+      "translation_source_blocks_sha256": [
+        "20102b5f79dc84f7c0dd87a6dac7a0c54c09a12fbfdd004cbb50c0597e017cea",
+        "696512e489778ae61e05f83bfbcda66fc152945c8ecbe77b812389fd6866a443"
       ]
     },
     "spacr.qt.theme.font_px": {
@@ -120053,6 +120095,18 @@
         "d3e44fd748d5e81ff6522bce07f5fd05b875dd0147c9949974b386e614baf4fb",
         "d0c13e13cc5004bf03adb2069d5f600e9368705f35b74edd532c5c355f5a65a8",
         "3b8b1155011863b6545cace955fedd70233e79a655384aabb8ceaa0af7570ca9"
+      ]
+    },
+    "spacr.qt.theme.sliced_sheeting_owed": {
+      "source_blocks_sha256": [
+        "230b5754b48c907d18d8b7451d0614b4d58629020468f67ca483aa9e1e85c044",
+        "0e62f6fc8b0ef12d9ed2cd739ca3854f70de89aae9f1c13d15ebf65e2ef7843f"
+      ],
+      "source_sha256": "905712dd8808ac6bf84d81ceece294ae954f106214b336a8f26ba566234d9325",
+      "text": "仍在等待分片样式表的根的数量。\n\n:returns: 队列的长度。",
+      "translation_source_blocks_sha256": [
+        "230b5754b48c907d18d8b7451d0614b4d58629020468f67ca483aa9e1e85c044",
+        "9ef5f7a666fff9baefed9d3b1aaee588bee187deb2bd14d45a4ae429bbb051bc"
       ]
     },
     "spacr.qt.theme.solve_scrim_alpha": {
@@ -153201,6 +153255,32 @@
         "43021b232839841c02180bafa3e04e0cd6e63a878221307a9554ec9592979b61"
       ]
     },
+    "spacr.qt.widgets.home.HomePage.refresh_pane_surfaces": {
+      "source_blocks_sha256": [
+        "423182a91341ba54b242501e60e8b48ee8e1779c9f0c62d9b3ac642e368c5532",
+        "21b52f454fa78202d4aea9580df6e2d459d7a545c11c6d4833e53d0a64357b0a",
+        "abf455943602ccbc209c157ecc91892c0f3447f62c35265483b715d46cbfbe6f",
+        "61bf52d3df9083ad66d2a6ac53db02eaf991cea63ffd8c707d2d1f5a1056aab3"
+      ],
+      "source_sha256": "6ba9ef818031ba08efb5dd35738add05f838b275f2f3726f8f1be8f2836a2faa",
+      "text": "为页眉、面板和选项卡赋予现在设置的页面不透明度。\n\n它们在构建 Home 时采用了该值，而新的不透明度过去会重建 Home：在负载较高的机器上占用 GUI 线程 2.1-2.6 s，只为三种规则。现在每一种都就地再次设置，每轮事件循环一个控件，并且仅在规则发生变化之处，因为设置一条规则会让其下的一切重新应用样式。\n\n选项卡在其选项卡栏上被告知。选项卡控件的规则把整个 Home 都包含在其下，再次设置它会让每个图块重新应用样式（负载下 1.1 s），只为更改一个选项卡的填充；选项卡栏把所选选项卡的填充作为自己的规则，它优先于所继承的规则。\n\n:returns: 将采用新规则的控件数量。",
+      "translation_source_blocks_sha256": [
+        "423182a91341ba54b242501e60e8b48ee8e1779c9f0c62d9b3ac642e368c5532",
+        "7b0283ba758505c5141ca101bf5d1942ff2f6097e72e5943b6a88ea609dd6679",
+        "892f4478b00331ed690799cdb5bdc4c3d4c8553f370a58085b89c9070bbf5811",
+        "61bf52d3df9083ad66d2a6ac53db02eaf991cea63ffd8c707d2d1f5a1056aab3"
+      ]
+    },
+    "spacr.qt.widgets.home.HomePage.refresh_pane_surfaces._next": {
+      "source_blocks_sha256": [
+        "181686b7fe56fdc00379ba0a25c80495afb516c86142d1443a9326c5824b203f"
+      ],
+      "source_sha256": "181686b7fe56fdc00379ba0a25c80495afb516c86142d1443a9326c5824b203f",
+      "text": "设置一条待处理的规则，然后等待下一轮。",
+      "translation_source_blocks_sha256": [
+        "181686b7fe56fdc00379ba0a25c80495afb516c86142d1443a9326c5824b203f"
+      ]
+    },
     "spacr.qt.widgets.home.HomePage.resizeEvent": {
       "source_blocks_sha256": [
         "276b6305a06e29afa2bdf0486e3a819c575c27b4531a8cf9e80bab3ee13dd3fc",
@@ -153889,6 +153969,32 @@
         "6cc9ff8d63db629c7a78a4721c1be3253ec51935965a38ad58f7e1d2afa4b154",
         "cbe604c2f8e94e1f84da4432a02b38a1d8fee9e8cc4e39f4fee151b469c3eabe",
         "925e82df2390cbc2309e6f947064882ab4b00a7a3b67053832236095049f172a"
+      ]
+    },
+    "spacr.qt.widgets.home.hero_qss": {
+      "source_blocks_sha256": [
+        "803eea3a833da39bbca44b8f749c623af4ae23723c3e0662c50ac10a641c8089",
+        "f9ea90e5e8412f893331152cab942e89d49b73bd48bf2ce9c54460e297441a1e"
+      ],
+      "source_sha256": "5600ecfe25b1a14b7b0d17b915383f09f4b91eeaca9e45069afc5561ed4c673b",
+      "text": "页眉的规则，采用现在生效的页面不透明度。\n\n:returns: 页眉自身的 QSS。",
+      "translation_source_blocks_sha256": [
+        "803eea3a833da39bbca44b8f749c623af4ae23723c3e0662c50ac10a641c8089",
+        "f9ea90e5e8412f893331152cab942e89d49b73bd48bf2ce9c54460e297441a1e"
+      ]
+    },
+    "spacr.qt.widgets.home.panel_box_qss": {
+      "source_blocks_sha256": [
+        "7c78f8a26edfb255f2fc9548693d56f4056fac30553bba2fc3525dd377d36cf6",
+        "f1ac54c7d629146697578e7d64dd04bcb3473f29203b8ea802c1bb7b0616d66e",
+        "6ac1f0064fa06cf0973f1b0100e62afa98fb378e250a640d25352909902122d8"
+      ],
+      "source_sha256": "88c3e114cb803ef1c38dab159727c82fdd15840c4ee36ceddfdb24b62521579e",
+      "text": "Home 面板的框的规则，采用现在生效的页面不透明度。\n\n:param P: 当前调色板。\n:returns: 框自身的 QSS。",
+      "translation_source_blocks_sha256": [
+        "7c78f8a26edfb255f2fc9548693d56f4056fac30553bba2fc3525dd377d36cf6",
+        "f1ac54c7d629146697578e7d64dd04bcb3473f29203b8ea802c1bb7b0616d66e",
+        "6ac1f0064fa06cf0973f1b0100e62afa98fb378e250a640d25352909902122d8"
       ]
     },
     "spacr.qt.widgets.host_pathogen_preview": {
