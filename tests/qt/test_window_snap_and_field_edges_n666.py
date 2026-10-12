@@ -41,7 +41,13 @@ def feedback(monkeypatch):
         calls.append((widget, edge, QRect(widget.geometry()), None, strength))
 
     monkeypatch.setattr(ambient, "field_ripple_for_widget", record, raising=False)
+    def record_rings(widget, edge, rect, strength, *, vertical, rings=False):
+        calls.append((widget, "rings" if rings else edge, QRect(widget.geometry()),
+                      rect, strength))
+
     monkeypatch.setattr(ambient, "_field_column_ripple_for_widget", record_column,
+                        raising=False)
+    monkeypatch.setattr(ambient, "_publish_widget_ripple", record_rings,
                         raising=False)
     return calls
 
@@ -287,7 +293,7 @@ def test_section_collapse_feedback_observes_hidden_body(qtbot, feedback):
     assert section._body.isHidden()
     qtbot.waitUntil(lambda: bool(feedback))
     assert feedback[-1][0] is section
-    assert feedback[-1][1] == "bottom"
+    assert feedback[-1][1] == "rings"
     assert feedback[-1][2] == section.geometry()
     feedback.clear()
     section._on_toggle(True)
@@ -530,3 +536,4 @@ def test_nested_category_publishes_feedback_on_the_completed_event_turn(qtbot, f
     qtbot.waitUntil(lambda: bool(feedback))
     assert section._body.isHidden()
     assert feedback[-1][0] is section
+    assert feedback[-1][1] == "rings"

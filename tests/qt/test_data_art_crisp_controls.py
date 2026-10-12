@@ -244,7 +244,10 @@ def test_zero_gravity_keeps_click_ripples_but_not_gravity_through_rebuild(qtbot)
     assert backdrop._interaction_app is not None
     backdrop.set_theme("data_art_genetic_advection")
     assert backdrop.gravity_radius() == 0.4
+    assert backdrop._interaction_app is not None
+    backdrop.set_gravity_radius(0.0)
     assert backdrop._interaction_app is None
+    backdrop.set_gravity_radius(0.4)
     backdrop.set_theme("data_art_impulse_lens")
     assert backdrop._interaction_app is not None
     assert not backdrop.engine._popup_waves

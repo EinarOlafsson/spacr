@@ -890,13 +890,18 @@ class Section(QFrame):
             self._body.setVisible(self._expanded)
             self.toggled.emit(self._expanded)
             try:
-                from .ambient import _field_column_ripple_for_widget
+                if self._expanded:
+                    from .ambient import _field_column_ripple_for_widget
+                    ripple = partial(_field_column_ripple_for_widget, self,
+                                     edge="bottom")
+                else:
+                    from .ambient import _publish_widget_ripple
+                    ripple = partial(_publish_widget_ripple, self, None, None, 1.0,
+                                     vertical=False, rings=True)
             except ImportError:
                 return
 
-            QTimer.singleShot(0, partial(
-                _field_column_ripple_for_widget, self,
-                edge="bottom"))
+            QTimer.singleShot(0, ripple)
             return
 
         depth = int(scroll.property(SETTLING_DEPTH) or 0)
@@ -923,10 +928,15 @@ class Section(QFrame):
                         scroll.setVerticalScrollBarPolicy(saved_policy)
                     scroll.setUpdatesEnabled(True)
         try:
-            from .ambient import _field_column_ripple_for_widget
+            if self._expanded:
+                from .ambient import _field_column_ripple_for_widget
+                ripple = partial(_field_column_ripple_for_widget, self,
+                                 edge="bottom")
+            else:
+                from .ambient import _publish_widget_ripple
+                ripple = partial(_publish_widget_ripple, self, None, None, 1.0,
+                                 vertical=False, rings=True)
         except ImportError:
             return
 
-        QTimer.singleShot(0, partial(
-            _field_column_ripple_for_widget, self,
-            edge="bottom"))
+        QTimer.singleShot(0, ripple)

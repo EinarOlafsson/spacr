@@ -221,7 +221,12 @@ from PySide6.QtCore import (QElapsedTimer, QEvent, QObject, QPoint, QPointF,
 from PySide6.QtGui import (QBrush, QColor, QCursor, QImage,
                            QLinearGradient, QPainter, QPainterPath, QPen,
                            QPixmap, QPolygonF, QRadialGradient, QTransform)
-from PySide6.QtWidgets import QApplication, QFrame, QSizePolicy, QWidget
+from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView,
+                               QAbstractSlider, QAbstractSpinBox, QApplication,
+                               QComboBox, QFrame, QGraphicsView, QLabel,
+                               QLineEdit, QMenu, QMenuBar, QPlainTextEdit,
+                               QSizePolicy, QSplitterHandle, QTabBar, QTextEdit,
+                               QWidget)
 
 from ..theme import (advance_spaceout_drift, page_colour, palette_for,
                      relative_luminance, spaceout_enabled)
@@ -1009,6 +1014,13 @@ RIPPLE_SOURCE_CALM = 0.10
 RIPPLE_EASE_IN_S = 0.30
 RIPPLE_LIFETIME_S = 5.0
 RIPPLE_COLUMN_SOFTNESS = 0.03
+FOLD_RINGS = 3
+FOLD_RING_GAP_S = 0.24
+FOLD_SPEED = 0.40
+FOLD_LIFETIME_S = 2.6
+FOLD_PACKET_WIDTH = 0.10
+FOLD_GATHER = 0.92
+FOLD_GLOW = 0.45
 
 
 
@@ -6298,6 +6310,7 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
         self._gravity_ripple_impulses = {}
         self._popup_waves = []
         self._column_waves = []
+        self._fold_waves = []
         self._popup_wave_origin = None
         self._popup_wave_window = None
         self._popup_wave_elapsed = 0.0
@@ -6512,6 +6525,8 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
                              if 0.0 <= self.time - wave[0] < 5.0]
         self._column_waves = [wave for wave in self._column_waves
                               if 0.0 <= self.time - wave[0] < RIPPLE_LIFETIME_S]
+        self._fold_waves = [wave for wave in getattr(self, "_fold_waves", ())
+                            if self.time - wave[0] < FOLD_LIFETIME_S]
         if (dt <= 0.0 or not self.ripples_enabled or self.family != "impulse_lens"
                 or self.popup_wave_frequency <= 0.0
                 or self._popup_wave_origin is None):
@@ -6526,6 +6541,17 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
     def _add_ripple(self, point) -> None:
         """Emit a bounded field wave independently of pointer gravity."""
         if not self.ripples_enabled or self.family != "impulse_lens" or point is None:
+            return
+        if len(point) == 3 and point[0] == "rings":
+            try:
+                x, y = float(point[1]), float(point[2])
+            except (TypeError, ValueError):
+                return
+            if math.isfinite(x) and math.isfinite(y):
+                origin = (max(0.0, min(1.0, x)), max(0.0, min(1.0, y)))
+                self._fold_waves = (self._fold_waves + [
+                    (self.time + ring * FOLD_RING_GAP_S, origin)
+                    for ring in range(FOLD_RINGS)])[-3 * FOLD_RINGS:]
             return
         if len(point) == 2 and not isinstance(point[0], (tuple, list)):
             x, y = point
@@ -6604,6 +6630,7 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
         if not self.ripples_enabled:
             self._popup_waves.clear()
             self._column_waves.clear()
+            self._fold_waves.clear()
             self._gravity_ripple_impulses.clear()
             self._popup_wave_elapsed = 0.0
             for key, material in self._material_cache.items():
@@ -7410,6 +7437,25 @@ class _DataArtEngine(_GraphicsBackend, _BufferedEngine):
             shift, glow = self._ripple_wave(np.abs(offset) + 1e-6, age)
             py += np.sign(offset) * shift * weight / aspect_y
             energy += glow * weight
+        for started, (fold_x, fold_y) in (getattr(self, "_fold_waves", ())
+                                          if self.ripples_enabled else ()):
+            age = self.time - started
+            if not 0.0 <= age < FOLD_LIFETIME_S:
+                continue
+            ex, ey = (x - fold_x) * aspect_x, (y - fold_y) * aspect_y
+            distance = np.sqrt(ex * ex + ey * ey + 1e-6)
+            travelled = age * FOLD_SPEED
+            ease = float(_smoothstep(np, 0.0, 0.12, age)
+                         * (1.0 - _smoothstep(np, 0.45 * FOLD_LIFETIME_S,
+                                              FOLD_LIFETIME_S, age)))
+            gain = self._ripple_intensity * ease / math.sqrt(1.0 + travelled / 1.2)
+            front = distance - travelled
+            packet = (np.exp(-(front / FOLD_PACKET_WIDTH) ** 2)
+                      * _smoothstep(np, 0.0, 0.04, distance))
+            pull = min(0.94, FOLD_GATHER * gain) * front * packet
+            px -= ex / distance * pull / aspect_x
+            py -= ey / distance * pull / aspect_y
+            energy += FOLD_GLOW * min(1.5, gain) * packet
         if self._field_grab_offset != (0.0, 0.0):
             center_x, center_y = self._field_grab_center
             gx, gy = (x - center_x) * aspect_x, (y - center_y) * aspect_y
@@ -8655,6 +8701,8 @@ class _QueuedArtInput:
                     if wave_serial > self._applied_boundary_serial:
                         if point and point[0] == "column":
                             engine._add_column_wave(point[1:])
+                        elif point and point[0] == "rings":
+                            engine._add_ripple(point)
                         else:
                             engine._add_ripple(point)
                         self._applied_boundary_serial = wave_serial
@@ -8748,6 +8796,8 @@ class _FrameProducer:
         self._frame_lock = threading.Lock()
         self._frame: Optional[QImage] = None
         self._stop = threading.Event()
+        self._wake = threading.Event()
+        self.doorbell = None
         self._thread: Optional[threading.Thread] = None
 
     def start(self) -> None:
@@ -8770,6 +8820,7 @@ class _FrameProducer:
         there is nothing to gain by forgetting it.
         """
         self._stop.set()
+        self._wake.set()
         thread = self._thread
         if thread is not None and thread.is_alive():
             thread.join(timeout=PRODUCER_JOIN_S)
@@ -8817,6 +8868,7 @@ class _FrameProducer:
         try:
             if getattr(self._engine, "_graphics_backend", "cpu") == "gpu":
                 _flow_graphics_preflight()
+            woken, woken_at = False, -math.inf
             while not self._stop.is_set():
                 started = time.monotonic()
                 width, height = self.size
@@ -8829,8 +8881,20 @@ class _FrameProducer:
                 if image is not None:
                     self.publish(image)
                     self.frames_shaded += 1
+                    if woken and self.doorbell is not None:
+                        try:
+                            self.doorbell.objectNameChanged.emit("")
+                        except RuntimeError:
+                            pass
+                if woken:
+                    woken_at = started
                 remaining = self._interval - (time.monotonic() - started)
-                self._stop.wait(remaining if remaining > 0 else 0.0)
+                woken = self._wake.wait(remaining if remaining > 0 else 0.0)
+                self._wake.clear()
+                if woken and not self._stop.is_set():
+                    spacing = 1.0 / MAX_FPS - (time.monotonic() - woken_at)
+                    if spacing > 0:
+                        self._stop.wait(spacing)
         finally:
             with self._engine_lock:
                 release = getattr(self._engine, '_release_point_graphics', None)
@@ -9069,6 +9133,10 @@ class AmbientWidget(QWidget):
             lambda: owner()._on_tick()
             if owner() is not None and vars(owner()).get("_timer") is timer
             else timer.stop())
+        self._doorbell = QObject(self)
+        self._doorbell.objectNameChanged.connect(
+            lambda _name: owner().repaint() if owner() is not None else None,
+            Qt.QueuedConnection)
         self._watched: Optional[weakref.ReferenceType] = None
 
     def focusInEvent(self, event) -> None:  # noqa: N802 (Qt override)
@@ -9704,6 +9772,7 @@ class AmbientWidget(QWidget):
             if first is not None:
                 producer.publish(first)
         self._last_frame = None
+        producer.doorbell = self.__dict__.get("_doorbell")
         self._producer_box[0] = producer
         producer.start()
 
@@ -9772,7 +9841,9 @@ class AmbientWidget(QWidget):
     def _sync_interaction_filter(self) -> None:
         """Observe unconsumed field input while its visible animation runs."""
         app = QApplication.instance()
-        wanted = (self._theme in _FIELD_THEMES
+        wanted = ((self._theme in _FIELD_THEMES
+                   or (self._theme.startswith("data_art_")
+                       and self._gravity_radius > 0.0))
                   and self._should_run()
                   and self._timer.isActive())
         if wanted and self._interaction_app is None and app is not None:
@@ -10005,11 +10076,38 @@ class AmbientWidget(QWidget):
         ref = getattr(self, "_watched", None)
         watched = ref() if ref is not None else None
         grab = getattr(self, "_field_grab", None)
+        art = self.__dict__.get("_art_input")
+        if (etype == QEvent.MouseMove and art is not None
+                and self._gravity_radius > 0.0 and not self._run_paced
+                and isinstance(self._engine, _DataArtEngine)
+                and self._engine.interactive and self._animating
+                and ((isinstance(obj, QWidget) and obj.window() is self.window())
+                     or obj is self.window().windowHandle())):
+            local = self.mapFromGlobal(event.globalPosition().toPoint())
+            pointer = (((local.x() + 0.5) / max(1, self.width()),
+                        (local.y() + 0.5) / max(1, self.height()))
+                       if self.rect().contains(local) else None)
+            if pointer is not None and art._snapshot[2] != pointer:
+                art._serial += 1
+                art._popup_snapshot = (art._serial,) + tuple(art._popup_snapshot[1:])
+                art._snapshot = (art._serial, art._elapsed, pointer, art._clicks)
+                if self._engine_lock.acquire(blocking=False):
+                    try:
+                        art._consume(self._engine)
+                    finally:
+                        self._engine_lock.release()
+                producer = self._producer_box[0]
+                if producer is not None:
+                    producer._wake.set()
+                else:
+                    self.update()
         if (etype == QEvent.MouseButtonPress
                 and getattr(self, "_interaction_app", None) is not None
+                and self._theme in _FIELD_THEMES
                 and isinstance(obj, QWidget) and obj.window() is self.window()
                 and self._should_run() and event.button() == Qt.LeftButton):
             local = self.mapFromGlobal(event.globalPosition().toPoint())
+            self._click_candidate = None
             if self.rect().contains(local):
                 point = ((local.x() + 0.5) / max(1, self.width()),
                          (local.y() + 0.5) / max(1, self.height()))
@@ -10021,7 +10119,23 @@ class AmbientWidget(QWidget):
                         and (not self._pending_art_impulses
                         or self._pending_art_impulses[-1] != point)):
                     self._pending_art_impulses = (self._pending_art_impulses + [point])[-16:]
-                if (background and self._ripples_enabled and self._click_ripples
+                surface, host = (hit if hit is not None else obj), self.parentWidget()
+                passive = True
+                while passive and surface is not None and surface is not host:
+                    passive = not (
+                        isinstance(surface, _CLICK_CONTROLS)
+                        or (isinstance(surface, QLabel)
+                            and bool(surface.textInteractionFlags()
+                                     & Qt.LinksAccessibleByMouse)
+                            and "href" in surface.text())
+                        or any(name in vars(klass)
+                               for klass in type(surface).__mro__
+                               if not klass.__module__.startswith(
+                                   ("PySide6", "shiboken6", "Shiboken", "builtins"))
+                               for name in _CLICK_HANDLERS))
+                    surface = surface.parentWidget()
+                if (passive and surface is host and host is not None
+                        and self._ripples_enabled and self._click_ripples
                         and not _ripples_are_explicit(obj)
                         and self._ripple_intensity > 0.0):
                     self._click_candidate = (point, _CONTAINER_RIPPLES[0])
@@ -10042,10 +10156,12 @@ class AmbientWidget(QWidget):
             else:
                 self._field_grab = None
             self._offer_field_grab()
-        elif (etype == QEvent.MouseButtonRelease and grab is not None
+        elif (etype == QEvent.MouseButtonRelease
+              and (grab is not None or self.__dict__.get("_click_candidate") is not None)
               and event.button() == Qt.LeftButton):
-            self._field_grab = None
-            self._offer_field_grab()
+            if grab is not None:
+                self._field_grab = None
+                self._offer_field_grab()
             moved = event.globalPosition().toPoint() - self._click_press
             if moved.manhattanLength() > QApplication.startDragDistance():
                 self._click_candidate = None
@@ -10673,6 +10789,13 @@ class _FractalTracksItsHost(QObject):
 #: ripple is committed only if this did not change during its interaction.
 _CONTAINER_RIPPLES = [0]
 
+_CLICK_CONTROLS = (QAbstractButton, QAbstractItemView, QAbstractSlider,
+                   QAbstractSpinBox, QComboBox, QGraphicsView, QLineEdit, QMenu,
+                   QMenuBar, QPlainTextEdit, QSplitterHandle, QTabBar, QTextEdit)
+
+_CLICK_HANDLERS = ("mousePressEvent", "mouseReleaseEvent",
+                   "mouseDoubleClickEvent")
+
 #: Milliseconds after a release before a click ripple is committed. Long
 #: enough for the click's own handlers and their zero-delay container
 #: ripples and for the next animation tick to notice a closed popup.
@@ -10971,7 +11094,8 @@ def _field_column_ripple_for_widget(widget, edge="bottom", strength=1.0) -> None
     _publish_widget_ripple(widget, edge, None, strength, vertical=True)
 
 
-def _publish_widget_ripple(widget, edge, rect, strength, *, vertical) -> None:
+def _publish_widget_ripple(widget, edge, rect, strength, *, vertical,
+                           rings=False) -> None:
     """Send ``widget``'s ripple to every running field backdrop of its window."""
     _note_container_ripple()
     try:
@@ -10979,6 +11103,14 @@ def _publish_widget_ripple(widget, edge, rect, strength, *, vertical) -> None:
         backdrops = window.findChildren(AmbientWidget)
         for backdrop in backdrops:
             if backdrop.theme() not in _FIELD_THEMES or not backdrop._should_run():
+                continue
+            if rings:
+                centre = backdrop.mapFromGlobal(widget.mapToGlobal(widget.rect().center()))
+                if backdrop.rect().contains(centre):
+                    backdrop._publish_boundary_ripples((
+                        ("rings", (centre.x() + 0.5) / max(1, backdrop.width()),
+                         (centre.y() + 0.5) / max(1, backdrop.height())),),
+                        strength, wrapped=True)
                 continue
             if edge is not None and widget is window and not vertical:
                 backdrop._ripple_from_edge(edge, strength)

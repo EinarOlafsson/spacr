@@ -216,6 +216,13 @@ def fake_ambient(monkeypatch):
 
     module._field_column_ripple_for_widget = column_ripple_for_widget
 
+    def publish_widget_ripple(widget, edge, rect, strength, *, vertical,
+                              rings=False):
+        module.ripple_count += 1
+        module.ripple_vertical.append("rings" if rings else vertical)
+
+    module._publish_widget_ripple = publish_widget_ripple
+
     module.field_ripple_for_widget = field_ripple_for_widget
     module._apply_spaceout_animation_choice = lambda app: None
 
@@ -638,6 +645,9 @@ def test_section_toggle_schedules_field_feedback_when_available(
     qtbot.waitUntil(lambda: fake_ambient.ripple_count == 1)
     assert section.is_expanded()
     assert fake_ambient.ripple_vertical == [True]
+    section.set_expanded(False)
+    qtbot.waitUntil(lambda: fake_ambient.ripple_count == 2)
+    assert fake_ambient.ripple_vertical == [True, "rings"]
 
 
 def test_broken_preferences_do_not_break_the_screen(qtbot, qt_theme_applied,

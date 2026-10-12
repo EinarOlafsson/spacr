@@ -86,8 +86,7 @@ def test_a_tick_on_a_backdrop_without_its_state_stops_instead_of_raising(
     state = dict(vars(widget))
     vars(widget).clear()
     try:
-        _pump(qapp, 80)
-        assert not timer.isActive()
+        qtbot.waitUntil(lambda: not timer.isActive(), timeout=2000)
     finally:
         vars(widget).update(state)
 
