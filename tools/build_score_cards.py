@@ -22,8 +22,10 @@ Nothing numeric is typed here, so a re-score published to the zoo reaches the
 cards when ``python tools/build_model_cards.py`` is run again; that tool
 writes the cards next to the Markdown pages.
 
-The card is one dark spaCR teal surface in both GitHub themes, with a
-transparent margin that makes the gutters of the README grid.
+The card is one dark surface in GitHub dark mode's own neutrals, the same in
+both GitHub themes and on PyPI; spaCR teal marks only this model's bars and
+the version tag. A transparent margin makes the gutters of the README grid,
+and a faint shadow sets the card off a white page.
 """
 from __future__ import annotations
 
@@ -69,21 +71,23 @@ FONT_FILES = {400: "OpenSans-Regular.ttf", 300: "OpenSans-Light.ttf"}
 #: not depend on the fontTools version that subset them.
 FONT_DATA = re.compile(r"url\(data:font/woff;base64,[A-Za-z0-9+/=]+\)")
 
-#: spaCR's palette: the dark teal surface of the app's cell theme, the teal
-#: glow of the photomosaic logo, the blue accent of the space theme and a cool
-#: slate for the baseline. One set for both themes: the card paints its own
-#: dark surface.
+#: The card surface, edge, track and inks are GitHub dark mode's neutrals;
+#: the model bars are spaCR teal (the photomosaic logo's glow, darkened into
+#: the dataviz lightness band), the baseline a cool slate, the version tag the
+#: logo's own teal and the faint top glow runs to the space theme's blue. One
+#: set for both themes: the card paints its own dark surface.
 PALETTE = {
-    "card": "#0b1c23",
-    "edge": "#33596a",
-    "track": "#132b34",
-    "ink": "#ffffff",
-    "ink2": "#cfe0e6",
-    "ink3": "#a3bbc4",
+    "card": "#161b22",
+    "edge": "#30363d",
+    "track": "#21262d",
+    "ink": "#e6edf3",
+    "ink2": "#c9d1d9",
+    "ink3": "#8b949e",
     "model": "#20aa9e",
     "base": "#566a7e",
     "glow": "#2ec4b6",
     "blue": "#6cb6ff",
+    "shadow": "#1f2328",
 }
 
 #: Short family names for the title slot, as the maintainer named them.
@@ -493,18 +497,23 @@ def _style(used: Mapping[int, Iterable[str]]) -> str:
 
 
 def _frame(uid: str, x: float, y: float, w: float, h: float) -> List[str]:
-    """The dark card with a thin teal-to-blue glow along its top edge."""
+    """The dark card: a faint shadow under it for a white page, and a thin,
+    half-transparent teal-to-blue line along its top edge."""
     p = PALETTE
     return [
         f'<defs><linearGradient id="g{uid}" x1="0" x2="1" y1="0" y2="0">'
         f'<stop offset="0" stop-color="{p["glow"]}"/>'
         f'<stop offset="1" stop-color="{p["blue"]}"/></linearGradient>'
         f'<clipPath id="c{uid}"><rect x="{x}" y="{y}" width="{w}"'
-        f' height="{h}" rx="14"/></clipPath></defs>',
+        f' height="{h}" rx="14"/></clipPath>'
+        f'<filter id="s{uid}" x="-4%" y="-4%" width="108%" height="112%">'
+        f'<feDropShadow dx="0" dy="1" stdDeviation="1.2"'
+        f' flood-color="{p["shadow"]}" flood-opacity=".22"/></filter></defs>',
         f'<rect class="card" x="{x + 0.5}" y="{y + 0.5}" width="{w - 1}"'
-        f' height="{h - 1}" rx="14" stroke-width="1"/>',
-        f'<rect x="{x}" y="{y}" width="{w}" height="3" fill="url(#g{uid})"'
-        f' clip-path="url(#c{uid})"/>',
+        f' height="{h - 1}" rx="14" stroke-width="1"'
+        f' filter="url(#s{uid})"/>',
+        f'<rect x="{x}" y="{y}" width="{w}" height="2" fill="url(#g{uid})"'
+        f' fill-opacity=".7" clip-path="url(#c{uid})"/>',
     ]
 
 

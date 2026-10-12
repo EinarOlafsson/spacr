@@ -7,7 +7,8 @@ them from ``BUNDLED_REMOTE_MODELS``; ``tools/build_model_cards.py`` writes
 them to ``docs/models/cards/<key>.svg``. Later that day the maintainer
 rejected the first cards for their brown surface and ragged grid: every card
 now has the same size, the same slots and the same number of bar rows, on
-spaCR's dark teal.
+GitHub dark mode's neutral surface with spaCR teal only for this model's
+bars and the version tag.
 """
 from __future__ import annotations
 
@@ -79,7 +80,7 @@ def test_every_card_has_the_same_size_and_the_same_rows():
                       f"0 0 {scores.WIDTH} {scores.HEIGHT}")}
 
 
-def test_the_card_face_is_spacr_teal_with_no_warm_grey():
+def test_the_card_face_has_no_warm_grey():
     cards = _cards()
     scores = cards.score_cards()
 
