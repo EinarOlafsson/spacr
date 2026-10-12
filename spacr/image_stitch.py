@@ -15,13 +15,14 @@ arranged around where the evidence is:
 
 1. The file's own stage coordinates, when it has them. An OME-TIFF records
    ``PositionX``/``PositionY`` in microns and the pixel size beside them, so
-   the layout is read rather than inferred. 2. The pixels, otherwise. Adjacent
-   tiles overlap, and the overlap is the same picture twice, so the right
-   displacement is the one whose implied overlap correlates -- scored for every
-   admissible displacement rather than picked from a phase-correlation peak,
-   which a small overlap buries. This also settles the order -- row-major and
-   serpentine put different tiles beside each other, so the arrangement that
-   correlates is the arrangement the microscope used.
+   the layout is read rather than inferred.
+2. The pixels, otherwise. Adjacent tiles overlap, and the overlap is the same
+   picture twice, so the right displacement is the one whose implied overlap
+   correlates -- scored for every admissible displacement rather than picked
+   from a phase-correlation peak, which a small overlap buries. This also
+   settles the order -- row-major and serpentine put different tiles beside
+   each other, so the arrangement that correlates is the arrangement the
+   microscope used.
 3. No evidence. Blank tiles, single-pixel overlaps and images with no shared
    content produce no correlation to speak of. The tiles are then butt-joined
    in a square-ish grid and the mosaic is marked ``assumed`` with its

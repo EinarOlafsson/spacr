@@ -10,8 +10,8 @@ questions that follow a re-run:
    A run that produced 12% fewer cells has a problem, and this is where
    it is visible first.
 3. **Which hits moved?** Appeared, vanished, and changed rank. A hit list
-whose membership is stable but whose top ten reshuffles every run is not a
-stable result.
+   whose membership is stable but whose top ten reshuffles every run is not a
+   stable result.
 
 All three come from :mod:`spacr.run_compare`, which is headless: this
 file picks the runs and draws the tables and knows nothing else. The run
