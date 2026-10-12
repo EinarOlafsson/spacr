@@ -587,8 +587,11 @@ def test_unit_named_settings_keep_their_units_in_the_tooltip():
     # enhance_sharpen_radius, the Make Masks chain's two radii as Mask
     # settings. Both tooltips say pixels.
     enhancement_unit_settings = 2
+    # +1 on 2026-10-11 (F534): spatial_diameter, Spatial Mask Generation's
+    # nucleus size. Its tooltip names its unit, so only the census moved.
+    spatial_unit_settings = 1
     assert len(diameter_or_radius) == (
-        base_unit_settings + enhancement_unit_settings
+        base_unit_settings + enhancement_unit_settings + spatial_unit_settings
         + per_organelle_unit_settings * MAX_ORGANELLES
     )
     assert not missing, f"unit-bearing tooltips without units: {sorted(missing)}"
