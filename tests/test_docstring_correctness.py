@@ -2497,7 +2497,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     contract_arrivals = set()
     for contract in ("685_model_zoo_api_arrivals_2026-10-11.json",
                      "534_spatial_api_arrivals_2026-10-11.json",
-                     "691_mitonet_api_arrivals_2026-10-11.json"):
+                     "691_mitonet_api_arrivals_2026-10-11.json",
+                     "692_three_d_mask_drawing_api_arrivals_2026-10-11.json"):
         contract_arrivals |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     assert contract_arrivals & by_symbol.keys()
@@ -3940,6 +3941,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {key: docs[key] for key in mitonet_additions} == mitonet_additions
     assert not mitonet_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **mitonet_additions}
+    drawing_additions = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "692_three_d_mask_drawing_api_arrivals_2026-10-11.json").read_text())
+    assert len(drawing_additions) == 8
+    assert {key: docs[key] for key in drawing_additions} == drawing_additions
+    assert not drawing_additions.keys() & (zoo_additions.keys() | volume_additions.keys())
+    zoo_additions = {**zoo_additions, **drawing_additions}
     assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
@@ -4307,7 +4315,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     contract_callables = set()
     for contract in ("685_model_zoo_api_arrivals_2026-10-11.json",
                      "534_spatial_api_arrivals_2026-10-11.json",
-                     "691_mitonet_api_arrivals_2026-10-11.json"):
+                     "691_mitonet_api_arrivals_2026-10-11.json",
+                     "692_three_d_mask_drawing_api_arrivals_2026-10-11.json"):
         contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     prior = prior - contract_callables
@@ -4326,12 +4335,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # Item 600, 2026-09-29: +11 callables (drop_classification, organize_for_measure).
     # Item 684: +2 (snap_window, set_click_ripples).
     # Item 690: +10 rendered, the ten TEM callables of its arrival contract.
-    # 2026-10-11: F534, item 685 and N691 add only the rendered callables of
+    # 2026-10-11: F534, item 685, N691 and N692 add only the rendered callables of
     # their dated arrival contracts; removing them preserves the pin.
     arrival_callables = set()
     for contract in ("534_spatial_api_arrivals_2026-10-11.json",
                      "685_model_zoo_api_arrivals_2026-10-11.json",
-                     "691_mitonet_api_arrivals_2026-10-11.json"):
+                     "691_mitonet_api_arrivals_2026-10-11.json",
+                     "692_three_d_mask_drawing_api_arrivals_2026-10-11.json"):
         arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     arrival_callables &= rendered_documented_callables.keys()

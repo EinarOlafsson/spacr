@@ -24,6 +24,7 @@ def editor(qtbot, tmp_path, monkeypatch):
     widget = _VolumeMaskEditor(session)
     qtbot.addWidget(widget)
     widget.show()
+    widget._tabs.setCurrentWidget(widget._panel)
     for _ in range(4):
         QApplication.processEvents()
     yield widget
@@ -206,8 +207,8 @@ def test_make_masks_opens_volume_without_replacing_2d_labels_or_boxes(qtbot, tmp
     assert screen._canvas.image is image and screen._canvas.mask is labels
     assert screen._canvas.boxes == [(3, 1., 1., 4., 4.)]
     assert screen._btn_volume.objectName() == 'OpenVolumeMask'
-    assert 'spatial 3D TIFF' in screen._btn_volume.property('apiTooltipDescriptionSource')
-    assert 'spatial 3D TIFF' in screen._btn_volume.property('_spacr_i18n_tooltip')
+    assert 'draw 3D masks slice by slice' in screen._btn_volume.property('apiTooltipDescriptionSource')
+    assert 'draw 3D masks slice by slice' in screen._btn_volume.property('_spacr_i18n_tooltip')
     assert screen._btn_volume.accessibleDescription()
     dialog.close()
     QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
@@ -228,7 +229,7 @@ def test_volume_open_help_uses_footer_when_inside_an_action_scope(qtbot):
     assert command.toolTip() == ''
     assert host.eventFilter(command, QEvent(QEvent.ToolTip)) is True
     host._show_hover_hint(command)
-    assert 'spatial 3D TIFF' in host._hint_strip.toolTip()
+    assert 'draw 3D masks slice by slice' in host._hint_strip.toolTip()
 
 
 def test_real_rotated_rectangle_through_view_draws_full_native_volume(editor, qtbot):

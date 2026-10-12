@@ -5611,14 +5611,30 @@ class VolumeMaskSession:
         self._paint_geometry(output, label, gate)
         if self._cancelled is not None and self._cancelled():
             raise InterruptedError(tr('Volume editing was cancelled; no labels were changed.'))
+        after = dict(self.geometries)
+        after[int(label)] = gate
+        return self._commit(output, after)
+
+    def _commit(self, output, after=None):
+        """Record one sparse voxel delta and its geometry as one undo step.
+
+        :param output: the complete edited label array.
+        :param after: the geometry after the edit; ``None`` drops the saved
+            boundary of every label whose voxels changed.
+        :returns: number of changed voxels.
+        """
+        from .i18n import tr
+
         changed = np.flatnonzero(output.ravel() != self.mask.ravel()).astype(np.uint32)
         old = self.mask.ravel()[changed].copy()
         new = output.ravel()[changed].copy()
         cost = changed.nbytes + old.nbytes + new.nbytes
         if cost > self.MAX_HISTORY_BYTES:
             raise ValueError(tr('This edit exceeds the volume undo memory budget; no labels were changed.'))
-        before, after = dict(self.geometries), dict(self.geometries)
-        after[int(label)] = gate
+        before = dict(self.geometries)
+        if after is None:
+            touched = set(map(int, np.unique(np.concatenate((old, new)))))
+            after = {key: value for key, value in before.items() if key not in touched}
         if not len(changed) and before == after:
             return 0
         self._redo.clear()
@@ -5655,6 +5671,148 @@ class VolumeMaskSession:
         self._history_bytes += sum(value.nbytes for value in record[:3])
         return True
 
+    def _section(self, array, axis, index):
+        """A writable view of one section: Z gives Y x X, Y gives Z x X, X gives Z x Y."""
+        from .i18n import tr
+
+        if axis not in ('X', 'Y', 'Z'):
+            raise ValueError(tr('Choose the X, Y or Z axis for a volume section.'))
+        position = self.axes.index(axis)
+        if (not isinstance(index, Integral) or isinstance(index, (bool, np.bool_))
+                or not 0 <= index < array.shape[position]):
+            raise ValueError(tr('The section index lies outside the volume.'))
+        key = [slice(None)] * 3
+        key[position] = int(index)
+        section = array[tuple(key)]
+        remaining = [name for name in self.axes if name != axis]
+        wanted = {'Z': ['Y', 'X'], 'Y': ['Z', 'X'], 'X': ['Z', 'Y']}[axis]
+        return section if remaining == wanted else section.T
+
+    def section_count(self, axis):
+        """Number of sections along one spatial axis.
+
+        :param axis: ``X``, ``Y`` or ``Z``.
+        :returns: the volume's length along that axis.
+        """
+        return int(self.image.shape[self.axes.index(axis)])
+
+    def plane(self, axis, index):
+        """Return one orthogonal section of the image and its labels.
+
+        :param axis: the axis held fixed. ``Z`` gives the XY section (rows Y,
+            columns X), ``Y`` the XZ section (rows Z, columns X) and ``X`` the
+            YZ section (rows Z, columns Y).
+        :param index: the section's index along ``axis``.
+        :returns: ``(image, labels)``, copies of that section.
+        """
+        return (np.array(self._section(self.image, axis, index)),
+                np.array(self._section(self.mask, axis, index)))
+
+    def _check_label(self, label):
+        """Refuse an object ID the label dtype cannot hold."""
+        from .i18n import tr
+
+        if (not isinstance(label, Integral) or isinstance(label, (bool, np.bool_))
+                or not 0 < label <= min(65535, np.iinfo(self.mask.dtype).max)):
+            raise ValueError(tr('Choose a positive object ID that the mask can store.'))
+        return int(label)
+
+    def paint_plane(self, axis, index, label, paint=None, erase=None):
+        """Draw or erase one object on one section as a single undo step.
+
+        Painting fills only background and the object's own voxels, so other
+        objects are never overwritten. Erasing clears every label under the
+        erased pixels. A label whose voxels change loses any saved anchor
+        boundary, which no longer describes it.
+
+        :param axis: the axis held fixed, as for :meth:`plane`.
+        :param index: the section's index along ``axis``.
+        :param label: the object ID to draw.
+        :param paint: boolean pixels to assign to ``label``, shaped as the section.
+        :param erase: boolean pixels to clear, shaped as the section.
+        :returns: number of changed voxels.
+        """
+        from .i18n import tr
+
+        label = self._check_label(label)
+        output = self.mask.copy()
+        view = self._section(output, axis, index)
+        for pixels in (erase, paint):
+            if pixels is not None and np.shape(pixels) != view.shape:
+                raise ValueError(tr('The drawn section does not match the volume section.'))
+        if erase is not None:
+            view[np.asarray(erase, dtype=bool)] = 0
+        if paint is not None:
+            view[np.asarray(paint, dtype=bool) & ((view == 0) | (view == label))] = label
+        return self._commit(output)
+
+    def interpolate(self, label, axis='Z'):
+        """Fill the empty sections between drawn sections of one object.
+
+        Each gap between two sections that contain ``label`` is filled by
+        blending their signed distance maps, measured in physical units, so
+        the outline changes shape smoothly from one drawn section to the
+        next. Only background voxels are filled.
+
+        :param label: the object to interpolate.
+        :param axis: the axis the sections are stacked along.
+        :returns: number of changed voxels.
+        """
+        from scipy import ndimage
+
+        label = self._check_label(label)
+        count = self.section_count(axis)
+        rows, columns = {'Z': 'YX', 'Y': 'ZX', 'X': 'ZY'}[axis]
+        sampling = (self.xyz_spacing['XYZ'.index(rows)], self.xyz_spacing['XYZ'.index(columns)])
+        drawn = [index for index in range(count)
+                 if np.any(self._section(self.mask, axis, index) == label)]
+        output = self.mask.copy()
+        for low, high in zip(drawn, drawn[1:]):
+            if high - low < 2:
+                continue
+            first, last = (ndimage.distance_transform_edt(region != label, sampling=sampling)
+                           - ndimage.distance_transform_edt(region == label, sampling=sampling)
+                           for region in (self._section(self.mask, axis, low),
+                                          self._section(self.mask, axis, high)))
+            for index in range(low + 1, high):
+                weight = (index - low) / (high - low)
+                inside = (1 - weight) * first + weight * last < 0
+                view = self._section(output, axis, index)
+                view[inside & (view == 0)] = label
+        return self._commit(output)
+
+    def assign_objects(self):
+        """Split every label into its 3-D connected objects.
+
+        The largest connected part of each label keeps its ID; every other
+        part, touching it neither by face, edge nor corner, receives the next
+        unused ID. Drawing many objects with one ID and then assigning them
+        gives each its own ID.
+
+        :returns: ``(changed voxels, objects after assigning)``.
+        """
+        from scipy import ndimage
+        from .i18n import tr
+
+        output = self.mask.copy()
+        occupied = set(map(int, np.unique(output)))
+        maximum = min(65535, np.iinfo(output.dtype).max)
+        candidate = 1
+        for label in sorted(occupied - {0}):
+            parts, number = ndimage.label(self.mask == label, structure=np.ones((3, 3, 3), dtype=bool))
+            if number < 2:
+                continue
+            sizes = np.bincount(parts.ravel())[1:]
+            for part in [index + 1 for index in np.argsort(-sizes, kind='stable')][1:]:
+                while candidate in occupied:
+                    candidate += 1
+                if candidate > maximum:
+                    raise ValueError(tr('No unused object identifier fits this mask dtype.'))
+                output[parts == part] = candidate
+                occupied.add(candidate)
+        changed = self._commit(output)
+        return changed, len(np.unique(self.mask)) - 1
+
     def _validate_boundaries(self):
         """Refuse saved geometry that disagrees with its actual labelled voxels."""
         from .i18n import tr
@@ -5674,31 +5832,22 @@ class VolumeMaskSession:
                 raise ValueError(tr('The saved boundary does not match its object voxels.'))
 
 
-def load_volume_image_and_mask(folder, filename, masks_dir=None):
-    """Open an explicitly declared grayscale spatial TIFF for native 3-D editing.
+_VOLUME_MRC_SUFFIXES = ('.mrc', '.rec', '.map')
 
-    Exactly three spatial axes are supported, in any order. Time, channel,
-    colour and inferred page axes are refused. ``voxel_spacing`` metadata is
-    read in storage-axis order. OME physical sizes are converted to micrometres;
-    ImageJ spacing and XY resolution are retained. Absent physical metadata
-    means pixel coordinates.
-    Labels retain dtype and identity. A saved geometry sidecar is bound to
-    the exact source file and mask pixels and is refused when stale.
 
-    :param folder: source image directory.
-    :param filename: spatial TIFF image filename.
-    :param masks_dir: optional existing sibling mask directory.
-    :returns: a ``VolumeMaskSession`` owning the labels and source metadata.
-    """
+def _spatial_page_axes(axes):
+    """Read a plain three-dimensional page stack's page axis as Z."""
+    return 'ZYX' if axes in ('QYX', 'IYX') else axes
+
+
+def _read_tiff_volume(source):
+    """Read one spatial TIFF as ``(image, axes, spacing, unit)``."""
     import tifffile
     from .i18n import tr
-    from .widgets.gate_spec import GateSet, EditableVolumeGate
 
-    source = Path(folder) / filename
-    digest = _yolo_source_hash(source)
     with tifffile.TiffFile(source) as handle:
         series = handle.series[0]
-        axes = series.axes
+        axes = _spatial_page_axes(series.axes)
         metadata = (handle.shaped_metadata or ({},))[0] or {}
         spacing = metadata.get('voxel_spacing', (1., 1., 1.))
         unit = metadata.get('unit', 'pixel')
@@ -5731,11 +5880,68 @@ def load_volume_image_and_mask(folder, filename, masks_dir=None):
         if math.prod(series.shape) > VolumeMaskSession.MAX_VOXELS or math.prod(series.shape) * series.dtype.itemsize > 256 * 1024 * 1024:
             raise ValueError(tr('This TIFF exceeds the native volume memory budget.'))
         image = series.asarray()
+    return image, axes, spacing, unit
+
+
+def _read_mrc_volume(source):
+    """Read one MRC volume as ZYX with its voxel size in nanometres."""
+    from .i18n import tr
+
+    try:
+        import mrcfile
+    except ImportError as exc:
+        raise ValueError(tr('MRC volumes need the optional mrcfile package: pip install "spacr[tem]"')) from exc
+    with mrcfile.mmap(str(source), permissive=True, mode='r') as handle:
+        data = handle.data
+        if data is None or data.ndim != 3 or 1 in data.shape:
+            raise ValueError(tr('This MRC file holds one section, not a volume; open it as a 2D image.'))
+        if data.size > VolumeMaskSession.MAX_VOXELS or data.nbytes > 256 * 1024 * 1024:
+            raise ValueError(tr('This volume exceeds the native volume memory budget.'))
+        if data.dtype.kind not in 'uif':
+            raise ValueError(tr('3D masks require a finite numeric spatial TIFF within the volume memory budget.'))
+        image = np.array(data, dtype=data.dtype.newbyteorder('='))
+        size = handle.voxel_size
+        angstrom = (float(size.z), float(size.y), float(size.x))
+    if all(np.isfinite(value) and value > 0 for value in angstrom):
+        return image, 'ZYX', tuple(value / 10. for value in angstrom), 'nm'
+    return image, 'ZYX', (1., 1., 1.), 'pixel'
+
+
+def load_volume_image_and_mask(folder, filename, masks_dir=None):
+    """Open a grayscale spatial volume for native 3-D editing.
+
+    TIFF volumes need exactly three spatial axes, in any order. A plain
+    three-dimensional page stack (tifffile's ``Q`` or ``I`` page axis over
+    ``YX``) is read as Z sections, as z-stacks and FIB-SEM series are saved;
+    time, channel and colour axes are refused. ``voxel_spacing`` metadata is
+    read in storage-axis order. OME physical sizes are converted to micrometres;
+    ImageJ spacing and XY resolution are retained. MRC volumes (``.mrc``,
+    ``.rec``, ``.map``) are read as ZYX with their voxel size in nanometres;
+    they need the optional ``mrcfile`` package. Absent physical metadata
+    means pixel coordinates.
+    Labels retain dtype and identity. A saved geometry sidecar is bound to
+    the exact source file and mask pixels and is refused when stale.
+
+    :param folder: source image directory.
+    :param filename: spatial TIFF or MRC volume filename.
+    :param masks_dir: optional existing sibling mask directory.
+    :returns: a ``VolumeMaskSession`` owning the labels and source metadata.
+    """
+    import tifffile
+    from .i18n import tr
+    from .widgets.gate_spec import GateSet, EditableVolumeGate
+
+    source = Path(folder) / filename
+    digest = _yolo_source_hash(source)
+    if source.suffix.lower() in _VOLUME_MRC_SUFFIXES:
+        image, axes, spacing, unit = _read_mrc_volume(source)
+    else:
+        image, axes, spacing, unit = _read_tiff_volume(source)
     mask_path = Path(mask_save_path(folder, filename, masks_dir))
     if mask_path.exists():
         with tifffile.TiffFile(mask_path) as handle:
             mask_series = handle.series[0]
-            if mask_series.axes != axes:
+            if _spatial_page_axes(mask_series.axes) != axes:
                 raise ValueError(tr('The saved mask axes do not match the spatial source.'))
             if (mask_series.shape != image.shape or mask_series.dtype.kind not in 'ui'
                     or math.prod(mask_series.shape) * mask_series.dtype.itemsize > 256 * 1024 * 1024):
@@ -5828,7 +6034,8 @@ def save_volume_mask(session):
             folder = Path(folder)
             staged_mask, staged_json = folder / 'mask.tif', folder / 'geometry.json'
             write_tiff(staged_mask, session.mask, metadata={'axes': session.axes,
-                        'voxel_spacing': list(session.spacing), 'unit': session.unit})
+                        'voxel_spacing': list(session.spacing), 'unit': session.unit},
+                       resolution=(1. / session.xyz_spacing[0], 1. / session.xyz_spacing[1]))
             staged_json.write_bytes(_yolo_json_bytes(record))
             backups = {}
             for path in (target, sidecar):

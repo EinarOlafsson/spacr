@@ -52112,6 +52112,16 @@
       "source_sha256": "9f733ce2e3c270e2e3c0e4620356c20b4164c335900c2f5234df2ba15c2492c3",
       "text": "Put the button back, then open the data or say why it did not."
     },
+    "spacr.qt.make_masks_demo.download_fibsem_example": {
+      "source_blocks_sha256": [
+        "35952741ee8af781c98fc4620fdec0c65ff77de51f4084f1f1334f4cef928098",
+        "433a0ef192a2c0964ca4ac0f3d2a7616fd624f203e1ffbd0a337cbd08bda024b",
+        "b9ec1520d4663e23671ade7787812751be556b032b27a68b156691dc5bd361b3",
+        "a69bc9f35b747e19af0d8a52dfe41d4ea33c9b10436f03cec2579d13618dd060"
+      ],
+      "source_sha256": "2fb02c74dc99f539da849d577b03bffd5a68ec0f56279d2ba1afcf22e8565a07",
+      "text": "Fetch the FIB-SEM test volume behind the shared progress dialog.\n\n:param parent: the widget the progress dialog belongs to.\n:param dest: the folder the archive unpacks into.\n:param on_done: called on the GUI thread as ``on_done(result, error)``,\n    as :func:`download_make_masks_example` calls it."
+    },
     "spacr.qt.make_masks_demo.download_make_masks_example": {
       "source_blocks_sha256": [
         "0a0045efc5c17dc8f87a2d8120ca9f46d8f599d15576b8b6fba07e73371dd864",
@@ -52131,6 +52141,15 @@
       ],
       "source_sha256": "f696650f77dacd0a277bdf0709f64a4db136b61b1e19312621e3dd7a61e1b0d4",
       "text": "Fetch the TEM test data behind the shared progress dialog.\n\n:param parent: the widget the progress dialog belongs to.\n:param dest: the folder the archive unpacks into.\n:param on_done: called on the GUI thread as ``on_done(result, error)``,\n    as :func:`download_make_masks_example` calls it."
+    },
+    "spacr.qt.make_masks_demo.fibsem_example_folder": {
+      "source_blocks_sha256": [
+        "79e1827641d9ced766850c7c03921c81f9a243e6f0f4d2bacac0ef8e9925e62d",
+        "a2fb0c32369e8b0730c4f78210ff86fbdedf295ecc77b3751362a783a4a8efc3",
+        "a80a44fe30401dbcd382bb0031d41e498f5840f876c32539b7f3156aa650e5c8"
+      ],
+      "source_sha256": "704247536f44640c6b8368b9bfc8b870cd985aeaa484ee4d8a818d55cf9926ec",
+      "text": "Where the FIB-SEM test volume is unpacked and cached.\n\n``~/.cache/spacr/example_data/make_masks_fibsem``, the folder\n:data:`spacr.example_archives.EXAMPLE_SETS` names for the ``fibsem`` set,\nso ``spacr-download fibsem`` and the menu share one cache.\n\n:returns: the folder. It is not created here."
     },
     "spacr.qt.make_masks_demo.install_test_data_button": {
       "source_blocks_sha256": [
@@ -52158,6 +52177,19 @@
       ],
       "source_sha256": "aa58ae288ec122ef438a904f1c4439530a04101dd42c53adcc7ad4427d8c5068",
       "text": "Every file the dataset's ``manifest.csv`` says a complete copy holds.\n\n:param folder: where the dataset was unpacked.\n:returns: paths relative to ``folder``, each image followed by its\n    ground-truth mask, in manifest order. Empty when there is no readable\n    manifest, or when any row names no image, so that an incomplete or\n    unrecognised folder is never mistaken for the dataset."
+    },
+    "spacr.qt.make_masks_demo.load_the_fibsem_test_data": {
+      "source_blocks_sha256": [
+        "82138e5f14ade6244facefc3fe674002327e29a8515139ce15a77bea39b7fe35",
+        "9a4f54e5a310801a476cf03c23b04d280a146d3ce5dc8dfff08b7dd030c28ae6",
+        "7e48866ca6681d49e03a9daecbef17b0cb934dea52ed51c75204f7831dc142dd",
+        "d77b55d1f285db91692b02ebb6a5426b5a1327fcdba6e0db9921043aadb2178e",
+        "d7127fd194531a98ba533e1ccf57be865a9dea732b1722e160ab02257e8df77d",
+        "4891019714da5a256c7e690a2bb67cc30faa7b130ac0c79766ef243074e38fa2",
+        "edc091b3c8238775dc1cd7e2627e3e43b0cc0fc0cce7573996b3ebd336e2e8d3"
+      ],
+      "source_sha256": "30adb54a8cce890291368b1fb461a062bd92b634e709832cd9a6bfc3cd6e65ad",
+      "text": "Open the FIB-SEM test volume in the 3-D mask editor.\n\nThe same sequence as :func:`load_the_test_data`, downloading\n:data:`FIBSEM_EXAMPLE_REPO` into :func:`fibsem_example_folder` when it is\nnot cached. Without masks the volume opens unsegmented, its drafts saved\nin ``masks/``. With masks, the published labels are copied once into\n``corrected_masks/`` and open there for correction, so\n``ground_truth_masks/`` is never overwritten.\n\n:param screen: the Make Masks screen whose 3-D editor opens the volume.\n:param with_masks: open the volume with its mitochondria labels loaded.\n:param ask: replaces :func:`download_fibsem_example`, for tests.\n:param folder: replaces :func:`fibsem_example_folder`, for tests.\n:returns: whether this call opened the volume."
     },
     "spacr.qt.make_masks_demo.load_the_tem_test_data": {
       "source_blocks_sha256": [
@@ -52473,6 +52505,15 @@
       "source_sha256": "d43aa6979fc5d7440b473a8a2926a9f4f959916a21231dcb52b96207f715ce02",
       "text": "Commit one validated shared boundary and its exact mask voxels.\n\nOther object IDs are protected. Invalid motion, collisions or a delta\nexceeding the history budget leave arrays, geometry and history intact.\n\n:param label: positive ID representable by the current mask dtype.\n:param gate: shared ``EditableVolumeGate`` with physical X/Y/Z columns.\n:returns: number of changed voxels."
     },
+    "spacr.qt.mask_engine.VolumeMaskSession.assign_objects": {
+      "source_blocks_sha256": [
+        "312c6a70ed1d46a7e98cfcb3f85dba1fca1f5c4e1ca3ddef3f13c476e8c23ff0",
+        "77b681a7515723ba2b77500d8bc3979a3c97681f3ead9bb140ef4f33c6257078",
+        "08af08df52116436ce00626c5758cf486abed66108e57c7c99a697a4adaaa0eb"
+      ],
+      "source_sha256": "ce71d0fd888ccd0811f7372c95c0e5c8c62b3de9f63bf2c2fa72b32dde35e725",
+      "text": "Split every label into its 3-D connected objects.\n\nThe largest connected part of each label keeps its ID; every other\npart, touching it neither by face, edge nor corner, receives the next\nunused ID. Drawing many objects with one ID and then assigning them\ngives each its own ID.\n\n:returns: ``(changed voxels, objects after assigning)``."
+    },
     "spacr.qt.mask_engine.VolumeMaskSession.geometry_for_label": {
       "source_blocks_sha256": [
         "9e96bab459f5d409478af847307116fd82269e07b5586eada2b153d7831bef93",
@@ -52482,6 +52523,17 @@
       ],
       "source_sha256": "855806e4c95205b428777fd15ebba3049a11ddc10ed83c541effb993a1eaab09",
       "text": "Return saved geometry or an exact closed voxel-boundary mesh.\n\nCorner-touching, disconnected or excessively detailed labels that\ncannot satisfy the shared mesh's bounds/topology are refused rather\nthan replaced by a bounding box. Merely previewing this mesh does not\nchange voxels, history or saved geometry.\n\n:param label: an existing positive object identifier.\n:returns: a validated shared editable volume in physical coordinates."
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.interpolate": {
+      "source_blocks_sha256": [
+        "26efa9765bdcab753d92892720cd7385aa7f197a9d73a0f1d769a01f2c06cae1",
+        "f569f237203f7e83d463a22776a705011d7bb3dc5a1632ba087f224b32720712",
+        "b069b6380c52d6c5573cf1fe12a36bae6d760e93e3a1283c97a3ec881c98af4a",
+        "92df655cbe1ba7ca760115860d2e2b936b599537d661bd2a11e4530899fcc411",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "88f82179e30f33c3c1292b0c9cd235c697f0d45e098005470a552c76286777ee",
+      "text": "Fill the empty sections between drawn sections of one object.\n\nEach gap between two sections that contain ``label`` is filled by\nblending their signed distance maps, measured in physical units, so\nthe outline changes shape smoothly from one drawn section to the\nnext. Only background voxels are filled.\n\n:param label: the object to interpolate.\n:param axis: the axis the sections are stacked along.\n:returns: number of changed voxels."
     },
     "spacr.qt.mask_engine.VolumeMaskSession.limits": {
       "source_blocks_sha256": [
@@ -52497,12 +52549,45 @@
       "source_sha256": "fa60d161e593bb721fde691591002817de21d102b04b83abc28d9267ea686254",
       "text": "Return the first unused positive ID without renumbering any object."
     },
+    "spacr.qt.mask_engine.VolumeMaskSession.paint_plane": {
+      "source_blocks_sha256": [
+        "0096767bb577358acfd0c473db28bedd2b1a577171580a1853dc599669c4ab5a",
+        "0a265cbc82ad2f85d653fcaefa5baee12f16bc081588bba35d9b3378c3cce700",
+        "95f6eac351ee068654a294213c80ce8eaae1b70b45cce71c32a11beff74dc2de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "a9c6178885747679da6fa6263c45ed50e3edd9f33154f513d300fd9e13772d4c",
+        "6ae315e908a4dcbbfad21bf116ceb87ef1c0ab512bc4d30e4a84d65f5220d37d",
+        "c766d4005e555d59b2b691b73c0c362ee4948a55a9c8ca9809a2a69bee53ed44",
+        "d0e977f659131c56bd95974bbf3c3ada88584f778c2a7452d1ae79d95b1a927c"
+      ],
+      "source_sha256": "dd3723871b7310838597758924916904db250445454f1b57101ec9f943b98b6c",
+      "text": "Draw or erase one object on one section as a single undo step.\n\nPainting fills only background and the object's own voxels, so other\nobjects are never overwritten. Erasing clears every label under the\nerased pixels. A label whose voxels change loses any saved anchor\nboundary, which no longer describes it.\n\n:param axis: the axis held fixed, as for :meth:`plane`.\n:param index: the section's index along ``axis``.\n:param label: the object ID to draw.\n:param paint: boolean pixels to assign to ``label``, shaped as the section.\n:param erase: boolean pixels to clear, shaped as the section.\n:returns: number of changed voxels."
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.plane": {
+      "source_blocks_sha256": [
+        "46330f917a7ce85a22b129e49b92291c1cbf9f272a6f1f4cc27e085dffdb01f0",
+        "2da1139e54257ae5457635afcac669b95688581e6a2c8f8388da76d6714507de",
+        "74237ecf195b707727f6ed537332b1d37f010b64831dd69cf4fa2ba601c3fc7a",
+        "73e6826b681ec7bc3ee3bd79c54e0f8744585b8aa8940dacbedf8e8db86d88fb"
+      ],
+      "source_sha256": "4975c81d43ade92846ad3a9856c56a2526b759ef88435ad8ff397a00ce7f6a67",
+      "text": "Return one orthogonal section of the image and its labels.\n\n:param axis: the axis held fixed. ``Z`` gives the XY section (rows Y,\n    columns X), ``Y`` the XZ section (rows Z, columns X) and ``X`` the\n    YZ section (rows Z, columns Y).\n:param index: the section's index along ``axis``.\n:returns: ``(image, labels)``, copies of that section."
+    },
     "spacr.qt.mask_engine.VolumeMaskSession.redo": {
       "source_blocks_sha256": [
         "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173"
       ],
       "source_sha256": "cb3195eead8d1bd02a1d1e0999dad05b42d7231cf923362da1ed36175db53173",
       "text": "Reapply the most recently undone voxel delta and geometry."
+    },
+    "spacr.qt.mask_engine.VolumeMaskSession.section_count": {
+      "source_blocks_sha256": [
+        "e646b881cf817c0ac9f045e2d093e0e39f578f10de88838de772bff8efb9bd86",
+        "6c29e0f00664cd4373cb8c28e6f2dba14fd6ec5809a7f5b378c134535055764b",
+        "e7b36be218109714306877606566da1da04d7520874abad9d4d93d0010501c7c"
+      ],
+      "source_sha256": "05a30aa15f7eafd8a4d2de98202e8289ff1970bbb6da246c9c2c4783da252ad6",
+      "text": "Number of sections along one spatial axis.\n\n:param axis: ``X``, ``Y`` or ``Z``.\n:returns: the volume's length along that axis."
     },
     "spacr.qt.mask_engine.VolumeMaskSession.undo": {
       "source_blocks_sha256": [
@@ -52923,15 +53008,15 @@
     },
     "spacr.qt.mask_engine.load_volume_image_and_mask": {
       "source_blocks_sha256": [
-        "397394dd3e8a1e47633d2eab4560a839b7a35cd466bd8025eb376f55091f5b21",
-        "b827a271ca1febea31975146a14dc202ab2e30bc2eeeffeed5175d0dc3644e60",
+        "b2a5f5453a4281fdf11dceff4dda389cc6a8fde9f91cd7a0a3075ece77c591c6",
+        "a741945fb4cd3cf36c8cc61ed77b6687562892aa230f344726f719f473c6b28a",
         "d6bd70cde704f639f66ecb67b8ddecfd38b38dbfea5b2e896a774d9936fbec7a",
-        "6e387223d7601e2fd896a906236398ac1b1d3eff8c37d4513ba428563ed6a455",
+        "ae90fa7807b412ee2ef0174e830caf07f00e7fd56a3b4a0451be4391debacdf9",
         "063d5c8df85e3073873f87a00d46689202ac0110d8a607423d07d6333068568c",
         "4b3a91c94033d97ab8bee5337efd9d5d470c3a26a884d5c6ddb77a2f17d68b39"
       ],
-      "source_sha256": "329ac66fe07f667599876726eae10ebed1e14e71a2a84da08c21f0840c80976b",
-      "text": "Open an explicitly declared grayscale spatial TIFF for native 3-D editing.\n\nExactly three spatial axes are supported, in any order. Time, channel,\ncolour and inferred page axes are refused. ``voxel_spacing`` metadata is\nread in storage-axis order. OME physical sizes are converted to micrometres;\nImageJ spacing and XY resolution are retained. Absent physical metadata\nmeans pixel coordinates.\nLabels retain dtype and identity. A saved geometry sidecar is bound to\nthe exact source file and mask pixels and is refused when stale.\n\n:param folder: source image directory.\n:param filename: spatial TIFF image filename.\n:param masks_dir: optional existing sibling mask directory.\n:returns: a ``VolumeMaskSession`` owning the labels and source metadata."
+      "source_sha256": "c9247172793d4ae12e10edd0d15adc430764f8d3d75bdeba192af38629048c69",
+      "text": "Open a grayscale spatial volume for native 3-D editing.\n\nTIFF volumes need exactly three spatial axes, in any order. A plain\nthree-dimensional page stack (tifffile's ``Q`` or ``I`` page axis over\n``YX``) is read as Z sections, as z-stacks and FIB-SEM series are saved;\ntime, channel and colour axes are refused. ``voxel_spacing`` metadata is\nread in storage-axis order. OME physical sizes are converted to micrometres;\nImageJ spacing and XY resolution are retained. MRC volumes (``.mrc``,\n``.rec``, ``.map``) are read as ZYX with their voxel size in nanometres;\nthey need the optional ``mrcfile`` package. Absent physical metadata\nmeans pixel coordinates.\nLabels retain dtype and identity. A saved geometry sidecar is bound to\nthe exact source file and mask pixels and is refused when stale.\n\n:param folder: source image directory.\n:param filename: spatial TIFF or MRC volume filename.\n:param masks_dir: optional existing sibling mask directory.\n:returns: a ``VolumeMaskSession`` owning the labels and source metadata."
     },
     "spacr.qt.mask_engine.load_yolo_boxes": {
       "source_blocks_sha256": [
@@ -65981,13 +66066,13 @@
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_volume": {
       "source_blocks_sha256": [
-        "4e2052c3954b817bb22b4c8578aaabd76c5027e646460c0db70f76fd8df8e936",
-        "6abea0c8b10f872239e82582f97a42b0f877a42b6871d2a9b449fd3a082dea86",
-        "33a38c3b2adcb02077a78dd315c04fea4f3e1ca93e207535f0519a71af3cf8da",
+        "bd3103eaf982847d5fd1b6f2940777e2b1e9633f1df8926139b6099fb345ef0d",
+        "9065b91f18710d56501796539637c9a052b91b7d8a58929ef5deb1f46f86f6ed",
+        "49df0f82f9a6f1f0b1afdde0395f719d73d2f25649a65fdea2d232629701c6a7",
         "541d4f4b467e1fdd75f8e1fffd9acd12e212e8d7ded332da4c614f4a63a541d6"
       ],
-      "source_sha256": "1c25508bdad5b7ba8534bfeb9ae8604f6ab2686ecfb0292a20517a3306e22be6",
-      "text": "Open a native spatial TIFF in the shared 3-D anchor editor.\n\nThe existing 2-D image, mask tools and YOLO annotations stay separate.\nTime/channel/RGB TIFFs are refused rather than interpreted as depth.\n\n:param path: optional spatial TIFF path; otherwise opens a file picker.\n:returns: the native volume dialog, or None on cancellation/refusal."
+      "source_sha256": "077535750381b866950fcee28f34dcf3bfc637cb70ffd5c951dd7aa378deaec0",
+      "text": "Open a z-stack or volume in the 3-D mask editor.\n\nMasks are drawn and erased slice by slice on XY, XZ or YZ sections,\ninterpolated between drawn slices, assigned to 3-D objects and edited\nwith the shared anchors. TIFF stacks, OME-TIFF and MRC volumes open;\ntime/channel/RGB TIFFs are refused rather than interpreted as depth.\nThe existing 2-D image, mask tools and YOLO annotations stay separate.\n\n:param path: optional volume path; otherwise opens a file picker.\n:returns: the native volume dialog, or None on cancellation/refusal."
     },
     "spacr.qt.screens.make_masks.MakeMasksScreen.recrop": {
       "source_blocks_sha256": [

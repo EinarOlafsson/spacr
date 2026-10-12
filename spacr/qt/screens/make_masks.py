@@ -8818,6 +8818,8 @@ class _VolumeMaskEditor(QDialog):
         self._closing = self._restoring = self._busy = self._dirty = False
         self._cancel = threading.Event()
         self._selected_label = 0
+        self._shown = None
+        self._levels = None
         self._delivered.connect(self._take_edit)
         self._worker = _NewestRequestWorker(
             _apply_volume_edit, lambda request, result, error: self._delivered.emit((request, result, error)),
@@ -8828,7 +8830,7 @@ class _VolumeMaskEditor(QDialog):
         self._preview_notice.setObjectName('VolumeMaskPreviewNotice')
         self._preview_notice.setWordWrap(True)
         outer.addWidget(self._preview_notice)
-        self._notice = HintBar(tr('Choose an object and drag its anchors to edit the full mask.'), self)
+        self._notice = HintBar(tr('Choose an object, then draw it on a few slices; Interpolate slices fills the slices between. Drag anchors in the 3D anchors tab.'), self)
         self._notice.setObjectName('VolumeMaskNotice')
         outer.addWidget(self._notice)
         controls = QHBoxLayout()
@@ -8887,26 +8889,76 @@ class _VolumeMaskEditor(QDialog):
         self._panel.apply_settings(self._settings)
         self._panel.gates_changed.connect(self._geometry_changed)
         self._panel.canvas.depth_requested.connect(self._notice.setText)
-        outer.addWidget(self._panel, 1)
-        slice_row = QHBoxLayout()
-        self._slice = QSpinBox(self)
+        self._panel.setMinimumSize(480, 360)
+        self._tabs = QTabWidget(self)
+        self._tabs.setObjectName('VolumeMaskTabs')
+        draw_page = QWidget(self._tabs)
+        draw_layout = QVBoxLayout(draw_page)
+        draw_tools = QHBoxLayout()
+        self._plane = QComboBox(draw_page)
+        self._plane.setObjectName('VolumeMaskPlane')
+        for text, axis in ((tr('XY (top)'), 'Z'), (tr('XZ (side)'), 'Y'), (tr('YZ (side)'), 'X')):
+            self._plane.addItem(text, axis)
+        draw_tools.addWidget(QLabel(tr('View'), draw_page))
+        draw_tools.addWidget(self._plane)
+        self._slice = QSpinBox(draw_page)
         self._slice.setObjectName('VolumeMaskZSlice')
-        self._slice.setRange(0, session.image.shape[session.axes.index('Z')] - 1)
-        slice_row.addWidget(QLabel(tr('Z slice (index)'), self))
-        slice_row.addWidget(self._slice)
-        self._slice_view = QLabel(self)
+        self._slice.setRange(0, session.section_count('Z') - 1)
+        self._slice.setValue(session.section_count('Z') // 2)
+        draw_tools.addWidget(QLabel(tr('Slice'), draw_page))
+        draw_tools.addWidget(self._slice)
+        self._slice_total = QLabel(draw_page)
+        self._slice_total.setObjectName('VolumeMaskSliceTotal')
+        draw_tools.addWidget(self._slice_total)
+        self._draw_button = QPushButton(tr('Draw'), draw_page)
+        self._draw_button.setObjectName('VolumeMaskDraw')
+        self._erase_button = QPushButton(tr('Erase'), draw_page)
+        self._erase_button.setObjectName('VolumeMaskErase')
+        for button in (self._draw_button, self._erase_button):
+            button.setCheckable(True)
+            button.setAutoExclusive(True)
+            draw_tools.addWidget(button)
+        self._draw_button.setChecked(True)
+        self._brush = QSpinBox(draw_page)
+        self._brush.setObjectName('VolumeMaskBrushSize')
+        self._brush.setRange(1, 100)
+        self._brush.setValue(10)
+        draw_tools.addWidget(QLabel(tr('Brush size'), draw_page))
+        draw_tools.addWidget(self._brush)
+        self._interpolate_button = QPushButton(tr('Interpolate slices'), draw_page)
+        self._interpolate_button.setObjectName('VolumeMaskInterpolate')
+        self._assign_button = QPushButton(tr('Assign 3D objects'), draw_page)
+        self._assign_button.setObjectName('VolumeMaskAssignObjects')
+        draw_tools.addWidget(self._interpolate_button)
+        draw_tools.addWidget(self._assign_button)
+        draw_tools.addStretch(1)
+        draw_layout.addLayout(draw_tools)
+        self._slice_view = _MaskCanvas(draw_page)
         self._slice_view.setObjectName('VolumeMaskSlicePreview')
-        self._slice_view.setFixedHeight(170)
-        self._slice_view.setAlignment(Qt.AlignCenter)
-        slice_row.addWidget(self._slice_view, 1)
+        self._slice_view.setMinimumSize(320, 240)
+        self._slice_view.mode = MODE_BRUSH
+        self._slice_view.brush_radius = self._brush.value()
+        draw_layout.addWidget(self._slice_view, 1)
+        self._tabs.addTab(draw_page, tr('Draw slices'))
+        self._tabs.addTab(self._panel, tr('3D anchors'))
+        outer.addWidget(self._tabs, 1)
         self._count = HintBar(tr('Select an object to inspect its exact voxel count and spacing.'), self)
         self._count.setObjectName('VolumeMaskCount')
-        slice_row.addWidget(self._count)
-        outer.addLayout(slice_row)
+        outer.addWidget(self._count)
         self._labels.currentIndexChanged.connect(self._select_label)
         self._density.valueChanged.connect(self._anchor_settings)
         self._anchors.toggled.connect(self._anchor_settings)
         self._slice.valueChanged.connect(self._refresh_slice)
+        self._plane.currentIndexChanged.connect(self._change_plane)
+        self._draw_button.toggled.connect(self._choose_tool)
+        self._brush.valueChanged.connect(self._choose_tool)
+        self._slice_view.stroke_finished.connect(self._take_stroke)
+        self._interpolate_button.clicked.connect(self._interpolate)
+        self._assign_button.clicked.connect(self._assign_objects)
+        self._tabs.currentChanged.connect(self._tab_changed)
+        for sequence, step in [('PgUp', -1), ('PgDown', 1)]:
+            shortcut = QShortcut(QKeySequence(sequence), self)
+            shortcut.activated.connect(lambda value=step: self._slice.setValue(self._slice.value() + value))
         self._undo.clicked.connect(lambda: self._history(False))
         self._redo.clicked.connect(lambda: self._history(True))
         self._save.clicked.connect(self._save_mask)
@@ -8918,6 +8970,19 @@ class _VolumeMaskEditor(QDialog):
         self._undo.setToolTip(
             'Undo the last volume edit, including its exact labels and boundary.')
         self._redo.setToolTip('Redo the last volume edit.')
+        self._plane.setToolTip(
+            'Draw on XY sections, or on the XZ and YZ side views through the volume.')
+        self._slice.setToolTip('The section being drawn. Page Up and Page Down step through the volume.')
+        self._draw_button.setToolTip(
+            'Paint the chosen object on this section. Other objects are never overwritten.')
+        self._erase_button.setToolTip('Erase every object under the brush on this section.')
+        self._brush.setToolTip('Brush radius in screen pixels.')
+        self._interpolate_button.setToolTip(
+            'Fill the empty sections between sections where the chosen object is drawn, '
+            'blending its outline from one to the next.')
+        self._assign_button.setToolTip(
+            'Give every separate 3D object its own ID: parts of one ID that do not touch '
+            'in 3D become new objects.')
         self._labels.setToolTip(
             'Choose an existing object to edit, or draw a new object with an unused label.')
         self._density.setToolTip(
@@ -8925,7 +8990,9 @@ class _VolumeMaskEditor(QDialog):
         self._anchors.setToolTip(
             'Show or hide editing anchors without changing the mask.')
         for control in (self._save, self._undo, self._redo, self._labels,
-                        self._density, self._anchors):
+                        self._density, self._anchors, self._plane, self._slice,
+                        self._draw_button, self._erase_button, self._brush,
+                        self._interpolate_button, self._assign_button):
             text = control.toolTip()
             control.setAccessibleDescription(tr(text))
             self._panel._action_help.explain(control, text)
@@ -8954,6 +9021,9 @@ class _VolumeMaskEditor(QDialog):
         if self._restoring or self._busy:
             return
         self._selected_label = int(self._labels.currentData() or 0)
+        if self._tabs.currentWidget() is not self._panel:
+            self._refresh_slice()
+            return
         canvas = self._panel.canvas
         surface_name = canvas._surface_gate
         selected_surfaces = set(canvas._selected_surfaces)
@@ -9046,21 +9116,116 @@ class _VolumeMaskEditor(QDialog):
         self._undo.setEnabled(bool(self._session._undo))
         self._redo.setEnabled(bool(self._session._redo))
 
-    def _refresh_slice(self, *_args):
-        """Display the full original Z slice with exact label colours."""
+    def _section_axis(self):
+        """The axis held fixed by the chosen view: Z for XY, Y for XZ, X for YZ."""
+        return self._plane.currentData() or 'Z'
+
+    def _tab_changed(self, _index=0):
+        """Show the chosen object's anchors only when the anchor tab is opened."""
+        if self._tabs.currentWidget() is self._panel:
+            self._select_label()
+
+    def _change_plane(self, _index=0):
+        """Switch the drawing view and keep the slice within its new range."""
+        count = self._session.section_count(self._section_axis())
+        self._restoring = True
+        try:
+            self._slice.setRange(0, count - 1)
+            self._slice.setValue(count // 2)
+        finally:
+            self._restoring = False
+        self._refresh_slice(reset_view=True)
+
+    def _choose_tool(self, *_args):
+        """Apply the Draw or Erase tool and the brush size to the slice canvas."""
+        self._slice_view.mode = MODE_BRUSH if self._draw_button.isChecked() else MODE_ERASE
+        self._slice_view.brush_radius = self._brush.value()
+
+    def _draw_label(self):
+        """The object a stroke draws: the chosen ID, or the first unused one."""
+        return self._selected_label or self._session.next_label()
+
+    def _take_stroke(self):
+        """Commit one brush stroke on the shown section as one undo step."""
+        from ..i18n import tr
+
+        canvas = self._slice_view
+        if self._busy or self._closing or canvas.mask is None or self._shown is None:
+            return
+        axis, index, before = self._shown
+        drawn = np.asarray(canvas.mask)
+        changed = drawn != before
+        if not changed.any():
+            return
+        label = self._draw_label()
+        try:
+            count = self._session.paint_plane(axis, index, label, paint=changed & (drawn != 0),
+                                              erase=changed & (drawn == 0))
+        except ValueError as exc:
+            self._notice.setText(str(exc))
+            self._refresh_slice()
+            return
+        if count:
+            self._dirty = True
+            if canvas.mode == MODE_BRUSH:
+                self._selected_label = label
+        self._notice.setText(tr('Updated {n} voxels; source image and other labels are unchanged.', n=count))
+        self._refresh()
+
+    def _interpolate(self):
+        """Fill the chosen object between its drawn sections along the view axis."""
+        from ..i18n import tr
+
+        if self._busy or not self._selected_label:
+            self._notice.setText(tr('Choose an object drawn on at least two slices to interpolate.'))
+            return
+        try:
+            count = self._session.interpolate(self._selected_label, self._section_axis())
+        except ValueError as exc:
+            self._notice.setText(str(exc))
+            return
+        self._dirty = self._dirty or bool(count)
+        self._notice.setText(tr('Interpolated {n} voxels between the drawn slices.', n=count))
+        self._refresh()
+
+    def _assign_objects(self):
+        """Give every separate 3-D object its own ID."""
+        from ..i18n import tr
+
+        if self._busy:
+            return
+        try:
+            count, objects = self._session.assign_objects()
+        except ValueError as exc:
+            self._notice.setText(str(exc))
+            return
+        self._dirty = self._dirty or bool(count)
+        self._notice.setText(tr('{objects} objects in 3D; {n} voxels received new IDs.', objects=objects, n=count))
+        self._refresh()
+
+    def _refresh_slice(self, *_args, reset_view=False):
+        """Show the chosen section with exact label colours, ready to draw on."""
         from ..i18n import tr
 
         session = self._session
-        order = tuple(session.axes.index(axis) for axis in 'ZYX')
-        image = np.transpose(session.image, order)[self._slice.value()]
-        labels = np.transpose(session.mask, order)[self._slice.value()]
-        data = np.asarray(image, dtype=float)
-        low, high = float(data.min()), float(data.max())
-        scaled = ((data - low) / max(high - low, 1.) * 65535).astype(np.uint16)
-        rgb = engine.overlay_mask(scaled, labels)
-        rgba = np.dstack((rgb, np.full(rgb.shape[:2], 255, dtype=np.uint8)))
-        picture = QPixmap.fromImage(_rgba_qimage(rgba))
-        self._slice_view.setPixmap(scaled_for(picture, self._slice_view, self._slice_view.size()))
+        axis = self._section_axis()
+        index = min(self._slice.value(), session.section_count(axis) - 1)
+        image, labels = session.plane(axis, index)
+        if self._levels is None:
+            self._levels = (float(session.image.min()), float(session.image.max()))
+        low, high = self._levels
+        image = ((np.asarray(image, dtype=np.float64) - low) / max(high - low, 1e-12) * 65535).astype(np.uint16)
+        labels = labels.astype(np.uint16)
+        canvas = self._slice_view
+        self._shown = (axis, index, labels.copy())
+        if reset_view or canvas.image is None or canvas.image.shape != image.shape:
+            canvas.set_image_and_mask(image, labels)
+        else:
+            canvas.image, canvas.mask = image, labels
+            canvas._lookup = canvas._lookup_mask = canvas._lookup_image = None
+            canvas._detection_cache = None
+            canvas.refresh()
+        self._slice_total.setText(tr('of {n}', n=session.section_count(axis) - 1))
         count = int(np.count_nonzero(session.mask == self._selected_label)) if self._selected_label else 0
         self._count.setText(tr('Object {label}: {n} voxels\nAxes: {axes}\nSpacing: {spacing} {unit}',
                                label=self._selected_label, n=count, axes=session.axes,
@@ -9223,27 +9388,35 @@ class MakeMasksScreen(QWidget):
         self._take_any_terminal_queue()
 
     def open_volume(self, path=None):
-        """Open a native spatial TIFF in the shared 3-D anchor editor.
+        """Open a z-stack or volume in the 3-D mask editor.
 
+        Masks are drawn and erased slice by slice on XY, XZ or YZ sections,
+        interpolated between drawn slices, assigned to 3-D objects and edited
+        with the shared anchors. TIFF stacks, OME-TIFF and MRC volumes open;
+        time/channel/RGB TIFFs are refused rather than interpreted as depth.
         The existing 2-D image, mask tools and YOLO annotations stay separate.
-        Time/channel/RGB TIFFs are refused rather than interpreted as depth.
 
-        :param path: optional spatial TIFF path; otherwise opens a file picker.
+        :param path: optional volume path; otherwise opens a file picker.
         :returns: the native volume dialog, or None on cancellation/refusal.
         """
+        return self._open_volume_with(path)
+
+    def _open_volume_with(self, path=None, masks_dir=None):
+        """Open a volume, reading and saving its labels in ``masks_dir`` when given."""
         from pathlib import Path
         from ..i18n import tr
 
         if path is None:
             path, _ = QFileDialog.getOpenFileName(self, tr("Open 3D spatial image"),
-                                                self._folder, tr("Spatial TIFF (*.tif *.tiff)"))
+                                                self._folder, tr("3D images (*.tif *.tiff *.mrc *.rec *.map)"))
         if not path:
             return None
         if self._volume_dialog is not None and not self._volume_dialog.close():
             return self._volume_dialog
         source = Path(path)
         try:
-            sibling = self._masks_dir if str(source.parent) == self._folder else None
+            sibling = masks_dir if masks_dir is not None else (
+                self._masks_dir if str(source.parent) == self._folder else None)
             session = engine.load_volume_image_and_mask(str(source.parent), source.name, sibling)
         except (ValueError, OSError) as exc:
             self._status_label.setText(str(exc))
@@ -9549,9 +9722,9 @@ class MakeMasksScreen(QWidget):
         self._btn_volume = QPushButton(tr("Open 3D image…"), self)
         self._btn_volume.setObjectName("OpenVolumeMask")
         self._btn_volume.setProperty('_spacr_i18n_tooltip',
-            'Open a spatial 3D TIFF in the native volume editor. Edit exact mask voxels with shared anchors; the current 2D image and mask stay unchanged.')
+            'Open a z-stack or volume (TIFF, OME-TIFF or MRC) and draw 3D masks slice by slice, interpolate between slices and save a 3D label TIFF. The current 2D image and mask stay unchanged.')
         self._btn_volume.setToolTip(tr(
-            'Open a spatial 3D TIFF in the native volume editor. Edit exact mask voxels with shared anchors; the current 2D image and mask stay unchanged.'))
+            'Open a z-stack or volume (TIFF, OME-TIFF or MRC) and draw 3D masks slice by slice, interpolate between slices and save a 3D label TIFF. The current 2D image and mask stay unchanged.'))
         self._btn_volume.setAccessibleDescription(self._btn_volume.toolTip())
         self._btn_volume.clicked.connect(lambda: self.open_volume())
         nav_row.addWidget(self._btn_volume)
@@ -10000,7 +10173,8 @@ class MakeMasksScreen(QWidget):
         """
         from ..i18n import tr
         from .. import make_masks_datasets as datasets
-        from ..make_masks_demo import load_the_tem_test_data, load_the_test_data
+        from ..make_masks_demo import (load_the_fibsem_test_data,
+                                       load_the_tem_test_data, load_the_test_data)
 
         button = _SplitMenuButton(tr("Load test data…"), self)
         button.setObjectName("MakeMasksTestDataButton")
@@ -10031,6 +10205,24 @@ class MakeMasksScreen(QWidget):
         action.triggered.connect(
             lambda _checked=False: load_the_tem_test_data(self))
         self._test_data_actions["tem"] = action
+        action = menu.addAction(tr("FIB-SEM volume, 3D (test data)"))
+        action.setObjectName("MakeMasksFibsemTestData")
+        action.setToolTip(tr(
+            "Download a FIB-SEM volume of a HeLa cell (about 25 MB, "
+            "EMPIAR-10982, CC0) and open it unsegmented in the 3D mask "
+            "editor. Cached after the first download."))
+        action.triggered.connect(
+            lambda _checked=False: load_the_fibsem_test_data(self))
+        self._test_data_actions["fibsem"] = action
+        action = menu.addAction(tr("FIB-SEM volume with masks, 3D (test data)"))
+        action.setObjectName("MakeMasksFibsemMasksTestData")
+        action.setToolTip(tr(
+            "Open the FIB-SEM volume in the 3D mask editor with its "
+            "mitochondria masks loaded for correction. Corrections are saved "
+            "in corrected_masks; the published masks stay unchanged."))
+        action.triggered.connect(
+            lambda _checked=False: load_the_fibsem_test_data(self, with_masks=True))
+        self._test_data_actions["fibsem_masks"] = action
         menu.addSeparator()
         for dataset in datasets.datasets_for("mask"):
             action = menu.addAction(tr("Training dataset: {name}",
