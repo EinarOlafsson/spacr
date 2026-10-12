@@ -180,7 +180,7 @@ def titles(pdf: Path, count: int) -> List[str]:
 
 SETUP = ROOT / "setup.py"
 FONT = (ROOT / "spacr" / "resources" / "font" / "open_sans" / "static"
-        / "OpenSans-Regular.ttf")
+        / "OpenSans-Light.ttf")
 _VERSIONED = __import__("re").compile(r"spaCR \d+(?:\.\d+)+")
 
 EMU_NS = {
