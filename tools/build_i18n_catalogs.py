@@ -2810,7 +2810,7 @@ MANUAL_UI: dict[str, dict[str, str]] = {
         "de": "A — Qualitätskontrolle",
         "es": "A — control de calidad",
         "zh_CN": "A — 质量控制",
-        "pt": "A — controlo de qualidade",
+        "pt": "A — controle de qualidade",
         "hi": "A — गुणवत्ता नियंत्रण",
         "ko": "A — 품질 관리",
         "is": "A — gæðamat",

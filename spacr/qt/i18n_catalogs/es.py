@@ -3307,7 +3307,7 @@ UI = {
     'Back to the limits the data asks for, after zooming or spinning too far. Gates are untouched — this moves the view, never them.': 'De vuelta a los límites que los datos piden, después de hacer zoom o girar demasiado lejos. Las compuertas están intactas — esto mueve la vista, nunca ellos.',
     'Backbone:': 'Respaldo:',
     'Backdrop rendering detail. Reduce this value if animation affects interface performance.': 'Renderización de fondo. Reduzca este valor si la animación afecta el rendimiento de la interfaz.',
-    'Backdrop restarted': 'Reanudación de la gota de espalda',
+    'Backdrop restarted': 'Fondo reiniciado',
     'Backend — {state}': 'Estado del backend: {state}',
     "Background of an exported figure ('none' leaves the page showing through)": "Fondo de una figura exportada ('none' deja ver la página a través)",
     "Background on screen ('none' shows the page through)": "Fondo en pantalla ('none' muestra la página a través)",

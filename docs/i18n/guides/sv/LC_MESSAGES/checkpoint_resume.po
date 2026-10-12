@@ -42,7 +42,7 @@ msgid "Enable ``resume`` under **Postprocessing → Runtime & Reliability**. A f
 msgstr "Aktivera ``resume`` under **Postprocessing → Körning och tillförlitlighet**. Ett fält hoppas bara över när varje tabell som Mätning äger i ``measurements.db`` är komplett. Ofullständiga fältrader rensas i en enda transaktion före ommätningen, medan tabeller som ägs av konvertering, registrering eller andra moduler aldrig tas bort."
 
 msgid "Format Converter"
-msgstr "Formatkonverterare"
+msgstr "Filformatkonverterare"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Enable the **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
@@ -58,7 +58,7 @@ msgid "Batch Runner"
 msgstr "Batchkörare"
 
 msgid "A saved queue is written after every job transition. Loading and resuming it leaves successful jobs alone. A Mask, Measure, or Format Converter job that was running when the machine stopped is restarted with ``resume=True``, so its own verified field boundary is reused. Other jobs restart at the job boundary."
-msgstr "En sparad kö skrivs efter varje jobbövergång. När den läses in och återupptas lämnas lyckade jobb orörda. Ett jobb för Masker, Mätning eller Formatkonverterare som pågick när datorn stannade startas om med ``resume=True``, så att dess egen verifierade fältgräns återanvänds. Andra jobb startar om vid jobbgränsen."
+msgstr "En sparad kö skrivs efter varje jobbövergång. När den läses in och återupptas lämnas lyckade jobb orörda. Ett jobb för Masker, Mätning eller Filformatkonverterare som pågick när datorn stannade startas om med ``resume=True``, så att dess egen verifierade fältgräns återanvänds. Andra jobb startar om vid jobbgränsen."
 
 msgid "Interrupted normalization archives"
 msgstr "Avbrutna normaliseringsarkiv"

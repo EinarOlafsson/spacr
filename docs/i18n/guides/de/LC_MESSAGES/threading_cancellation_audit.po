@@ -38,7 +38,7 @@ msgid "Measure keeps at most one pool-width field batch outstanding and checks a
 msgstr "Messen hält höchstens einen Bildfeld-Batch in Poolbreite gleichzeitig offen und prüft, nachdem jeder Batch zurückgekehrt ist und seine Ergebnisse gespeichert hat."
 
 msgid "Format Converter checks before source groups; its atomic :class:`spacr.checkpoint.CheckpointStore` record checks after each complete field."
-msgstr "Formatkonverter prüft vor Quellgruppen; sein atomarer :class:`spacr.checkpoint.CheckpointStore`-Eintrag prüft nach jedem vollständigen Bildfeld."
+msgstr "Dateiformatkonverter prüft vor Quellgruppen; sein atomarer :class:`spacr.checkpoint.CheckpointStore`-Eintrag prüft nach jedem vollständigen Bildfeld."
 
 msgid "UMAP checks before each grid/adaptive trial. Completed trial artifacts and adaptive state are persisted before cancellation is raised."
 msgstr "UMAP prüft vor jedem Raster- bzw. adaptiven Versuch. Artefakte abgeschlossener Versuche und der adaptive Zustand werden gespeichert, bevor der Abbruch ausgelöst wird."

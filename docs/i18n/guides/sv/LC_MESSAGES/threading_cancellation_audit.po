@@ -38,7 +38,7 @@ msgid "Measure keeps at most one pool-width field batch outstanding and checks a
 msgstr "Mätning har högst en fältbatch av poolens bredd utestående och kontrollerar efter att varje batch har returnerat och sparat sina resultat."
 
 msgid "Format Converter checks before source groups; its atomic :class:`spacr.checkpoint.CheckpointStore` record checks after each complete field."
-msgstr "Formatkonverteraren kontrollerar före källgrupper; dess atomiska :class:`spacr.checkpoint.CheckpointStore`-post kontrollerar efter varje komplett fält."
+msgstr "Filformatkonverteraren kontrollerar före källgrupper; dess atomiska :class:`spacr.checkpoint.CheckpointStore`-post kontrollerar efter varje komplett fält."
 
 msgid "UMAP checks before each grid/adaptive trial. Completed trial artifacts and adaptive state are persisted before cancellation is raised."
 msgstr "UMAP kontrollerar före varje rutnätsförsök eller adaptivt försök. Artefakter från avslutade försök och adaptivt tillstånd sparas innan avbrytningen utlöses."

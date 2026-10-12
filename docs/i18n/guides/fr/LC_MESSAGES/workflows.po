@@ -317,10 +317,10 @@ msgid ":ref:`Import Images <workflow-module-import_images>`: Use imported image 
 msgstr ":ref:`Import Images <workflow-module-import_images>`: Utilisez les plans d’image et les identités importés ; les imports d’images seules nécessitent encore une segmentation."
 
 msgid ":ref:`Format Converter <workflow-module-convert>`: Use the converted layout and preserve source identity mappings."
-msgstr ":ref:`Format Converter <workflow-module-convert>`: Utilisez l’organisation convertie et conservez les correspondances d’identité des sources."
+msgstr ":ref:`Format de fichier Converter <workflow-module-convert>`: Utilisez l’organisation convertie et conservez les correspondances d’identité des sources."
 
 msgid ":ref:`Import <workflow-module-foreign>`: For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input."
-msgstr ":ref:`Import <workflow-module-foreign>`: Pour les importations d'images seules, utilisez Import Images ou Format Converter et indiquez à Mask le projet d'images formaté. Les mesures externes seules ne constituent pas une entrée de segmentation."
+msgstr ":ref:`Import <workflow-module-foreign>`: Pour les importations d'images seules, utilisez Import Images ou Format de fichier Converter et indiquez à Mask le projet d'images formaté. Les mesures externes seules ne constituent pas une entrée de segmentation."
 
 msgid "**After this module**"
 msgstr "**Après ce module**"
@@ -633,7 +633,7 @@ msgid "Import"
 msgstr "Importer"
 
 msgid "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements."
-msgstr "Importez des mesures externes avec des correspondances explicites d’objets et de colonnes, ou choisissez Import Images, Format Converter ou External Masks. Les mesures importées ne sont pas une nouvelle exécution de Measure. Avec les images sources correspondantes et des masques entiers externes, Import construit les tableaux fusionnés du projet utilisés par Measure. Choisissez le parcours adapté à vos fichiers et vérifiez l'identité des objets avant la mesure ; les tables de caractéristiques importées sont directement utilisables si elles contiennent déjà les mesures requises."
+msgstr "Importez des mesures externes avec des correspondances explicites d’objets et de colonnes, ou choisissez Import Images, Format de fichier Converter ou External Masks. Les mesures importées ne sont pas une nouvelle exécution de Measure. Avec les images sources correspondantes et des masques entiers externes, Import construit les tableaux fusionnés du projet utilisés par Measure. Choisissez le parcours adapté à vos fichiers et vérifiez l'identité des objets avant la mesure ; les tables de caractéristiques importées sont directement utilisables si elles contiennent déjà les mesures requises."
 
 msgid "**Open:** Home → Import."
 msgstr "**Ouvrir :** Accueil → Importer."
@@ -648,7 +648,7 @@ msgid ":ref:`Measure <workflow-module-measure>`: Import matching images and exte
 msgstr ":ref:`Measure <workflow-module-measure>`: Importez les images correspondantes et les masques entiers externes pour construire les tableaux fusionnés du projet, puis ouvrez Measure sur ce projet. Ignorez cette étape si des mesures compatibles ont déjà été importées ou calculées. N'ajoutez pas de mesures en double à une table importée existante."
 
 msgid ":ref:`Mask <workflow-module-mask>`: For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input."
-msgstr ":ref:`Mask <workflow-module-mask>`: Pour les importations d'images seules, utilisez Import Images ou Format Converter et indiquez à Mask le projet d'images formaté. Les mesures externes seules ne constituent pas une entrée de segmentation."
+msgstr ":ref:`Mask <workflow-module-mask>`: Pour les importations d'images seules, utilisez Import Images ou Format de fichier Converter et indiquez à Mask le projet d'images formaté. Les mesures externes seules ne constituent pas une entrée de segmentation."
 
 msgid ":doc:`API reference </api/spacr/foreign/index>`."
 msgstr ":doc:`Référence de l’API </api/spacr/foreign/index>`."

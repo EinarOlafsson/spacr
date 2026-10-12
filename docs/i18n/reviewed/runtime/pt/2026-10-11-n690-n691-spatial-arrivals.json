@@ -379,14 +379,14 @@
       "key": "Contrast preset",
       "source": "Contrast preset",
       "source_sha256": "b0399cf4da86f852676ec11f6ac62d02b85ced18f9471663b1445434756541c3",
-      "translation": "Predefinição de contraste"
+      "translation": "Preset de contraste"
     },
     {
       "table": "ui",
       "key": "Contrast preset applied: {name}.",
       "source": "Contrast preset applied: {name}.",
       "source_sha256": "828df6a25dba8707dd8553ee1788a7eae8bb0f02932a2c72cc7ba0ba8b570b1d",
-      "translation": "Predefinição de contraste aplicada: {name}."
+      "translation": "Preset de contraste aplicada: {name}."
     },
     {
       "table": "ui",

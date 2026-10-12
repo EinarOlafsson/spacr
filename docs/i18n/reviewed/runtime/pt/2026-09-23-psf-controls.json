@@ -15,7 +15,7 @@
       "key": "Choose a measured PSF file.",
       "source": "Choose a measured PSF file.",
       "source_sha256": "9b92e5eb77bfa30b11d77e870c3e9b8411218772d1c6e55944b0bd346ab14ba4",
-      "translation": "Escolha um ficheiro com uma PSF medida."
+      "translation": "Escolha um arquivo com uma PSF medida."
     },
     {
       "table": "ui",
@@ -106,7 +106,7 @@
       "key": "Measured PSF file",
       "source": "Measured PSF file",
       "source_sha256": "0b3a27dd2120a5748de64f35b58c713860b477cd0fe1a4767321c07c941e8e15",
-      "translation": "Ficheiro da PSF medida"
+      "translation": "Arquivo da PSF medida"
     },
     {
       "table": "ui",
@@ -155,7 +155,7 @@
       "key": "PSF ready: {height} × {width} pixels. Source image and measurement intensities remain unchanged.",
       "source": "PSF ready: {height} × {width} pixels. Source image and measurement intensities remain unchanged.",
       "source_sha256": "98b0fe0628c81cc9387fed0697088507bf66b821d585cae5cdbcbcf54317ca23",
-      "translation": "PSF pronta: {height} × {width} píxeis. A imagem original e as intensidades de medição permanecem inalteradas."
+      "translation": "PSF pronta: {height} × {width} pixels. A imagem original e as intensidades de medição permanecem inalteradas."
     },
     {
       "table": "ui",

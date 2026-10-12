@@ -42,7 +42,7 @@ msgid "Enable ``resume`` under **Postprocessing → Runtime & Reliability**. A f
 msgstr "Aktivieren Sie ``resume`` unter **Postprocessing → Laufzeit & Zuverlässigkeit**. Ein Bildfeld wird nur übersprungen, wenn jede zu Messen gehörende Tabelle in ``measurements.db`` vollständig ist. Unvollständige Zeilen eines Bildfelds werden vor der erneuten Messung in einer einzigen Transaktion gelöscht, während Tabellen, die zur Konvertierung, Ausrichtung oder zu anderen Modulen gehören, niemals gelöscht werden."
 
 msgid "Format Converter"
-msgstr "Formatkonverter"
+msgstr "Dateiformatkonverter"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "Enable the **Resume** switch. The converter writes ``.spacr_conversion.checkpoint.json`` after a whole field is complete. Resume reopens each target's TIFF metadata before accepting the field and atomically repairs a missing or corrupt target. Source identity and the full mapping plan must match."
@@ -58,7 +58,7 @@ msgid "Batch Runner"
 msgstr "Stapelverarbeitung"
 
 msgid "A saved queue is written after every job transition. Loading and resuming it leaves successful jobs alone. A Mask, Measure, or Format Converter job that was running when the machine stopped is restarted with ``resume=True``, so its own verified field boundary is reused. Other jobs restart at the job boundary."
-msgstr "Eine gespeicherte Warteschlange wird nach jedem Zustandswechsel eines Auftrags geschrieben. Beim Laden und Fortsetzen bleiben erfolgreiche Aufträge unberührt. Ein Masken-, Messen- oder Formatkonverter-Auftrag, der lief, als der Rechner stoppte, wird mit ``resume=True`` neu gestartet, sodass seine eigene verifizierte Bildfeldgrenze wiederverwendet wird. Andere Aufträge starten an der Auftragsgrenze neu."
+msgstr "Eine gespeicherte Warteschlange wird nach jedem Zustandswechsel eines Auftrags geschrieben. Beim Laden und Fortsetzen bleiben erfolgreiche Aufträge unberührt. Ein Masken-, Messen- oder Dateiformatkonverter-Auftrag, der lief, als der Rechner stoppte, wird mit ``resume=True`` neu gestartet, sodass seine eigene verifizierte Bildfeldgrenze wiederverwendet wird. Andere Aufträge starten an der Auftragsgrenze neu."
 
 msgid "Interrupted normalization archives"
 msgstr "Unterbrochene Normalisierungsarchive"

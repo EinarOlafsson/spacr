@@ -20,7 +20,7 @@
       "source": "Timelapse events video checkpoint",
       "source_sha256": "dfaa0e3c6f8ed559e7a9d6af607912083ff911274617520bc64ab8c522ad3390",
       "table": "setting_labels",
-      "translation": "Ponto de controlo de vídeo para eventos de timelapse"
+      "translation": "Ponto de controle de vídeo para eventos de timelapse"
     },
     {
       "key": "timelapse_events_video_device",
@@ -34,14 +34,14 @@
       "source": "After the run, detect events on every tracked object with a small neural network that reads short windows of each track (shape, intensity, movement, tracks starting or ending nearby, and image crops): mitosis, egress, invasion, host death or whatever classes timelapse_events_annotations names. Writes time-stamped events, lineage trees re-linked from detected mitoses and Kaplan-Meier time to each event per condition to tracks/events. The small encoder runs on CPU; the optional videomae encoder uses its separately installed worker and declared video device. Default False.",
       "source_sha256": "2f77db7d9fe6c50ed9b47c8104d2366d35c94008fa568830f99670d5ef8897f7",
       "table": "setting_tooltips",
-      "translation": "Após a execução, deteta eventos em cada objeto rastreado com uma pequena rede neural que lê janelas curtas de cada trajetória (forma, intensidade, movimento, trajetórias que começam ou terminam nas proximidades e recortes de imagem): mitose, saída, invasão, morte do hospedeiro ou as classes definidas por timelapse_events_annotations. Escreve em tracks/events os eventos com marca temporal, as árvores de linhagem religadas a partir de mitoses detetadas e o tempo de Kaplan-Meier até cada evento por condição. O codificador pequeno funciona em CPU; o codificador videomae opcional usa o seu processo de trabalho instalado separadamente e o dispositivo de vídeo declarado. Valor predefinido False."
+      "translation": "Após a execução, deteta eventos em cada objeto rastreado com uma pequena rede neural que lê janelas curtas de cada trajetória (forma, intensidade, movimento, trajetórias que começam ou terminam nas proximidades e recortes de imagem): mitose, saída, invasão, morte do hospedeiro ou as classes definidas por timelapse_events_annotations. Escreve em tracks/events os eventos com marca temporal, as árvores de linhagem religadas a partir de mitoses detetadas e o tempo de Kaplan-Meier até cada evento por condição. O codificador pequeno funciona em CPU; o codificador videomae opcional usa o seu processo de trabalho instalado separadamente e o dispositivo de vídeo declarado. Valor padrão False."
     },
     {
       "key": "timelapse_events_video_channels",
       "source": "Exactly three ordered source-channel indices for VideoMAE's RGB input, such as [0,1,2] or explicitly [0,0,0] for monochrome. Crop intensities normalized by the movie's channel percentiles are clipped to [0,1], sampled at 16 evenly spaced frames and processed with the pinned checkpoint's image processor. Mapping and preprocessing identity are saved with the event model. Default None.",
       "source_sha256": "b89ee4054ce36fa74e669c11e31495b2772aa9e81bd558784f7c00139577ffff",
       "table": "setting_tooltips",
-      "translation": "Exatamente três índices ordenados de canais de origem para a entrada RGB do VideoMAE, como [0,1,2] ou explicitamente [0,0,0] para dados monocromáticos. As intensidades dos recortes, normalizadas pelos percentis dos canais do filme, são limitadas a [0,1], amostradas em 16 quadros igualmente espaçados e processadas pelo processador de imagens do ponto de controlo fixado. O mapeamento de canais e a identidade do pré-processamento são guardados com o modelo de eventos. Valor predefinido None."
+      "translation": "Exatamente três índices ordenados de canais de origem para a entrada RGB do VideoMAE, como [0,1,2] ou explicitamente [0,0,0] para dados monocromáticos. As intensidades dos recortes, normalizadas pelos percentis dos canais do filme, são limitadas a [0,1], amostradas em 16 quadros igualmente espaçados e processadas pelo processador de imagens do ponto de controle fixado. O mapeamento de canais e a identidade do pré-processamento são guardados com o modelo de eventos. Valor padrão None."
     },
     {
       "key": "timelapse_events_video_checkpoint",
@@ -55,7 +55,7 @@
       "source": "auto selects CUDA, then Metal, then CPU inside VideoMAE's separate worker; cpu forces CPU feature extraction. The frozen encoder processes one clip at a time and the small event classifier trains on CPU. Default auto.",
       "source_sha256": "4ca26ed8a069e06a1920bbd9885f1a2b9887b520fbbcab5aed40c30414ade406",
       "table": "setting_tooltips",
-      "translation": "auto seleciona CUDA, depois Metal e por fim CPU no processo de trabalho separado do VideoMAE; cpu força a extração de características em CPU. O codificador congelado processa um clipe de cada vez e o classificador pequeno de eventos é treinado em CPU. Valor predefinido auto."
+      "translation": "auto seleciona CUDA, depois Metal e por fim CPU no processo de trabalho separado do VideoMAE; cpu força a extração de características em CPU. O codificador congelado processa um clipe de cada vez e o classificador pequeno de eventos é treinado em CPU. Valor padrão auto."
     },
     {
       "key": "A tracked frame is outside the selected image sequence.",
@@ -125,7 +125,7 @@
       "source": "CSV (*.csv)",
       "source_sha256": "4ff5293e508e1466b767917a88adcb8f82c22192c654bebe6837d8d250a13c84",
       "table": "ui",
-      "translation": "Ficheiros CSV (*.csv)"
+      "translation": "Arquivos CSV (*.csv)"
     },
     {
       "key": "Choose a frame where this track was observed.",
@@ -307,7 +307,7 @@
       "source": "Fuse retains and extends the existing ID. Add non-overlapping pixels creates a new object from unlabelled pixels. Replace removes overlapping old objects in full. Skip ignores overlapping proposals. Secondary mode cannot fuse primary IDs.",
       "source_sha256": "64d3e2d7a369d8bba5aeec9a76c15b42d8c55359f968db46b438fb362030f3e6",
       "table": "ui",
-      "translation": "Fundir mantém e estende o ID existente. Adicionar píxeis sem sobreposição cria um novo objeto a partir de píxeis não rotulados. Substituir remove por completo os objetos antigos que se sobrepõem. Ignorar descarta propostas sobrepostas. O modo secundário não pode fundir IDs primários."
+      "translation": "Fundir mantém e estende o ID existente. Adicionar pixels sem sobreposição cria um novo objeto a partir de pixels não rotulados. Substituir remove por completo os objetos antigos que se sobrepõem. Ignorar descarta propostas sobrepostas. O modo secundário não pode fundir IDs primários."
     },
     {
       "key": "I confirm this image sequence and existing event labels belong to this tracker CSV.",
@@ -398,7 +398,7 @@
       "source": "Run the CPU method chosen under Object detection on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own.",
       "source_sha256": "6a1d4f7168f89cadd40828fa6ebfa709f652ef6321885d96699a10790d7d879d",
       "table": "ui",
-      "translation": "Execute na imagem inteira o método de CPU escolhido em Deteção de objetos e rotule o que encontrar, respeitando a área mínima indicada acima. Todos os ajustes usados pelo método pertencem a essa categoria: algoritmo de limiar, correção, suavização, qual lado representa o objeto, preenchimento de buracos, separação de pares que se tocam e remoção de objetos cortados pela borda. Se Cellpose ou outro backend estiver selecionado, este botão usa Otsu, pois esses métodos têm o seu próprio botão de Deteção de objetos."
+      "translation": "Execute na imagem inteira o método de CPU escolhido em Detecção de objetos e rotule o que encontrar, respeitando a área mínima indicada acima. Todos os ajustes usados pelo método pertencem a essa categoria: algoritmo de limiar, correção, suavização, qual lado representa o objeto, preenchimento de buracos, separação de pares que se tocam e remoção de objetos cortados pela borda. Se Cellpose ou outro backend estiver selecionado, este botão usa Otsu, pois esses métodos têm o seu próprio botão de Detecção de objetos."
     },
     {
       "key": "Saved annotations to {path}",
@@ -412,7 +412,7 @@
       "source": "Segment each field four times, as it is, flipped two ways and turned a quarter, with the Object detection settings, and measure where the four disagree. Map this field shows the disagreement as a heat map on its own tab; Rank the fields puts the most uncertain fields first and saves the scores as curate_uncertainty.csv for spacr-make-masks --order uncertain. Takes four detection runs per field, or eight when an optional ensemble model is selected in Object detection.",
       "source_sha256": "c1c1fe668b1c028a4b6a760a261b8c381b0abdfd152235b109ad92a7c4347394",
       "table": "ui",
-      "translation": "Segmente cada campo quatro vezes com as configurações de Deteção de objetos: sem alterações, invertido em duas direções e rodado um quarto de volta. Meça onde os resultados divergem. Mapear este campo mostra as divergências num mapa de calor no seu próprio separador; Ordenar os campos coloca primeiro os mais incertos e guarda as pontuações em curate_uncertainty.csv para spacr-make-masks --order uncertain. Requer quatro execuções de deteção por campo, ou oito quando um modelo de conjunto opcional é selecionado em Deteção de objetos."
+      "translation": "Segmente cada campo quatro vezes com as configurações de Detecção de objetos: sem alterações, invertido em duas direções e rodado um quarto de volta. Meça onde os resultados divergem. Mapear este campo mostra as divergências num mapa de calor no seu próprio separador; Ordenar os campos coloca primeiro os mais incertos e guarda as pontuações em curate_uncertainty.csv para spacr-make-masks --order uncertain. Requer quatro execuções de detecção por campo, ou oito quando um modelo de conjunto opcional é selecionado em Detecção de objetos."
     },
     {
       "key": "The detector reader did not retain every event row.",

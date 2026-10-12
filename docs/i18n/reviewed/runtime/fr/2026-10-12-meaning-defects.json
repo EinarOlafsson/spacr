@@ -1,0 +1,48 @@
+{
+  "language": "fr",
+  "schema": 1,
+  "records": [
+    {
+      "key": "Backdrop restarted",
+      "source": "Backdrop restarted",
+      "source_sha256": "f7449b856691889f88a72c22b425ab72fd3440632613f33919ea28b0b53dd60b",
+      "table": "ui",
+      "translation": "Fond redémarré"
+    },
+    {
+      "key": "Counts",
+      "source": "Counts",
+      "source_sha256": "c3ea5bf706e433a11fad5d5d13c99621f2d29d42c2fd57bf486616330f54e12d",
+      "table": "ui",
+      "translation": "Comptages"
+    },
+    {
+      "key": "Format",
+      "source": "Format",
+      "source_sha256": "2f343666aaa88c44430b12e6ab8a29591a069de76541125e83ff1b5acc367bf2",
+      "table": "ui",
+      "translation": "Format de fichier"
+    },
+    {
+      "key": "Jitter width",
+      "source": "Jitter width",
+      "source_sha256": "5c11f44869444c7fec92e37362dae6a8806d9c83c11bd7bf88a403c6c90fbd7e",
+      "table": "ui",
+      "translation": "Largeur de dispersion (jitter)"
+    },
+    {
+      "key": "Logging",
+      "source": "Logging",
+      "source_sha256": "d3ef01b4a9c9910364c9b26b2499c8787a0461d2d24ab80376fff736a288b34c",
+      "table": "ui",
+      "translation": "Journalisation"
+    },
+    {
+      "key": "Settings backdrop",
+      "source": "Settings backdrop",
+      "source_sha256": "ce2f7ac79260ab08f1859435a6743727e4277d16d651a077bdfca9ab9efdd4c6",
+      "table": "ui",
+      "translation": "Fond des réglages"
+    }
+  ]
+}

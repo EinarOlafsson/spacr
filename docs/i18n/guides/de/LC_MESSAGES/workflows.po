@@ -317,10 +317,10 @@ msgid ":ref:`Import Images <workflow-module-import_images>`: Use imported image 
 msgstr ":ref:`Import Images <workflow-module-import_images>`: Verwenden Sie importierte Bildebenen und Kennungen; reine Bildimporte benötigen weiterhin eine Segmentierung."
 
 msgid ":ref:`Format Converter <workflow-module-convert>`: Use the converted layout and preserve source identity mappings."
-msgstr ":ref:`Format Converter <workflow-module-convert>`: Verwenden Sie das konvertierte Layout und bewahren Sie die Quellidentitätszuordnungen."
+msgstr ":ref:`Dateiformat Converter <workflow-module-convert>`: Verwenden Sie das konvertierte Layout und bewahren Sie die Quellidentitätszuordnungen."
 
 msgid ":ref:`Import <workflow-module-foreign>`: For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input."
-msgstr ":ref:`Import <workflow-module-foreign>`: Für reine Bildimporte Import Images oder Format Converter verwenden und Mask auf das formatierte Bildprojekt verweisen. Externe Messwerte allein sind keine Segmentierungseingabe."
+msgstr ":ref:`Import <workflow-module-foreign>`: Für reine Bildimporte Import Images oder Dateiformat Converter verwenden und Mask auf das formatierte Bildprojekt verweisen. Externe Messwerte allein sind keine Segmentierungseingabe."
 
 msgid "**After this module**"
 msgstr "**Nach diesem Modul**"
@@ -612,13 +612,13 @@ msgid "`Module tutorial <tutorials/#lesson=65_feature_explorer>`__."
 msgstr "`Modul-Tutorial <tutorials/#lesson=65_feature_explorer>`__."
 
 msgid "Format Converter"
-msgstr "Formatkonverter"
+msgstr "Dateiformatkonverter"
 
 msgid "Convert supported microscope formats to a configured TIFF layout while preserving source mappings. Conversion does not generate object measurements."
 msgstr "Konvertieren Sie unterstützte Mikroskopformate in ein konfiguriertes TIFF-Layout und bewahren Sie die Quellzuordnungen. Die Konvertierung erzeugt keine Objektmessungen."
 
 msgid "**Open:** Import → Format Converter."
-msgstr "**Öffnen:** Importieren → Formatkonverter."
+msgstr "**Öffnen:** Importieren → Dateiformatkonverter."
 
 msgid ":ref:`Mask <workflow-module-mask>`: Use the converted layout and preserve source identity mappings."
 msgstr ":ref:`Mask <workflow-module-mask>`: Verwenden Sie das konvertierte Layout und bewahren Sie die Quellidentitätszuordnungen."
@@ -633,7 +633,7 @@ msgid "Import"
 msgstr "Importieren"
 
 msgid "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run. With matching source images and external integer masks, Import builds the merged project arrays used by Measure. Choose the route matching your files and inspect object identities before measuring; imported feature tables can be used directly when they already contain the required measurements."
-msgstr "Importieren Sie externe Messungen mit ausdrücklichen Objekt- und Spaltenzuordnungen oder wählen Sie Import Images, Format Converter oder External Masks. Importierte Messungen sind kein neuer Measure-Lauf. Mit passenden Quellbildern und externen Ganzzahlmasken erstellt Import die zusammengeführten Projektarrays für Measure. Den zu den Dateien passenden Weg wählen und die Objektidentitäten vor der Messung prüfen; importierte Merkmalstabellen können direkt verwendet werden, wenn sie die erforderlichen Messwerte bereits enthalten."
+msgstr "Importieren Sie externe Messungen mit ausdrücklichen Objekt- und Spaltenzuordnungen oder wählen Sie Import Images, Dateiformat Converter oder External Masks. Importierte Messungen sind kein neuer Measure-Lauf. Mit passenden Quellbildern und externen Ganzzahlmasken erstellt Import die zusammengeführten Projektarrays für Measure. Den zu den Dateien passenden Weg wählen und die Objektidentitäten vor der Messung prüfen; importierte Merkmalstabellen können direkt verwendet werden, wenn sie die erforderlichen Messwerte bereits enthalten."
 
 msgid "**Open:** Home → Import."
 msgstr "**Öffnen:** Startseite → Importieren."
@@ -648,7 +648,7 @@ msgid ":ref:`Measure <workflow-module-measure>`: Import matching images and exte
 msgstr ":ref:`Measure <workflow-module-measure>`: Passende Bilder und externe Ganzzahlmasken importieren, um zusammengeführte Projektarrays zu erstellen, dann Measure für dieses Projekt öffnen. Diesen Schritt überspringen, wenn kompatible Messwerte bereits importiert oder berechnet wurden. Keine doppelten Messwerte an eine vorhandene importierte Tabelle anhängen."
 
 msgid ":ref:`Mask <workflow-module-mask>`: For image-only imports, use Import Images or Format Converter and point Mask at the formatted image project. External measurements alone are not segmentation input."
-msgstr ":ref:`Mask <workflow-module-mask>`: Für reine Bildimporte Import Images oder Format Converter verwenden und Mask auf das formatierte Bildprojekt verweisen. Externe Messwerte allein sind keine Segmentierungseingabe."
+msgstr ":ref:`Mask <workflow-module-mask>`: Für reine Bildimporte Import Images oder Dateiformat Converter verwenden und Mask auf das formatierte Bildprojekt verweisen. Externe Messwerte allein sind keine Segmentierungseingabe."
 
 msgid ":doc:`API reference </api/spacr/foreign/index>`."
 msgstr ":doc:`API-Referenz </api/spacr/foreign/index>`."
