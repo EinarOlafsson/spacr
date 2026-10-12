@@ -2,7 +2,7 @@
 
 # Toxoplasma Plaque v4 (round 6, cpsam_v2, default)
 
-![Score card of Plaques v4 (toxoplasma_plaque_v4, default): F1 0.815 on 263 held-out fields against 0.373 for stock cpsam_v2.](cards/toxoplasma_plaque_v4.svg)
+![Score card of Plaques v4 (toxoplasma_plaque_v4, default): F1 0.765 on 329 held-out fields against 0.338 for stock cpsam_v2.](cards/toxoplasma_plaque_v4.svg)
 
 `toxoplasma_plaque_v4` · Cellpose-SAM (cpsam_v2, Cellpose 4.0.9) · default in the `toxoplasma_plaque` family
 
@@ -18,24 +18,25 @@ Toxoplasma plaques from published-figure wells, Bio-Rad Gel Doc wells, lab plate
 
 ## Hold-out performance
 
-F1 0.815 (toxoplasma_plaque_v3 0.844) on the 263 held-out fields at IoU 0.5; stock cpsam_v2 0.373 there with the Cellpose evaluation scorer.
+F1 0.765 against stock cpsam_v2's 0.338 on the 329 strict hold-out fields at IoU 0.5; AJI 0.662 against 0.261.
 
-| Metric | This model |
-| --- | --- |
-| F1 | 0.8154 |
-| Precision | 0.8252 |
-| Recall | 0.8058 |
+| Metric | This model | Stock | Difference |
+| --- | --- | --- | --- |
+| F1 | 0.7648 | 0.3380 | 0.4267 |
+| Precision | 0.7344 | 0.2911 | 0.4433 |
+| Recall | 0.7977 | 0.4030 | 0.3947 |
+| AJI | 0.6619 | 0.2610 | 0.4010 |
+| Dice | 0.8388 | 0.4291 | 0.4097 |
 
-Evaluation set `retrain_20261009_plaque_test`, version `2026-10-09`; 263 scored fields and 12792 annotated objects.
+Evaluation set `gt_rescore_20261011`, version `strict hold-out, pooled`; 329 scored fields and 13915 annotated objects.
 
 | Recorded | Value |
 | --- | --- |
 | Training set | 335 fields; 5 reviewed skips excluded |
 | Training objects | 16467 |
-| Test set | 263 fields: 3 held-out Gel Doc plates plus the r5 evaluation split |
-| Test objects | 12792 |
+| Test set | 329 fields |
+| Test objects | 13,915 |
 | Cross-validation | no |
-| Stock F1 | not measured with spacr.plaque.segment_plaque_image |
 | Training loss | see training/epoch_history.json |
 | Validation loss | see training/epoch_history.json |
 | Best epoch | 140 / 190 |
@@ -53,6 +54,8 @@ Evaluation set `retrain_20261009_plaque_test`, version `2026-10-09`; 263 scored 
 - **Precision** is the share of objects the model reported that match a reference object; low precision means false detections. **Recall** is the share of reference objects the model found; low recall means missed objects.
 - **F1** is the harmonic mean of precision and recall, so it is high only when both are. Either alone can look near-perfect: a model that reports one obvious object has high precision, and one that reports every dark blob has high recall.
 - **IoU** (intersection over union) is the overlap between a predicted and a reference object divided by the area the two cover together. A score given at IoU 0.5 counts an object as found when that ratio reaches 0.5.
+- **AJI** (aggregated Jaccard index) adds up the overlap of every matched pair and divides it by their combined area plus the area of unmatched objects, so merged, split and missed objects all lower it.
+- **Dice** is twice the overlap divided by the predicted area plus the reference area.
 - **Stock** is the base model named under Architecture, run without fine-tuning on the same images. **Difference** is this model's score minus stock's.
 - A **hold-out** or **test** set is images kept out of training and used only for scoring. The re-score note says how many of its fields this model had not seen.
 

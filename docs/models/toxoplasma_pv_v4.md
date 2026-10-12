@@ -2,7 +2,7 @@
 
 # Toxoplasma PV v4 (round 7)
 
-![Score card of Parasite vacuoles v4 (toxoplasma_pv_v4, default): F1 0.854 on 11 held-out wells against 0.765 for stock cpsam_v2.](cards/toxoplasma_pv_v4.svg)
+![Score card of Parasite vacuoles v4 (toxoplasma_pv_v4, default): F1 0.761 on 209 held-out fields against 0.377 for stock cpsam_v2.](cards/toxoplasma_pv_v4.svg)
 
 `toxoplasma_pv_v4` · Cellpose-SAM (cpsam_v2) · default in the `toxoplasma_pv` family
 
@@ -18,30 +18,28 @@ Toxoplasma tachyzoite parasitophorous vacuoles: round 6's DsRed and anti-Toxopla
 
 ## Hold-out performance
 
-F1 0.854 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.776 against 0.505.
+F1 0.761 against stock cpsam_v2's 0.377 on the 209 strict hold-out fields at IoU 0.5; AJI 0.582 against 0.040.
 
 | Metric | This model | Stock | Difference |
 | --- | --- | --- | --- |
-| F1 | 0.8536 | 0.7648 | 0.0888 |
-| AJI | 0.7755 | 0.5050 | 0.2705 |
-| Dice | 0.8905 | 0.6431 | 0.2474 |
-| Precision | 0.8493 | 0.7539 | 0.0954 |
-| Recall | 0.8580 | 0.7760 | 0.0820 |
-| Pixel IoU | 0.8055 | 0.5239 | 0.2816 |
-| mAP | 0.4921 | 0.3620 | 0.1301 |
+| F1 | 0.7611 | 0.3771 | 0.3840 |
+| Precision | 0.7687 | 0.2647 | 0.5040 |
+| Recall | 0.7538 | 0.6557 | 0.0981 |
+| AJI | 0.5820 | 0.0396 | 0.5424 |
+| Dice | 0.8348 | 0.0906 | 0.7442 |
 
-Evaluation set `pv_r7_test`, version `r7-published-truth`; 10 scored fields and 683 annotated objects.
+Evaluation set `gt_rescore_20261011`, version `strict hold-out, pooled`; 209 scored fields and 5515 annotated objects.
 
 | Recorded | Value |
 | --- | --- |
 | Training set | 502 fields |
 | Training objects | 23,340 |
-| Test set | 11 anchor wells; 10 nonempty scored |
-| Test objects | 683 |
+| Test set | 209 fields |
+| Test objects | 5,515 |
 | Cross-validation | 5-fold, grouped by source |
 | Training loss | 0.0424 |
 | Validation loss | 0.0796 |
-| Best epoch | 55 / 100 |
+| Best epoch | final epoch 100 / 100 (shipped weights; recorded 2026-10-12) |
 
 ## Notes
 
@@ -59,8 +57,6 @@ Evaluation set `pv_r7_test`, version `r7-published-truth`; 10 scored fields and 
 - **IoU** (intersection over union) is the overlap between a predicted and a reference object divided by the area the two cover together. A score given at IoU 0.5 counts an object as found when that ratio reaches 0.5.
 - **AJI** (aggregated Jaccard index) adds up the overlap of every matched pair and divides it by their combined area plus the area of unmatched objects, so merged, split and missed objects all lower it.
 - **Dice** is twice the overlap divided by the predicted area plus the reference area.
-- **Pixel IoU** is the IoU of all object pixels together, without matching objects one to one.
-- **AP** at one IoU threshold is true positives divided by true positives, false positives and false negatives together. **mAP** averages it over IoU thresholds from 0.5 to 0.9, so it also rewards outlines that fit closely.
 - **Stock** is the base model named under Architecture, run without fine-tuning on the same images. **Difference** is this model's score minus stock's.
 - **Cross-validated** scores split the data into folds, hold out each fold once and report the mean over folds with its standard deviation (**SD**, or +/-). A single split can mislead; the SD shows how far the score moves from one split to another.
 - A **hold-out** or **test** set is images kept out of training and used only for scoring. The re-score note says how many of its fields this model had not seen.

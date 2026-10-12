@@ -2,7 +2,7 @@
 
 # Toxoplasma PV v3 (round 6)
 
-![Score card of Parasite vacuoles v3 (toxoplasma_pv_v3, older version): F1 0.860 on 11 held-out wells against 0.765 for stock cpsam_v2.](cards/toxoplasma_pv_v3.svg)
+![Score card of Parasite vacuoles v3 (toxoplasma_pv_v3, older version): F1 0.750 on 269 held-out fields against 0.390 for stock cpsam_v2.](cards/toxoplasma_pv_v3.svg)
 
 `toxoplasma_pv_v3` · Cellpose-SAM (cpsam_v2) · older version in the `toxoplasma_pv` family
 
@@ -20,28 +20,32 @@ Toxoplasma tachyzoite parasitophorous vacuoles stained with goat anti-Toxoplasma
 
 ## Hold-out performance
 
-F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505.
+F1 0.750 against stock cpsam_v2's 0.390 on the 269 strict hold-out fields at IoU 0.5; AJI 0.528 against 0.055.
+
+| Metric | This model | Stock | Difference |
+| --- | --- | --- | --- |
+| F1 | 0.7504 | 0.3899 | 0.3606 |
+| Precision | 0.7998 | 0.2794 | 0.5204 |
+| Recall | 0.7068 | 0.6447 | 0.0621 |
+| AJI | 0.5278 | 0.0553 | 0.4725 |
+| Dice | 0.7499 | 0.1236 | 0.6263 |
+
+Evaluation set `gt_rescore_20261011`, version `strict hold-out, pooled`; 269 scored fields and 6443 annotated objects.
 
 | Recorded | Value |
 | --- | --- |
 | Training set | 437 fields |
 | Training objects | 15,550 |
-| Test set | 11 anchor wells |
-| Test objects | 683 |
+| Test set | 269 fields |
+| Test objects | 6,443 |
 | Cross-validation | 5-fold, grouped by source |
-| F1 | 0.8602 |
-| AJI | 0.8026 |
-| Dice | 0.9059 |
-| Stock F1 | 0.7648 |
-| Stock AJI | 0.5050 |
-| Stock Dice | 0.6431 |
 | Validation loss | 0.0864 |
-| Best epoch | 20 / 100 |
+| Best epoch | final epoch 100 / 100 (shipped weights; recorded 2026-10-12) |
 
 ## Notes
 
 - NEWEST IS NOT BEST HERE: round 6 does not beat round 2 on the anchor wells -- 0.8602 against 0.8648 -- and the PV project still promotes round 5.
-- It is the first PV round whose checkpoint was chosen on a held-out validation set (108 fields) instead of on the test wells.
+- The shipped weights are the FINAL epoch 100, not a validation-chosen checkpoint: the training records show no checkpoint selection (recorded 2026-10-12).
 - 5-fold cross-validation, grouped by source: F1 0.8168 +/- 0.028, AJI 0.7516, Dice 0.8424.
 - The 11 anchor wells have been held out since round 1, so they are the only fields no PV round has ever trained on.
 - Re-scored 2026-10-11 on curated ground truth (spaCR pipeline call, defaults; receipt features/data/model_rescore_curated_gt_2026-10-11/receipt.json): strict hold-out, fields this model never saw, F1 0.750 at IoU 0.5 on n = 269 of 655 fields (n differs between models); common subset unseen by every pv model, n = 163, F1 0.790 (95% bootstrap CI 0.726 to 0.835). Without the 98 paged round-3 fields (n = 65): F1 0.754. Earlier numbers in this row are superseded by this re-score where they differ. Default unchanged.
