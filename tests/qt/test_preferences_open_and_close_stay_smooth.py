@@ -384,8 +384,13 @@ def test_a_dialog_is_let_go_when_preferences_are_not_kept(qtbot, store):
     dialog = preferences._a_preferences_for(window)
     dialog.show()
     dialog.reject()
+    assert preferences._widget_is_alive(dialog)
     preferences._put_the_preferences_away(window, dialog)
     qtbot.waitUntil(lambda: not preferences._widget_is_alive(dialog))
+    assert not preferences._widget_is_alive(dialog)
+    fresh = preferences._a_preferences_for(window)
+    assert fresh is not dialog
+    fresh.deleteLater()
 
 
 # --------------------------------------------------------------------------
