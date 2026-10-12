@@ -1723,8 +1723,9 @@ def check(languages: Sequence[str] = LANGUAGES) -> list[str]:
     problems = []
     for language in languages:
         if language != "en":
-            problems += check_structure(language)
-            if problems:
+            structure = check_structure(language)
+            problems += structure
+            if structure:
                 continue
         output = compose(language, render=False)
         path = readme_path(language)

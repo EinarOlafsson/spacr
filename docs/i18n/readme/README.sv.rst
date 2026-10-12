@@ -575,7 +575,7 @@
    :width: 49.5%
 
 .. image:: ../../readme_images/sv/generated-model-zoo-1.svg
-   :alt: Older models.
+   :alt: Äldre modeller.
    :width: 100%
 
 | |generated-model-zoo-1-link-1|\ |generated-model-zoo-1-link-2|\ |generated-model-zoo-1-link-3|
@@ -618,7 +618,7 @@
    :target: ../../models/toxoplasma_well_detector_v1.md
 
 .. image:: ../../readme_images/sv/generated-model-zoo-2.svg
-   :alt: Alternatives.
+   :alt: Alternativ.
    :width: 100%
 
 | |generated-model-zoo-2-link-1|\ |generated-model-zoo-2-link-2|

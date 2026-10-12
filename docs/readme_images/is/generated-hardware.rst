@@ -31,4 +31,4 @@
      - 🟢 CPU
      - 🟢 CPU
 
-🟢 stutt (stöðugt)   🟣 útfært (beta)   🔴 aðeins CPU-stuðningur
+🟢 með stuðningi (stöðugt)   🟣 útfært (beta)   🔴 aðeins CPU-stuðningur
