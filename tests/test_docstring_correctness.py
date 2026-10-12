@@ -2498,7 +2498,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     for contract in ("685_model_zoo_api_arrivals_2026-10-11.json",
                      "534_spatial_api_arrivals_2026-10-11.json",
                      "691_mitonet_api_arrivals_2026-10-11.json",
-                     "692_three_d_mask_drawing_api_arrivals_2026-10-11.json"):
+                     "692_three_d_mask_drawing_api_arrivals_2026-10-11.json",
+                     "prefs_apply_api_arrivals_2026-10-12.json"):
         contract_arrivals |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     assert contract_arrivals & by_symbol.keys()
@@ -3009,7 +3010,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-10-11 F534: 19,921 - 19,920 = 1, PlateObject's optional label=
     # (the kept observation's label in its window); no new callable or
     # required parameter.
-    assert sum(len(item.parameters) for item in callables) == 19921
+    # 2026-10-12 Preferences Apply: 19,923 - 19,921 = 2, the optional
+    # keyword in_slices= on apply_preferences_to_app and
+    # apply_stylesheet_per_window; no new callable or required parameter.
+    assert sum(len(item.parameters) for item in callables) == 19923
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -3253,7 +3257,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # constructor gained the optional label=; removing only that field
     # restores 257f39b8... byte for byte. Items 685, 534 and 691 arrive
     # through their dated API contracts and are subtracted above.
-) == '7a471ca0134946fc82208387c1b709756f45b831ef8504555113dfe771edb32d'
+    # Moved 2026-10-12 for the Preferences Apply (was 7a471ca0...):
+    # apply_preferences_to_app and apply_stylesheet_per_window gained the
+    # optional in_slices=; removing only that keyword from those two rows
+    # restores 7a471ca0... byte for byte. The new callables arrive through
+    # prefs_apply_api_arrivals_2026-10-12.json and are subtracted above.
+) == 'b43359de7decd9311e6282fa9a7b11bc951c6048b0ab7e4725338113c6171a2d'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -3948,6 +3957,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {key: docs[key] for key in drawing_additions} == drawing_additions
     assert not drawing_additions.keys() & (zoo_additions.keys() | volume_additions.keys())
     zoo_additions = {**zoo_additions, **drawing_additions}
+    apply_additions = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "prefs_apply_api_arrivals_2026-10-12.json").read_text())
+    assert len(apply_additions) == 8
+    assert {key: docs[key] for key in apply_additions} == apply_additions
+    assert not apply_additions.keys() & zoo_additions.keys()
+    zoo_additions = {**zoo_additions, **apply_additions}
     assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
@@ -4316,7 +4332,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     for contract in ("685_model_zoo_api_arrivals_2026-10-11.json",
                      "534_spatial_api_arrivals_2026-10-11.json",
                      "691_mitonet_api_arrivals_2026-10-11.json",
-                     "692_three_d_mask_drawing_api_arrivals_2026-10-11.json"):
+                     "692_three_d_mask_drawing_api_arrivals_2026-10-11.json",
+                     "prefs_apply_api_arrivals_2026-10-12.json"):
         contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     prior = prior - contract_callables
@@ -4341,7 +4358,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     for contract in ("534_spatial_api_arrivals_2026-10-11.json",
                      "685_model_zoo_api_arrivals_2026-10-11.json",
                      "691_mitonet_api_arrivals_2026-10-11.json",
-                     "692_three_d_mask_drawing_api_arrivals_2026-10-11.json"):
+                     "692_three_d_mask_drawing_api_arrivals_2026-10-11.json",
+                     "prefs_apply_api_arrivals_2026-10-12.json"):
         arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     arrival_callables &= rendered_documented_callables.keys()

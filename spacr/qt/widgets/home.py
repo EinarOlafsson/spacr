@@ -323,6 +323,35 @@ class AppTile(QPushButton):
 
 
 
+def panel_box_qss(P: dict) -> str:
+    """The rule of a Home panel's box, at the page opacity now in force.
+
+    :param P: the active palette.
+    :returns: the box's own QSS.
+    """
+    from ..theme import pane_surface
+
+    return ("QFrame#HomePanelBox {"
+            f"background: {pane_surface('surface_alt')};"
+            f"border: 1px solid {P['border_soft']};"
+            "border-radius: 8px; }")
+
+
+def hero_qss() -> str:
+    """The masthead's rule, at the page opacity now in force.
+
+    :returns: the masthead's own QSS.
+    """
+    from ..preferences import resolve_effective_theme
+    from ..theme import RADIUS, pane_surface
+
+    return (f"QWidget#Hero {{"
+            f" background-color:"
+            f" {pane_surface('surface_alt', resolve_effective_theme())};"
+            f" border-radius: {RADIUS['lg']}px;"
+            f" }}")
+
+
 class Panel(QWidget):
     """Captioned box for the right-hand column.
 
@@ -382,12 +411,7 @@ class Panel(QWidget):
 
         box = QFrame()
         box.setObjectName("HomePanelBox")
-        from ..theme import pane_surface
-        box.setStyleSheet(
-            "QFrame#HomePanelBox {"
-            f"background: {pane_surface('surface_alt')};"
-            f"border: 1px solid {P['border_soft']};"
-            "border-radius: 8px; }")
+        box.setStyleSheet(panel_box_qss(P))
         self.body_layout = QVBoxLayout(box)
         self.body_layout.setContentsMargins(SPACING["md"], SPACING["sm"],
                                             SPACING["md"], SPACING["sm"])
@@ -2237,15 +2261,7 @@ class HomePage(QWidget):
         hero = QWidget()
         hero.setObjectName("Hero")
         try:
-            from ..preferences import resolve_effective_theme
-            from ..theme import RADIUS, pane_surface
-
-            hero.setStyleSheet(
-                f"QWidget#Hero {{"
-                f" background-color:"
-                f" {pane_surface('surface_alt', resolve_effective_theme())};"
-                f" border-radius: {RADIUS['lg']}px;"
-                f" }}")
+            hero.setStyleSheet(hero_qss())
         except Exception:                                # noqa: BLE001
             import logging
 
@@ -2535,6 +2551,63 @@ class HomePage(QWidget):
                         - SPACING["xl"] * 2 - SPACING["lg"]
                         - SPACING["md"] * 2 - 4)
         return max(1, available // (tile_w + SPACING["xs"]))
+
+    def refresh_pane_surfaces(self) -> int:
+        """Give the masthead, the panels and the tabs the page opacity now set.
+
+        They took it when Home was built, and a new opacity used to rebuild
+        Home: 2.1-2.6 s of the GUI thread on a loaded box, for three kinds
+        of rule. Each is now set again in place, one widget per pass of the
+        event loop, and only where the rule changed, since setting a rule
+        restyles everything under it.
+
+        THE TABS ARE TOLD ON THEIR BAR. The tab widget's rule holds the
+        whole of Home under it, and setting it again restyled every tile
+        (1.1 s loaded) to change one tab's fill; the bar takes the selected
+        tab's fill as a rule of its own, which wins over the one it
+        inherits.
+
+        :returns: how many widgets will take a new rule.
+        """
+        from PySide6.QtWidgets import QFrame
+
+        wanted = []
+        hero = self.findChild(QWidget, "Hero")
+        if hero is not None:
+            try:
+                wanted.append((hero, hero_qss()))
+            except Exception:                            # noqa: BLE001
+                pass
+        box_rule = panel_box_qss(self._P)
+        wanted.extend((box, box_rule)
+                      for box in self.findChildren(QFrame, "HomePanelBox"))
+        tabs = getattr(self, "_tabs", None)
+        if tabs is not None:
+            wanted.append((tabs.tabBar(),
+                           _selected_tab_qss(self._P, self._pane_alpha())))
+        owed = []
+        for widget, rule in wanted:
+            try:
+                if widget.styleSheet() != rule:
+                    owed.append((widget, rule))
+            except RuntimeError:
+                continue
+
+        def _next():
+            """Set one owed rule, then wait for the next pass."""
+            while owed:
+                widget, rule = owed.pop(0)
+                try:
+                    widget.setStyleSheet(rule)
+                except RuntimeError:
+                    continue
+                break
+            if owed:
+                QTimer.singleShot(0, _next)
+
+        if owed:
+            QTimer.singleShot(0, _next)
+        return len(owed)
 
     @staticmethod
     def _pane_alpha() -> float:
@@ -2923,6 +2996,21 @@ class HomePage(QWidget):
             pass
         self._ticker.stop()
         super().closeEvent(event)
+
+
+def _selected_tab_qss(P: dict, pane_alpha: float = 1.0) -> str:
+    """The selected Home tab's fill alone, for the tab bar to wear.
+
+    :param P: the active palette.
+    :param pane_alpha: the page opacity.
+    :returns: the rule, as :func:`_tab_qss` writes it for the same fill.
+    """
+    from ..theme import css_color
+    selected_fill = ("transparent" if pane_alpha <= 0.0
+                     else css_color(P["surface"], pane_alpha))
+    return (f"QTabWidget#HomeTabs > QTabBar::tab:selected {{"
+            f" background: {selected_fill};"
+            f" border-bottom-color: {selected_fill}; }}")
 
 
 def _tab_qss(P: dict, pane_alpha: float = 1.0) -> str:

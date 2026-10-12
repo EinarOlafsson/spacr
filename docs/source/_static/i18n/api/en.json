@@ -44124,6 +44124,16 @@
       "source_sha256": "6fa2aaa9f190bdf6dd14057864f605166717522ca4fb1ce1a762b679ea36a232",
       "text": "Build ``key``'s screen again, carrying ``values`` across.\n\n:param key: the app whose screen is to be rebuilt.\n:param values: settings to apply to the new screen.\n\nThe whole screen is rebuilt because which settings a form holds\ndepends on a few of its own values -- the organelle count, and\nwhether an object's channel names a plane -- so a committed change to one of those means\na different form, not a changed one. Rebuilding is the same path\nevery module open already takes.\n\nThe old screen is dropped from the cache and destroyed, so the new\none is built from scratch rather than reusing widgets that belong to\na shape that no longer applies."
     },
+    "spacr.qt.app.MainWindow.refresh_after_preferences": {
+      "source_blocks_sha256": [
+        "931a376a36dda631494a58c6cb9ccefd4296e1853609f15bb92554f5ce7b33b8",
+        "ef2d672a8c89d90621ee7e71c59730cd62e9bf84341ebc4e11113842043b8d4b",
+        "6b869f8fce5e4bcf0df014b1c72f3e2036cad8499f16dcc63e5ffec996554c9b",
+        "9de1194d14451b92f7c8b0819d94cef5741d661cc527342157e221b1818d1b40"
+      ],
+      "source_sha256": "9585dc48c996c325d739397b84d731c98a5deca2216c3df58a7bd8afccf3f5d2",
+      "text": "Redraw what a Preferences Apply changed, and nothing else.\n\nTHE APPLY THAT CHANGED ONE SLIDER REBUILT HOME. Page opacity is in\nthe window's signature, so moving it ran :meth:`refresh_theme` --\nHome rebuilt (2.1-2.6 s on a loaded box), the tree retranslated\n(0.3 s), every alpha gate walked -- while the only things on Home\nthat had taken the opacity were three rules, which\n:meth:`HomePage.refresh_pane_surfaces` sets again in place.\n\n:param changed: names from the window's signature whose values\n    changed (:func:`spacr.qt.preferences._window_changes`).\n:returns: ``\"rebuilt\"``, ``\"in place\"`` or ``\"nothing\"``, so a test\n    can say which."
+    },
     "spacr.qt.app.MainWindow.refresh_language": {
       "source_blocks_sha256": [
         "def23a9dee1fc5ab3d529b5ef503ebb20891b04daa21121a7d538a546f2ac39e"
@@ -55385,6 +55395,13 @@
       "source_sha256": "0bee4ead6a964a72514382029d31e0df8c64a4d071528869508951aa18691f5b",
       "text": "Send the unseen pages away just before the first show.\n\nHERE, AND NOT ON THE FIRST ``Polish``. The window sheet, the\nglass and the resize filter all act on that event from the\napplication, which hears it before the window does, and the\nresize filter polishes every child as it does. Qt's own show\nbegins in this call, so the pages are gone before any of them\nruns.\n\nEVERY SHOW, NOT ONLY THE FIRST, walks only the window. A dialog\nkept for the next open (:func:`_take_the_warm_preferences`) is\nshown again, and the same filters walk it again; a page still\nwaiting is given what it missed when its tab is chosen, as on\nthe first open.\n\nEach show also notes the window's look\n(:func:`_window_signature`), so the close can tell whether the\nwindow has anything to catch up on.\n\n:param visible: as for ``QWidget.setVisible``."
     },
+    "spacr.qt.preferences._refresh_owner_window._redraw_what_changed": {
+      "source_blocks_sha256": [
+        "03e9cd32d714e22d401d4ef9e0a75fe23118f04227e74e270cc6bc800b1e952f"
+      ],
+      "source_sha256": "03e9cd32d714e22d401d4ef9e0a75fe23118f04227e74e270cc6bc800b1e952f",
+      "text": "Redraw the window for ``changes``, if it is still there."
+    },
     "spacr.qt.preferences._start_disk_report.done": {
       "source_blocks_sha256": [
         "14825ecee6c6e5732c7c5fdbdb185ac73cf23a96ad64d6ac03bc685603ca4821"
@@ -55452,10 +55469,11 @@
       "source_blocks_sha256": [
         "88875113abff77bdf763f6532b00441a84dd8ee1b5a3aba467dd6c0022861817",
         "34363b6666905926b49273d74aa63116c52dcd18ae3e215068713a135ad5d23e",
-        "23ca3be5bb5667b12ea2d0b5fdf11105e326e6fdf419ca6190135c08d7339cc2"
+        "23ca3be5bb5667b12ea2d0b5fdf11105e326e6fdf419ca6190135c08d7339cc2",
+        "0d512ddb7a251112e550c02cdf711af54a786c95ff0e961482a336ea019e9086"
       ],
-      "source_sha256": "e56b3cedfdb711bf944af76b476e5547b5e74f21f138b6b4fc4c2fc48d6bc7a7",
-      "text": "Re-apply language, theme and font scale to ``QApplication``.\n\nCalled at startup from :func:`spacr.qt.app.launch`, and again\nwhenever the user changes a preference (via :class:`PreferencesDialog`\n``accepted`` signal).\n\n:param app: optional QApplication. Falls back to\n    ``QApplication.instance()``."
+      "source_sha256": "f2f9b2c759f37fa04aef41fa82bc3c3f5dc32940c4c4479f1f8d427e9e20856c",
+      "text": "Re-apply language, theme and font scale to ``QApplication``.\n\nCalled at startup from :func:`spacr.qt.app.launch`, and again\nwhenever the user changes a preference (via :class:`PreferencesDialog`\n``accepted`` signal).\n\n:param app: optional QApplication. Falls back to\n    ``QApplication.instance()``.\n:param in_slices: Preferences' Apply and its Revert: a new sheet is put\n    on the windows one per pass of the event loop, after the next paint\n    (:func:`spacr.qt.theme.apply_stylesheet_per_window`), and the icon\n    sizes are re-derived only when a scale changed."
     },
     "spacr.qt.preferences.apply_quality_preset": {
       "source_blocks_sha256": [
@@ -74546,12 +74564,13 @@
         "4ed48e0f23bbdb8b4a0b2bac57ab1fcda353b3522c51fbbb2491d643e9265add",
         "d19ab6b9d3850a277f17db94ea4b29b06dc0bba6308eda54b0df388c2f37c8fe",
         "296eceb055d4d215d922f379d22bb0652958edffc741a5f5b4ef21602ca38fb7",
-        "6b1e5e3d57ef8769a0bed5c8d7bf8d8020c1e599186495c9a8bca1fee9bfeacd",
+        "5cb327cb2b60ae6053d190342ca134e0162182beb2182777055e9530a2ad47db",
+        "12579956c850cfc31100a691898e99c00df25c176f4c0d6f7398ff765ff3c39e",
         "8f7c4e673d2a761035757863dfab9209fd048b51deeb67c07973e4cf295bde41",
         "a46d689cd226d4364406585de99b58019c2ea9e9722bbf9a83b44fe71fba734b"
       ],
-      "source_sha256": "27e84d6f54ff05ab155e9161ea0dc2c20abce882b39b8f66b9633fc600a82da1",
-      "text": "Install ``sheet`` on every top-level window instead of on ``app``.\n\nWHY, WITH THE NUMBER. `QApplication.setStyleSheet` repolishes every\nwidget the process owns, and a session that has opened a few modules\nowns thousands it cannot see -- `MainWindow` builds a module screen on\nfirst navigation and keeps it in the stack afterwards. Measured on this\nbox, offscreen, four modules open, 9,045 live widgets of which 6,111 are\non screens nobody is looking at:\n\n    app.setStyleSheet            2,836 ms first, ~7,500 ms thereafter\n    every top-level window       1,684 ms first, ~1,900 ms thereafter\n    the visible screen alone       222 ms\n\nA QUARTER OF THE COST FOR THE SAME PICTURE. The floor is lower still --\n222 ms is what the visible screen costs on its own -- and reaching it\nmeans not sheeting the hidden screens either, which is a bigger change\nthan this one.\n\n:param app: the ``QApplication`` whose windows wear the sheet, and where\n    the sheet itself is parked so a window created later can find it.\n    ``None`` is accepted and does nothing, so a caller running without\n    an application does not have to check first.\n:param sheet: the complete application stylesheet, as\n    :func:`stylesheet` composes it.\n:returns: the number of windows the sheet was put on.\n\nA hidden window marked :data:`SHEETED_WHEN_SHOWN` is left for its next\n``Show``, where :class:`_SheetsEveryWindowThatAppears` sheets it before\nit paints: the Preferences window kept for the next open is ~750\nwidgets nobody can see.\n\nA settings category's body that is waiting off the page is parentless,\nso Qt lists it among the top-level widgets, but it is not a window: it\ngoes back under its page before anybody sees it and wears the page's\nsheet from there. Sheeting it here would leave it carrying a copy of\nthe sheet of the moment when it went back, which the next theme change\nwould not reach. See\n:meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`."
+      "source_sha256": "5d7cadba61edfa69cbeeb65018ef54cec8e68c0a86679788aa2e4e504495ec38",
+      "text": "Install ``sheet`` on every top-level window instead of on ``app``.\n\nWHY, WITH THE NUMBER. `QApplication.setStyleSheet` repolishes every\nwidget the process owns, and a session that has opened a few modules\nowns thousands it cannot see -- `MainWindow` builds a module screen on\nfirst navigation and keeps it in the stack afterwards. Measured on this\nbox, offscreen, four modules open, 9,045 live widgets of which 6,111 are\non screens nobody is looking at:\n\n    app.setStyleSheet            2,836 ms first, ~7,500 ms thereafter\n    every top-level window       1,684 ms first, ~1,900 ms thereafter\n    the visible screen alone       222 ms\n\nA QUARTER OF THE COST FOR THE SAME PICTURE. The floor is lower still --\n222 ms is what the visible screen costs on its own -- and reaching it\nmeans not sheeting the hidden screens either, which is a bigger change\nthan this one.\n\n:param app: the ``QApplication`` whose windows wear the sheet, and where\n    the sheet itself is parked so a window created later can find it.\n    ``None`` is accepted and does nothing, so a caller running without\n    an application does not have to check first.\n:param sheet: the complete application stylesheet, as\n    :func:`stylesheet` composes it.\n:param in_slices: put the sheet on nothing now: the windows on show\n    get it one per pass of the event loop, after the next paint, and the\n    hidden ones after them (:func:`_sheet_the_windows_in_slices`). A\n    window that polishes or shows before its turn is sheeted then, as\n    any window is. Preferences' Apply asks for this.\n:returns: the number of windows the sheet was put on; with\n    ``in_slices``, the number waiting for their slice.\n\nA hidden window marked :data:`SHEETED_WHEN_SHOWN` is left for its next\n``Show``, where :class:`_SheetsEveryWindowThatAppears` sheets it before\nit paints: the Preferences window kept for the next open is ~750\nwidgets nobody can see.\n\nA settings category's body that is waiting off the page is parentless,\nso Qt lists it among the top-level widgets, but it is not a window: it\ngoes back under its page before anybody sees it and wears the page's\nsheet from there. Sheeting it here would leave it carrying a copy of\nthe sheet of the moment when it went back, which the next theme change\nwould not reach. See\n:meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`."
     },
     "spacr.qt.theme.block_surface": {
       "source_blocks_sha256": [
@@ -74760,6 +74779,14 @@
       ],
       "source_sha256": "d4433f78587749d1587b11bd80c6a7f4efc988a5f986234604c0f6359a0ebbef",
       "text": "The sampled ramp as ``((t, alpha), ...)``, left edge first.\n\nWhat a ``QLinearGradient`` is built from, and what a test asserts the\nshape of without needing a QApplication."
+    },
+    "spacr.qt.theme.finish_the_sliced_sheeting": {
+      "source_blocks_sha256": [
+        "20102b5f79dc84f7c0dd87a6dac7a0c54c09a12fbfdd004cbb50c0597e017cea",
+        "696512e489778ae61e05f83bfbcda66fc152945c8ecbe77b812389fd6866a443"
+      ],
+      "source_sha256": "59be874621f968345146fd85adc9f53f53b1f48c69ea695a48ab0d912700b59b",
+      "text": "Pay every root still owed its sheet now. For tests and shutdown.\n\n:returns: how many roots were sheeted."
     },
     "spacr.qt.theme.font_px": {
       "source_blocks_sha256": [
@@ -75231,6 +75258,14 @@
       ],
       "source_sha256": "c0929529cc127f565b48f4c7ac351e91af8b8aa617d39febe3983e57bd0d3ef3",
       "text": "Resize a close-mark button for its current font and interface scale.\n\nTHE FLOORS ARE CONVERTED, and that is the whole of the GUI scale in\nhere. ``minimumWidth`` answers in 100 % units (the scaling layer in\n:mod:`spacr.qt.gui_scale` remembers what the code asked for) while the\nglyph is measured in the pixels actually being drawn, so comparing them\nraw made the box 12 px wider than the mark at 50 % and left the chrome\nshifted when the scale came back.\n\n:param button: the close-mark button to give a fixed size."
+    },
+    "spacr.qt.theme.sliced_sheeting_owed": {
+      "source_blocks_sha256": [
+        "230b5754b48c907d18d8b7451d0614b4d58629020468f67ca483aa9e1e85c044",
+        "0e62f6fc8b0ef12d9ed2cd739ca3854f70de89aae9f1c13d15ebf65e2ef7843f"
+      ],
+      "source_sha256": "905712dd8808ac6bf84d81ceece294ae954f106214b336a8f26ba566234d9325",
+      "text": "How many roots are still waiting for a sliced sheet.\n\n:returns: the length of the queue."
     },
     "spacr.qt.theme.solve_scrim_alpha": {
       "source_blocks_sha256": [
@@ -96405,6 +96440,23 @@
       "source_sha256": "6c73ff569b940212bd290c8f4f2a3a62298039caac64aa81d521d3da2df9cca6",
       "text": "Re-read everything that can change while Home is off screen.\n\nThe two run-journal panels are read on a worker thread. Together\n``recent_runs`` + ``journal_totals`` walk every manifest under the\nruns root twice — 774 ms on a machine with 4 865 journalled runs,\nmeasured, and it grows with the journal — and this used to run inline\non every single return to Home, which is the most-travelled\nnavigation in the application.\n\nThe panels keep whatever they are already showing until the worker\ndelivers; a stale count for half a second beats a frozen window, and\non the first ever call they are showing their empty state anyway.\nEverything else here is cheap (a JSON read and three stat calls) and\nstays inline."
     },
+    "spacr.qt.widgets.home.HomePage.refresh_pane_surfaces": {
+      "source_blocks_sha256": [
+        "423182a91341ba54b242501e60e8b48ee8e1779c9f0c62d9b3ac642e368c5532",
+        "21b52f454fa78202d4aea9580df6e2d459d7a545c11c6d4833e53d0a64357b0a",
+        "abf455943602ccbc209c157ecc91892c0f3447f62c35265483b715d46cbfbe6f",
+        "61bf52d3df9083ad66d2a6ac53db02eaf991cea63ffd8c707d2d1f5a1056aab3"
+      ],
+      "source_sha256": "6ba9ef818031ba08efb5dd35738add05f838b275f2f3726f8f1be8f2836a2faa",
+      "text": "Give the masthead, the panels and the tabs the page opacity now set.\n\nThey took it when Home was built, and a new opacity used to rebuild\nHome: 2.1-2.6 s of the GUI thread on a loaded box, for three kinds\nof rule. Each is now set again in place, one widget per pass of the\nevent loop, and only where the rule changed, since setting a rule\nrestyles everything under it.\n\nTHE TABS ARE TOLD ON THEIR BAR. The tab widget's rule holds the\nwhole of Home under it, and setting it again restyled every tile\n(1.1 s loaded) to change one tab's fill; the bar takes the selected\ntab's fill as a rule of its own, which wins over the one it\ninherits.\n\n:returns: how many widgets will take a new rule."
+    },
+    "spacr.qt.widgets.home.HomePage.refresh_pane_surfaces._next": {
+      "source_blocks_sha256": [
+        "181686b7fe56fdc00379ba0a25c80495afb516c86142d1443a9326c5824b203f"
+      ],
+      "source_sha256": "181686b7fe56fdc00379ba0a25c80495afb516c86142d1443a9326c5824b203f",
+      "text": "Set one owed rule, then wait for the next pass."
+    },
     "spacr.qt.widgets.home.HomePage.resizeEvent": {
       "source_blocks_sha256": [
         "276b6305a06e29afa2bdf0486e3a819c575c27b4531a8cf9e80bab3ee13dd3fc",
@@ -96843,6 +96895,23 @@
       ],
       "source_sha256": "24061775e812a8e995876096dc6513a615764c9bbcd203a89e6d61fa119c0e86",
       "text": "The palette for the theme that is on screen *right now*.\n\nNot ``theme.PALETTE``: that module-level dict is the dark palette and\nnothing ever updates it, so a widget that inlines colours from it\nrenders dark on every theme. On the light theme that produced black\npanels with black text in the right-hand column — unreadable, and\ninvisible to any test that only checks widget structure.\n\nHome is rebuilt from scratch on a theme change\n(``MainWindow._rebuild_startup_page``), so resolving once per widget\nconstruction is enough."
+    },
+    "spacr.qt.widgets.home.hero_qss": {
+      "source_blocks_sha256": [
+        "803eea3a833da39bbca44b8f749c623af4ae23723c3e0662c50ac10a641c8089",
+        "f9ea90e5e8412f893331152cab942e89d49b73bd48bf2ce9c54460e297441a1e"
+      ],
+      "source_sha256": "5600ecfe25b1a14b7b0d17b915383f09f4b91eeaca9e45069afc5561ed4c673b",
+      "text": "The masthead's rule, at the page opacity now in force.\n\n:returns: the masthead's own QSS."
+    },
+    "spacr.qt.widgets.home.panel_box_qss": {
+      "source_blocks_sha256": [
+        "7c78f8a26edfb255f2fc9548693d56f4056fac30553bba2fc3525dd377d36cf6",
+        "f1ac54c7d629146697578e7d64dd04bcb3473f29203b8ea802c1bb7b0616d66e",
+        "6ac1f0064fa06cf0973f1b0100e62afa98fb378e250a640d25352909902122d8"
+      ],
+      "source_sha256": "88c3e114cb803ef1c38dab159727c82fdd15840c4ee36ceddfdb24b62521579e",
+      "text": "The rule of a Home panel's box, at the page opacity now in force.\n\n:param P: the active palette.\n:returns: the box's own QSS."
     },
     "spacr.qt.widgets.host_pathogen_preview": {
       "source_blocks_sha256": [

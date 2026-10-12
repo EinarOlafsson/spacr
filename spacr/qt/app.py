@@ -4413,6 +4413,57 @@ class MainWindow(QMainWindow):
         except Exception:
             LOG.debug("could not apply the alpha gate", exc_info=True)
 
+    #: What the window draws from (the names of
+    #: :data:`spacr.qt.preferences._WINDOW_SIGNATURE_NAMES`) whose change
+    #: takes the whole of :meth:`refresh_theme`: Home rebuilt, every icon
+    #: re-inked, the tree retranslated. Everything else in the signature is
+    #: drawn by the sheet, read at paint, or redrawn in place by
+    #: :meth:`refresh_after_preferences`.
+    REBUILT_FOR = frozenset({
+        "language", "theme_choice", "effective_theme", "cell_variant",
+        "backdrop_off", "font_scale", "gui_scale", "runtime_text_scale",
+        "font_weight", "show_alpha", "show_beta", "show_alpha_features",
+        "show_alpha_species", "ambient_enabled", "ambient_animation",
+        "ambient_palette", "spaceout",
+    })
+
+    def refresh_after_preferences(self, changed) -> str:
+        """Redraw what a Preferences Apply changed, and nothing else.
+
+        THE APPLY THAT CHANGED ONE SLIDER REBUILT HOME. Page opacity is in
+        the window's signature, so moving it ran :meth:`refresh_theme` --
+        Home rebuilt (2.1-2.6 s on a loaded box), the tree retranslated
+        (0.3 s), every alpha gate walked -- while the only things on Home
+        that had taken the opacity were three rules, which
+        :meth:`HomePage.refresh_pane_surfaces` sets again in place.
+
+        :param changed: names from the window's signature whose values
+            changed (:func:`spacr.qt.preferences._window_changes`).
+        :returns: ``"rebuilt"``, ``"in place"`` or ``"nothing"``, so a test
+            can say which.
+        """
+        changed = frozenset(changed)
+        if not changed:
+            return "nothing"
+        if changed & self.REBUILT_FOR:
+            self.refresh_theme()
+            return "rebuilt"
+        if changed & {"dock_mode", "dock_width"}:
+            try:
+                self.apply_dock_mode()
+                self._backdrop_the_dock_column()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not move the dock", exc_info=True)
+        if "pane_opacity" in changed:
+            refresh = getattr(getattr(self, "_startup", None),
+                              "refresh_pane_surfaces", None)
+            if callable(refresh):
+                try:
+                    refresh()
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("Home kept its old opacity", exc_info=True)
+        return "in place"
+
     def refresh_language(self) -> None:
         """Apply the persisted language to existing static UI text."""
         try:
@@ -7095,6 +7146,11 @@ def _use_open_sans(app, weight: str = "") -> str:
     Only these two weights are offered. Bold and SemiBold remain registered,
     so a stylesheet that asks for emphasis still gets it; what changes is
     what everything else defaults to.
+
+    THE SAME FONT IS NOT SET AGAIN. Every Apply and Save in Preferences
+    writes the weight, and ``QApplication.setFont`` sends a font change to
+    every widget whether or not the font differs: about a second of
+    relayout on a loaded box for a weight nobody touched.
     """
     from PySide6.QtGui import QFont, QFontDatabase
 
@@ -7116,6 +7172,10 @@ def _use_open_sans(app, weight: str = "") -> str:
     existing = app.font()
     if existing.pointSizeF() > 0:
         font.setPointSizeF(existing.pointSizeF())
+    if (existing.family() == font.family()
+            and existing.weight() == font.weight()
+            and existing.pointSizeF() == font.pointSizeF()):
+        return font.family()
     app.setFont(font)
     return font.family()
 

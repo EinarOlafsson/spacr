@@ -7353,7 +7353,7 @@ def _restore_brand_palette_once() -> None:
     settings.sync()
 
 
-def apply_preferences_to_app(app=None) -> None:
+def apply_preferences_to_app(app=None, *, in_slices: bool = False) -> None:
     """Re-apply language, theme and font scale to ``QApplication``.
 
     Called at startup from :func:`spacr.qt.app.launch`, and again
@@ -7362,6 +7362,10 @@ def apply_preferences_to_app(app=None) -> None:
 
     :param app: optional QApplication. Falls back to
         ``QApplication.instance()``.
+    :param in_slices: Preferences' Apply and its Revert: a new sheet is put
+        on the windows one per pass of the event loop, after the next paint
+        (:func:`spacr.qt.theme.apply_stylesheet_per_window`), and the icon
+        sizes are re-derived only when a scale changed.
     """
     from PySide6.QtWidgets import QApplication
 
@@ -7433,7 +7437,7 @@ def apply_preferences_to_app(app=None) -> None:
             theme=theme, font_scale=scale, background=background,
             surface_opacity=pane_opacity, load_widget_registrars=False)
         clear_widget_qss_overlays(app)
-        apply_stylesheet_per_window(app, sheet)
+        apply_stylesheet_per_window(app, sheet, in_slices=in_slices)
         setattr(app, "_spacr_preferences_style_signature", style_signature)
         setattr(app, "_spacr_preferences_stylesheet", sheet)
 
@@ -7463,10 +7467,15 @@ def apply_preferences_to_app(app=None) -> None:
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not apply the sound preferences", exc_info=True)
 
-    try:
-        _rescale_icon_sizes(app)
-    except Exception:                                        # noqa: BLE001
-        LOG.debug("could not re-derive the icon sizes", exc_info=True)
+    icon_scale = (float(scale), float(get_gui_scale()))
+    if (not in_slices
+            or getattr(app, "_spacr_preferences_icon_scale", None)
+            != icon_scale):
+        try:
+            _rescale_icon_sizes(app)
+            setattr(app, "_spacr_preferences_icon_scale", icon_scale)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not re-derive the icon sizes", exc_info=True)
 
     try:
         from .widgets.console_panel import ConsolePanel
@@ -8203,6 +8212,10 @@ def _what_a_page_missed_while_away(dialog, page) -> None:
         LOG.debug("a Preferences page was not glassed", exc_info=True)
 
 
+#: How long after an Apply or a Revert the window redraws what changed, so
+#: the click and the question are drawn first.
+_PREFERENCES_REDRAW_AFTER_MS = 30
+
 #: How long after the window is shown the first Preferences is built.
 _PREFERENCES_WARM_AFTER_MS = 1500
 
@@ -8229,6 +8242,39 @@ _PREFERENCES_STORE_GROUPS = frozenset({
 #: Keys in those groups a kept dialog already shows as they are: the help
 #: strip's height is written by dragging the strip itself.
 _PREFERENCES_STORE_IGNORED = frozenset({_KEY_PREFERENCES_HELP_HEIGHT})
+
+
+#: What each place in :func:`_window_signature` is, in its order, so a
+#: window can be told which of them changed.
+_WINDOW_SIGNATURE_NAMES = (
+    "language", "theme_choice", "effective_theme",
+    "cell_variant", "backdrop_off",
+    "font_scale", "gui_scale", "runtime_text_scale",
+    "font_weight",
+    "show_alpha", "show_beta", "show_alpha_features",
+    "show_alpha_species",
+    "dock_mode", "dock_width", "pane_opacity",
+    "color_blind_mode", "field_fade",
+    "ambient_enabled", "ambient_animation", "ambient_palette",
+    "performance_level", "spacr_mode",
+    "setting_animations", "tooltips_enabled",
+    "spaceout",
+)
+
+
+def _window_changes(seen, now) -> frozenset:
+    """The names of the places where two window signatures differ.
+
+    :param seen: an earlier :func:`_window_signature`, or ``None`` when
+        there is none, which counts as everything having changed.
+    :param now: the signature now.
+    :returns: names from :data:`_WINDOW_SIGNATURE_NAMES`.
+    """
+    if (seen is None or len(seen) != len(_WINDOW_SIGNATURE_NAMES)
+            or len(now) != len(_WINDOW_SIGNATURE_NAMES)):
+        return frozenset(_WINDOW_SIGNATURE_NAMES)
+    return frozenset(name for name, a, b
+                     in zip(_WINDOW_SIGNATURE_NAMES, seen, now) if a != b)
 
 
 def _window_signature() -> tuple:
@@ -11188,8 +11234,8 @@ class PreferencesDialog:
                                 "(%s)", type(exc).__name__)
             _settings().sync()
             if not close:
-                apply_preferences_to_app()
-                _refresh_owner_window(parent, dlg)
+                apply_preferences_to_app(in_slices=True)
+                _refresh_owner_window(parent, dlg, in_slices=True)
                 return
             dlg.hide()
             try:
@@ -11260,9 +11306,10 @@ class PreferencesDialog:
                     apply_saved_controls()
                     restart_the_dive()
                     rebuild_the_spaceout_backdrops()
-                apply_preferences_to_app()
-                _refresh_owner_window(parent, dlg)
+                apply_preferences_to_app(in_slices=True)
+                _refresh_owner_window(parent, dlg, in_slices=True)
 
+            dlg._send_the_unseen_pages_away()
             try:
                 _in_one_store(lambda: _save(close=False, save_secrets=False))
             except Exception:
@@ -11389,7 +11436,8 @@ def _everything_explains_itself_in_the_strip(dialog, bar) -> int:
     return moved
 
 
-def _refresh_owner_window(parent, dialog=None) -> None:
+def _refresh_owner_window(parent, dialog=None, *,
+                          in_slices: bool = False) -> None:
     """Ask the window that opened Preferences to rebuild itself.
 
     A QIcon bakes its pixmap when it is built, so re-applying the
@@ -11411,6 +11459,9 @@ def _refresh_owner_window(parent, dialog=None) -> None:
     :param parent: the dialog's parent.
     :param dialog: the Preferences dialog asking, or ``None`` to redraw
         regardless.
+    :param in_slices: Apply and its Revert: a window that can redraw only
+        what changed (``refresh_after_preferences``) is asked to, in a pass
+        of the event loop after the next paint, so the click is drawn first.
     """
     if parent is None:
         return
@@ -11422,6 +11473,7 @@ def _refresh_owner_window(parent, dialog=None) -> None:
     if not callable(refresh):
         return
     now = None
+    seen = None
     if dialog is not None:
         try:
             now = _window_signature()
@@ -11430,10 +11482,27 @@ def _refresh_owner_window(parent, dialog=None) -> None:
         seen = getattr(dialog, "_window_signature_seen", None)
         if now is not None and seen == now:
             return
-    try:
-        refresh()
-    except Exception:
-        pass
+    partly = getattr(window, "refresh_after_preferences", None)
+    if in_slices and now is not None and callable(partly):
+        from PySide6.QtCore import QTimer
+
+        changes = _window_changes(seen, now)
+
+        def _redraw_what_changed():
+            """Redraw the window for ``changes``, if it is still there."""
+            if not _widget_is_alive(window):
+                return
+            try:
+                partly(changes)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("the window did not redraw", exc_info=True)
+
+        QTimer.singleShot(_PREFERENCES_REDRAW_AFTER_MS, _redraw_what_changed)
+    else:
+        try:
+            refresh()
+        except Exception:
+            pass
     if dialog is not None:
         try:
             dialog._window_signature_seen = now

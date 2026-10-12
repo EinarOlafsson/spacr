@@ -4041,7 +4041,8 @@ def _the_windows_own_stylesheet(window) -> str:
     return current
 
 
-def apply_stylesheet_per_window(app, sheet: str) -> int:
+def apply_stylesheet_per_window(app, sheet: str, *,
+                                in_slices: bool = False) -> int:
     """Install ``sheet`` on every top-level window instead of on ``app``.
 
     WHY, WITH THE NUMBER. `QApplication.setStyleSheet` repolishes every
@@ -4066,7 +4067,13 @@ def apply_stylesheet_per_window(app, sheet: str) -> int:
         an application does not have to check first.
     :param sheet: the complete application stylesheet, as
         :func:`stylesheet` composes it.
-    :returns: the number of windows the sheet was put on.
+    :param in_slices: put the sheet on nothing now: the windows on show
+        get it one per pass of the event loop, after the next paint, and the
+        hidden ones after them (:func:`_sheet_the_windows_in_slices`). A
+        window that polishes or shows before its turn is sheeted then, as
+        any window is. Preferences' Apply asks for this.
+    :returns: the number of windows the sheet was put on; with
+        ``in_slices``, the number waiting for their slice.
 
     A hidden window marked :data:`SHEETED_WHEN_SHOWN` is left for its next
     ``Show``, where :class:`_SheetsEveryWindowThatAppears` sheets it before
@@ -4098,6 +4105,7 @@ def apply_stylesheet_per_window(app, sheet: str) -> int:
     _watch_application_events(app, _WINDOW_SHEET_FILTER, _SHEETING_MOMENTS)
 
     sheeted = 0
+    owed = []
     for window in list(app.topLevelWidgets()):
         if (_sheets_itself_before_it_shows(window)
                 and not window.isVisible()):
@@ -4107,9 +4115,105 @@ def apply_stylesheet_per_window(app, sheet: str) -> int:
         if getattr(window, "_spacr_detached_from", None) is not None:
             continue
         for root in _roots_for(window):
-            if _sheet_one_window(root):
+            if in_slices:
+                owed.append(root)
+            elif _sheet_one_window(root):
                 sheeted += 1
+    if in_slices:
+        return _sheet_the_windows_in_slices(owed)
     return sheeted
+
+
+#: The roots still owed the sheet of an Apply, on show first, and the timer
+#: that pays them. See :func:`_sheet_the_windows_in_slices`.
+_SLICED_SHEETING = {"owed": [], "timer": None}
+
+#: How long the first slice waits, so the click that asked for the sheet is
+#: painted first; and the wait between hidden windows' slices.
+_SLICE_FIRST_MS = 20
+_SLICE_HIDDEN_GAP_MS = 15
+
+
+def _sheet_the_windows_in_slices(roots) -> int:
+    """Sheet ``roots`` one per pass of the event loop: visible ones first.
+
+    WHY, WITH THE NUMBER. Apply in Preferences put the sheet on every root
+    in one call: on a loaded box (load 60) 2.2-4.7 s of the GUI thread,
+    of which the visible Preferences window and Home were 0.2-1.3 s each and
+    some fifty hidden combo-box popups and parked windows 10-50 ms each.
+    One root per slice lets the frames in between be drawn, and the hidden
+    ones, which nobody sees, go last.
+
+    NOTHING IS SHEETED TWICE. Each slice asks :func:`_sheet_one_window`,
+    which does nothing for a root that already wears the current sheet -- a
+    window that polished or showed before its turn, or a root a newer
+    sheet's slices reached first. A newer call replaces the queue, since it
+    names every root again.
+
+    :param roots: the roots to sheet, in the order :func:`_roots_for` gave.
+    :returns: how many are waiting.
+    """
+    visible, hidden = [], []
+    for root in roots:
+        try:
+            (visible if root.isVisible() else hidden).append(root)
+        except (AttributeError, RuntimeError):
+            continue
+    _SLICED_SHEETING["owed"] = visible + hidden
+    timer = _SLICED_SHEETING["timer"]
+    if timer is None:
+        timer = QTimer()
+        timer.setSingleShot(True)
+        timer.timeout.connect(_sheet_the_next_window)
+        _SLICED_SHEETING["timer"] = timer
+    timer.start(_SLICE_FIRST_MS)
+    return len(_SLICED_SHEETING["owed"])
+
+
+def _sheet_the_next_window() -> None:
+    """Pay one owed root its sheet, then wait for the next pass."""
+    owed = _SLICED_SHEETING["owed"]
+    while owed:
+        root = owed.pop(0)
+        try:
+            shown = root.isVisible()
+        except (AttributeError, RuntimeError):
+            continue
+        if _sheet_one_window(root):
+            break
+    else:
+        return
+    if owed:
+        try:
+            later = not owed[0].isVisible()
+        except (AttributeError, RuntimeError):
+            later = True
+        _SLICED_SHEETING["timer"].start(
+            _SLICE_HIDDEN_GAP_MS if later or not shown else 0)
+
+
+def finish_the_sliced_sheeting() -> int:
+    """Pay every root still owed its sheet now. For tests and shutdown.
+
+    :returns: how many roots were sheeted.
+    """
+    timer = _SLICED_SHEETING["timer"]
+    if timer is not None:
+        timer.stop()
+    done = 0
+    owed, _SLICED_SHEETING["owed"] = _SLICED_SHEETING["owed"], []
+    for root in owed:
+        if _sheet_one_window(root):
+            done += 1
+    return done
+
+
+def sliced_sheeting_owed() -> int:
+    """How many roots are still waiting for a sliced sheet.
+
+    :returns: the length of the queue.
+    """
+    return len(_SLICED_SHEETING["owed"])
 
 
 def clear_widget_qss_overlays(app=None) -> int:
