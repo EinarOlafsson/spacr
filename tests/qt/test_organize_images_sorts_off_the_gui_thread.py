@@ -231,7 +231,15 @@ def _gui_blocks(qtbot, dialog, action) -> float:
 
 def test_the_click_holds_the_gui_thread_for_a_small_part_of_the_sort(
         qtbot, qt_theme_applied, tmp_path):
-    """Self-calibrated: the clicked sort against the same sort inline."""
+    """Self-calibrated: the clicked sort against the same sort inline.
+
+    The click is measured three times and the shortest of the three longest
+    holds is kept, as the inline sort keeps the shortest of its runs: a
+    sort back on the GUI thread holds it every time, while one descheduled
+    beat on a shared runner does not repeat. One click measured 52 ms
+    against a 124 ms inline sort on CI on 2026-10-13, in one of the two
+    jobs that ran it; here three clicks hold it 14-25 ms against 71-82.
+    """
     folder = _plate(tmp_path, wells=24, fields=25)
     timings = []
     for _round in range(2):
@@ -248,13 +256,17 @@ def test_the_click_holds_the_gui_thread_for_a_small_part_of_the_sort(
     if synchronous < 0.08:
         pytest.skip(f"this machine sorts 2,400 names inline in "
                     f"{synchronous * 1000:.0f} ms; nothing to tell apart")
-    clicked = _popup(qtbot, str(folder))
-    clicked.resize(2560, 1440)
-    clicked.show()
-    qtbot.waitExposed(clicked)
-    blocked = _gui_blocks(qtbot, clicked, lambda: qtbot.mouseClick(
-        clicked.sort_button, Qt.LeftButton))
-    assert len(clicked.rows) == 24 * 25
+    holds = []
+    for _round in range(3):
+        clicked = _popup(qtbot, str(folder))
+        clicked.resize(2560, 1440)
+        clicked.show()
+        qtbot.waitExposed(clicked)
+        holds.append(_gui_blocks(qtbot, clicked, lambda: qtbot.mouseClick(
+            clicked.sort_button, Qt.LeftButton)))
+        assert len(clicked.rows) == 24 * 25
+        clicked.reject()
+    blocked = min(holds)
     assert blocked < max(0.035, synchronous / 3), (
         f"the GUI thread was held {blocked * 1000:.0f} ms; the inline sort "
         f"takes {synchronous * 1000:.0f} ms")

@@ -219,8 +219,18 @@ def _busy_python(stop):
 
 def test_a_paused_repaint_against_a_python_worker_blocks_far_less(
         backdrop, monkeypatch):
-    """Self-calibrated: the old shading paint against the still, same load."""
-    _, widget = backdrop
+    """Self-calibrated: the old shading paint against the still, same load.
+
+    At the fixture's 640x400 a shading paint costs under a millisecond, so
+    the comparison was the blit's fixed cost against noise: 0.31 against
+    0.84 ms under a parallel test run (2026-10-13). The field this protects
+    is a window's, so it is measured at 1600x1000: a shading paint costs
+    320-370 ms there against 6-12 ms for the still, serially.
+    """
+    host, widget = backdrop
+    host.resize(1600, 1000)
+    widget.setGeometry(host.rect())
+    widget.repaint()
     _pause_for_a_run(monkeypatch, widget)
     stop = threading.Event()
     worker = threading.Thread(target=_busy_python, args=(stop,), daemon=True)
