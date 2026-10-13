@@ -5,11 +5,11 @@
   "previous_count": 11479,
   "current_count": 11483,
   "added": [
-    "spacr._starplast.check_starplast_update",
-    "spacr._starplast.upgrade_starplast",
-    "spacr.qt.starplast.StarplastUpdateCheckDialog",
-    "spacr.qt.starplast.StarplastUpdateCheckDialog.closeEvent",
-    "spacr.qt.starplast.StarplastUpdateCheckDialog.reject"
+    "spacr._parascape.check_parascape_update",
+    "spacr._parascape.upgrade_parascape",
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog",
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.closeEvent",
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.reject"
   ],
   "removed": [
     "spacr.qt.app.demo_label_for_app"
@@ -19,7 +19,7 @@
     "spacr.qt.assay_examples",
     "spacr.qt.assay_examples.download_assay_example",
     "spacr.qt.first_run",
-    "spacr.qt.starplast.open_starplast"
+    "spacr.qt.parascape.open_parascape"
   ],
   "localized_api_rebuilt": false,
   "translation_policy": "report-only; incompatible entries use English"

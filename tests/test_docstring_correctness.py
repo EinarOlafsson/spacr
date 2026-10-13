@@ -88,7 +88,7 @@ AUTOAPI_IGNORE = (
 # AutoAPI; the Qt launch module and tutorial target are CLI-only, while the
 # v1/v2 bridge remains a compatibility surface rather than rendered prose.
 MODULE_EXPOSURES = {
-    "spacr._starplast": "autoapi",
+    "spacr._parascape": "autoapi",
     "spacr.__main__": "autoapi",
     "spacr.qt.__main__": "cli_only",
     "spacr.qt.tutorial.__main__": "cli_only",
@@ -2361,7 +2361,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # timeflows_qc, qt.widgets.card, qt.screens.make_masks and
     # qt.screens.settings_model.
     # 474 adds OrganismScreen, OrganismDiagram and OrganismScreen.eventFilter.
-    # The six Starplast services, launcher, dialog constructor/three methods,
+    # The six ParaScape services, launcher, dialog constructor/three methods,
     # and two diagram methods add thirteen fully documented callables.
     # Subtracting these exact rows restores every prior count and digest;
     # features/data/411_external_app_api_2026-09-22.json preserves the audit.
@@ -2507,7 +2507,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
                      "694_startup_splash_api_arrivals_2026-10-12.json",
                      "695_startup_sequence_api_arrivals_2026-10-12.json",
                      "model_cards_api_arrivals_2026-10-12.json",
-                     "dna_rain_change_event_api_arrival_2026-10-12.json"):
+                     "dna_rain_change_event_api_arrival_2026-10-12.json",
+                     "parascape_launcher_api_arrivals_2026-10-12.json"):
         contract_arrivals |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     # 2026-10-12: spacr-tutorial opens the online lessons; its contract
@@ -3276,7 +3277,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # optional in_slices=; removing only that keyword from those two rows
     # restores 7a471ca0... byte for byte. The new callables arrive through
     # prefs_apply_api_arrivals_2026-10-12.json and are subtracted above.
-) == 'b43359de7decd9311e6282fa9a7b11bc951c6048b0ab7e4725338113c6171a2d'
+) == '5d9ad4e842a1047b105a31c338d5da0b228a044251a34b37d7fde962b8f0bf54'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -4036,6 +4037,14 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     assert {key: docs[key] for key in dna_rain_additions} == dna_rain_additions
     assert not dna_rain_additions.keys() & zoo_additions.keys()
     zoo_additions = {**zoo_additions, **dna_rain_additions}
+    # 2026-10-12: the ParaScape launcher pins its minimum release and launches the console script; three arrivals.
+    launcher_additions = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "parascape_launcher_api_arrivals_2026-10-12.json").read_text())
+    assert len(launcher_additions) == 3
+    assert {key: docs[key] for key in launcher_additions} == launcher_additions
+    assert not launcher_additions.keys() & zoo_additions.keys()
+    zoo_additions = {**zoo_additions, **launcher_additions}
     assert len(docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
@@ -4147,8 +4156,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         'spacr.qt.widgets.toggle.Toggle.heightForWidth',
         'spacr.qt.widgets.toggle.Toggle.minimumSizeHint',
         "spacr.qt.widgets.save_figure_dialog.SaveFigureDialog.eventFilter",
-        'spacr._starplast.check_starplast_update',
-        'spacr._starplast.upgrade_starplast',
+        'spacr._parascape.check_parascape_update',
+        'spacr._parascape.upgrade_parascape',
         'spacr.plaque_growth.estimate_page',
         'spacr.plaque_growth.estimates_from_settings',
         'spacr.plaque_growth.largest_quarter',
@@ -4172,9 +4181,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         'spacr.psf_pipeline.prepare_psf',
         'spacr.psf_pipeline.validate_psf_resume',
         'spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen.closeEvent',
-        'spacr.qt.starplast.StarplastUpdateCheckDialog',
-        'spacr.qt.starplast.StarplastUpdateCheckDialog.closeEvent',
-        'spacr.qt.starplast.StarplastUpdateCheckDialog.reject',
+        'spacr.qt.parascape.ParaScapeUpdateCheckDialog',
+        'spacr.qt.parascape.ParaScapeUpdateCheckDialog.closeEvent',
+        'spacr.qt.parascape.ParaScapeUpdateCheckDialog.reject',
         'spacr.qt.widgets.live_preview.LivePreviewPanel.cancel_preview',
         'spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.set_preview_busy',
     }
@@ -4413,7 +4422,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "694_startup_splash_api_arrivals_2026-10-12.json",
                      "695_startup_sequence_api_arrivals_2026-10-12.json",
                      "model_cards_api_arrivals_2026-10-12.json",
-                     "dna_rain_change_event_api_arrival_2026-10-12.json"):
+                     "dna_rain_change_event_api_arrival_2026-10-12.json",
+                     "parascape_launcher_api_arrivals_2026-10-12.json"):
         contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     contract_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
@@ -4450,7 +4460,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "694_startup_splash_api_arrivals_2026-10-12.json",
                      "695_startup_sequence_api_arrivals_2026-10-12.json",
                      "model_cards_api_arrivals_2026-10-12.json",
-                     "dna_rain_change_event_api_arrival_2026-10-12.json"):
+                     "dna_rain_change_event_api_arrival_2026-10-12.json",
+                     "parascape_launcher_api_arrivals_2026-10-12.json"):
         arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text()))
     arrival_callables |= set(json.loads((pathlib.Path(__file__).resolve().parent

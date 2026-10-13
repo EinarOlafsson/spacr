@@ -290,7 +290,7 @@ _IDENTITY_TEXT = {
     # Scientific genus names and the Latin plural abbreviation stay exact
     # on organism Home tiles; they are not untranslated English prose.
     "Candida spp.", "Plasmodium spp.",
-    "Toxoplasma gondii", "ToxoDB", "PlasmoDB", "UniProt", "Starplast",
+    "Toxoplasma gondii", "ToxoDB", "PlasmoDB", "UniProt", "ParaScape",
     # 316, 2026-10-03 (thirteenth pass): 634's alpha organism pages name
     # these databases and organisms alone.
     "Cellosaurus", "Giardia duodenalis", "GiardiaDB", "Human Protein Atlas",
@@ -3752,16 +3752,16 @@ def _has_prose_outside_protected_literals(text: str) -> bool:
     return bool(re.search(r"[A-Za-zÀ-ÖØ-öø-ÿ]{2,}", _PROTECT_RE.sub(" ", text)))
 
 
-def _starplast_progress_sources() -> set[str]:
+def _parascape_progress_sources() -> set[str]:
     """Read installer phase labels forwarded dynamically to Qt's translator.
 
     The installer stays unexecuted: only literal progress arguments and the
     labels in its command-step tuples are read from its syntax tree.
     """
-    tree = ast.parse((ROOT / "spacr/_starplast.py").read_text(encoding="utf-8"))
+    tree = ast.parse((ROOT / "spacr/_parascape.py").read_text(encoding="utf-8"))
     installer = next(node for node in tree.body
                      if isinstance(node, ast.FunctionDef)
-                     and node.name == "install_starplast")
+                     and node.name == "install_parascape")
     found = set()
     for node in ast.walk(installer):
         candidate = None
@@ -3974,7 +3974,7 @@ def _indirect_runtime_ui_sources() -> set[str]:
                         if isinstance(argument, ast.Call) and _call_name(argument) == "tr":
                             for value in argument.args:
                                 presentation_sources.update(_literal_strings(value, {}))
-    found.update(_starplast_progress_sources())
+    found.update(_parascape_progress_sources())
     found.update(_organism_description_sources())
     found.update(_make_masks_shortcut_sources())
     found.update(label for _mode, label, _icon in tool_row_entries())

@@ -57,8 +57,8 @@
     "signature_sha256": "dbd2302745753c6368e7507dca7113f533bfeb38f8e997924b4eae3afa2681ea"
   },
   "added": [
-    "spacr._starplast.check_starplast_update",
-    "spacr._starplast.upgrade_starplast",
+    "spacr._parascape.check_parascape_update",
+    "spacr._parascape.upgrade_parascape",
     "spacr.plaque_growth.estimate_page",
     "spacr.plaque_growth.estimates_from_settings",
     "spacr.plaque_growth.largest_quarter",
@@ -82,9 +82,9 @@
     "spacr.psf_pipeline.prepare_psf",
     "spacr.psf_pipeline.validate_psf_resume",
     "spacr.qt.screens.train_cellpose.CellposeWorkbenchScreen.closeEvent",
-    "spacr.qt.starplast.StarplastUpdateCheckDialog",
-    "spacr.qt.starplast.StarplastUpdateCheckDialog.closeEvent",
-    "spacr.qt.starplast.StarplastUpdateCheckDialog.reject",
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog",
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.closeEvent",
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.reject",
     "spacr.qt.widgets.live_preview.LivePreviewPanel.cancel_preview",
     "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.set_preview_busy"
   ],
@@ -112,9 +112,9 @@
       "before": "spacr.qt.detect_chain.prepare\u0000function\u0000autoapi\u0000chain,image\u0000chain,image\u0000chain,image\u00000\u00001\u00000\u00000",
       "after": "spacr.qt.detect_chain.prepare\u0000function\u0000autoapi\u0000cancel,chain,image\u0000chain,image\u0000cancel,chain,image\u00000\u00001\u00000\u00000"
     },
-    "spacr.qt.starplast.StarplastInstallDialog": {
-      "before": "spacr.qt.starplast.StarplastInstallDialog\u0000constructor\u0000autoapi\u0000job,parent,root\u0000\u0000job,parent,root\u00000\u00001\u00000\u00001",
-      "after": "spacr.qt.starplast.StarplastInstallDialog\u0000constructor\u0000autoapi\u0000job,parent,root,upgrade\u0000\u0000job,parent,root,upgrade\u00000\u00001\u00000\u00001"
+    "spacr.qt.parascape.ParaScapeInstallDialog": {
+      "before": "spacr.qt.parascape.ParaScapeInstallDialog\u0000constructor\u0000autoapi\u0000job,parent,root\u0000\u0000job,parent,root\u00000\u00001\u00000\u00001",
+      "after": "spacr.qt.parascape.ParaScapeInstallDialog\u0000constructor\u0000autoapi\u0000job,parent,root,upgrade\u0000\u0000job,parent,root,upgrade\u00000\u00001\u00000\u00001"
     },
     "spacr.qt.widgets.live_preview.PreviewRequest": {
       "before": "spacr.qt.widgets.live_preview.PreviewRequest\u0000dataclass_constructor\u0000autoapi\u0000cellprob,channels,diameter,flow_threshold,image,model,object_types,postprocess_settings,preprocess_settings\u0000image\u0000cellprob,channels,diameter,flow_threshold,image,model,object_types,postprocess_settings,preprocess_settings\u00000\u00001\u00000\u00000",

@@ -2246,7 +2246,7 @@ have been handed to the documentation lane with the complete local logs.
 The old Qt crash-site files and public-prose checks pass on current source:
 145checks passed. This focused run cannot establish full-shard stability.
 
-The guarded-QThread inventory reproduced a current failure: Starplast and
+The guarded-QThread inventory reproduced a current failure: ParaScape and
 the primary-mask selector were absent from its explicit module list. Both
 are now tested by the same existing safety assertions. The packaging count
 measured622installed Python modules,14added and0removed since the608pin at
@@ -3649,7 +3649,7 @@ relative-path failure. Complete terminal logs and current job/source state
 retained. On exact7281178ac, real collector enabled across6 affected owner
 files260PASS7.60s; actual endpoint260/260, no skips. Files cover doctor,
 CellProfiler provisioning, relative file writers, tilde database paths,
-Starplast environments and original diagnostic messages. No further source
+ParaScape environments and original diagnostic messages. No further source
 change or duplicated full CI dispatch. Receipt
 data/681_collector_file_access_ci_2026-10-09/receipt.json now retains
 27 verified payloads and six additional exact Git test bindings.

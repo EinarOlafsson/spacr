@@ -18,7 +18,7 @@
           "sha256": "ac5bea19021790589074c9144d1df45c4ed919fdc5812835ceceb780b8630b89"
         },
         {
-          "name": "2026-09-22-lock-levels-starplast-controls.json",
+          "name": "2026-09-22-lock-levels-parascape-controls.json",
           "records": 73,
           "sources": 73,
           "sha256": "f54e545a97e4c4aafcb6bb932766cb520bcb0e459b4fb9499bd7d12ff12e3ffc"
@@ -60,7 +60,7 @@
           "sha256": "0aec3bec6e49036553934f445d9209547da9ddd75682041704a96a950dc00a1f"
         },
         {
-          "name": "2026-09-22-starplast-installation-size.json",
+          "name": "2026-09-22-parascape-installation-size.json",
           "records": 0,
           "sources": 0,
           "sha256": "60d66be05281b527b1090c04a66d26e501443b477bbf7048e024c5773ce565b2"
@@ -293,7 +293,7 @@
           "sha256": "6b89ba4de403243e5d90fbba7a37190873a2f575f02dd8a7140dfa33adff38f5"
         },
         {
-          "name": "2026-09-22-lock-levels-starplast-controls.json",
+          "name": "2026-09-22-lock-levels-parascape-controls.json",
           "records": 73,
           "sources": 73,
           "sha256": "7022193f3f2d917f8691360623c0b821c1a98673daaa9996640ce6f6f77e6358"
@@ -335,7 +335,7 @@
           "sha256": "20d06b7ef78b4c07eca8c319d0e9ecc371907050450d57c5715ba9fae76d6f10"
         },
         {
-          "name": "2026-09-22-starplast-installation-size.json",
+          "name": "2026-09-22-parascape-installation-size.json",
           "records": 0,
           "sources": 0,
           "sha256": "23b5e9e284de872da6d7ed50c0243663ebfc71c84e86a40cc2298ba9ae2a2812"

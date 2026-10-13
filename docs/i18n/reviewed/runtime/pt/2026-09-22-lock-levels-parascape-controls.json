@@ -65,11 +65,11 @@
       "translation": "Calculando o histograma da imagem…"
     },
     {
-      "key": "Cancelling Starplast installation…",
-      "source": "Cancelling Starplast installation…",
-      "source_sha256": "4891832d29ff3e11559a2485f381afd502e392dca0b5ccb4436579fc4d2300ba",
+      "key": "Cancelling ParaScape installation…",
+      "source": "Cancelling ParaScape installation…",
+      "source_sha256": "e8d32197fddaa26973c8dd3c93609881d8b237142cd50c5464e156028bde42e0",
       "table": "ui",
-      "translation": "Cancelando a instalação do Starplast…"
+      "translation": "Cancelando a instalação do ParaScape…"
     },
     {
       "key": "Candida Genome Database",
@@ -79,11 +79,11 @@
       "translation": "Candida Genome Database"
     },
     {
-      "key": "Check Starplast and bundled data",
-      "source": "Check Starplast and bundled data",
-      "source_sha256": "99ab933cc1d55c0b822009092859adaf1f0a3b974c2d5522f68a9590933f3e0c",
+      "key": "Check ParaScape and bundled data",
+      "source": "Check ParaScape and bundled data",
+      "source_sha256": "e64ba9b806211339ee2e09f6db4e31e16948ea4762bc3ce16bbe696960520249",
       "table": "ui",
-      "translation": "Verificar Starplast e os dados incluídos"
+      "translation": "Verificar ParaScape e os dados incluídos"
     },
     {
       "key": "Checking Python, network and free disk space",
@@ -93,11 +93,11 @@
       "translation": "Verificando Python, rede e espaço livre em disco"
     },
     {
-      "key": "Choose Starplast checkout",
-      "source": "Choose Starplast checkout",
-      "source_sha256": "8d3f051fa469ee5eed805755cb894450a5d2e0c4e1f18291ee43fa15a2ab3c70",
+      "key": "Choose ParaScape checkout",
+      "source": "Choose ParaScape checkout",
+      "source_sha256": "e99ec56d8c2434824ad7f71c872a0c3b83f59fdb98e7680c250228d4faa5b3d0",
       "table": "ui",
-      "translation": "Escolher cópia de trabalho do Starplast"
+      "translation": "Escolher cópia de trabalho do ParaScape"
     },
     {
       "key": "Choose checkout…",
@@ -114,11 +114,11 @@
       "translation": "Não foi possível calcular os níveis: {error}"
     },
     {
-      "key": "Create Starplast environment",
-      "source": "Create Starplast environment",
-      "source_sha256": "1174e03a86a0992cccd77d4fbd91e10e83fdb7a49242b36c655a87da9d3468d1",
+      "key": "Create ParaScape environment",
+      "source": "Create ParaScape environment",
+      "source_sha256": "a45e27a283ab9d40ea5a30adc0ef3926210b14976d80a7731bb473590f03e304",
       "table": "ui",
-      "translation": "Criar ambiente do Starplast"
+      "translation": "Criar ambiente do ParaScape"
     },
     {
       "key": "Ctrl + left click",
@@ -191,18 +191,18 @@
       "translation": "Mantenha Ctrl+L pressionado e clique com o botão direito para bloquear a região e o zoom. Repita para desbloquear."
     },
     {
-      "key": "Install Starplast (alpha)",
-      "source": "Install Starplast (alpha)",
-      "source_sha256": "641d5ae20dd1d537807960e9ef7afe275baff49205c1c29ac38eb76eb75ec9bf",
+      "key": "Install ParaScape (alpha)",
+      "source": "Install ParaScape (alpha)",
+      "source_sha256": "93707c6af602e2d7fd7d55e798260bbe213f59a0feedbcee1c802c60be3b2b57",
       "table": "ui",
-      "translation": "Instalar Starplast (alfa)"
+      "translation": "Instalar ParaScape (alfa)"
     },
     {
-      "key": "Install Starplast and dependencies",
-      "source": "Install Starplast and dependencies",
-      "source_sha256": "540a3a0a06df08d4b7fb12d68a3e6b5adfa2f963f6519ebf7ff4bba4434b73f4",
+      "key": "Install ParaScape and dependencies",
+      "source": "Install ParaScape and dependencies",
+      "source_sha256": "aaf51ecb57cc7c88fb291cbfc8f51f91db66f6853b86960f44d53a9162e1a60d",
       "table": "ui",
-      "translation": "Instalar Starplast e suas dependências"
+      "translation": "Instalar ParaScape e suas dependências"
     },
     {
       "key": "Install and open",
@@ -303,6 +303,62 @@
       "translation": "Mover a visualização com qualquer ferramenta"
     },
     {
+      "key": "ParaScape",
+      "source": "ParaScape",
+      "source_sha256": "0225899eb61d7d4adef63d128be212d195c731d28184bd198acd78374db4ff96",
+      "table": "ui",
+      "translation": "ParaScape"
+    },
+    {
+      "key": "ParaScape could not open",
+      "source": "ParaScape could not open",
+      "source_sha256": "241a02fb24e8160c661ab397a3c557efeda19002452b92b60bd28d620d34b7b9",
+      "table": "ui",
+      "translation": "Não foi possível abrir ParaScape"
+    },
+    {
+      "key": "ParaScape exited with code {code}. See {path} for details.",
+      "source": "ParaScape exited with code {code}. See {path} for details.",
+      "source_sha256": "103885176dc2885f2b24a9ebc26716f9e4ade93461e1c27fb9d56142339ea596",
+      "table": "ui",
+      "translation": "ParaScape encerrou com o código {code}. Consulte {path} para obter detalhes."
+    },
+    {
+      "key": "ParaScape installation cancelled.",
+      "source": "ParaScape installation cancelled.",
+      "source_sha256": "0e1760b4ce01b3734e6179fba4fab7ab80ea90d134edb2d6cb86ee48119bcfff",
+      "table": "ui",
+      "translation": "Instalação do ParaScape cancelada."
+    },
+    {
+      "key": "ParaScape installation failed. Review the details and try again.",
+      "source": "ParaScape installation failed. Review the details and try again.",
+      "source_sha256": "142b69d68bbd384f31a60497f2f98d4f3ece88997c9fad8fc2caa5dbaa370459",
+      "table": "ui",
+      "translation": "A instalação do ParaScape falhou. Revise os detalhes e tente novamente."
+    },
+    {
+      "key": "ParaScape is installed",
+      "source": "ParaScape is installed",
+      "source_sha256": "7a27fb106498ec1da243582dbf170bb6e2708361890262315ce2df3f0acc8182",
+      "table": "ui",
+      "translation": "ParaScape está instalado"
+    },
+    {
+      "key": "ParaScape is installed.",
+      "source": "ParaScape is installed.",
+      "source_sha256": "baaf0dc6a895825628e6461ba84230b2d1fa5ef30df7851d96dca88f9e8722e5",
+      "table": "ui",
+      "translation": "ParaScape está instalado."
+    },
+    {
+      "key": "ParaScape source",
+      "source": "ParaScape source",
+      "source_sha256": "f8f3dae49ec23a52e85ed6b620387eddd88999c7b505a5a78c0c3305a5511ebe",
+      "table": "ui",
+      "translation": "Origem do ParaScape"
+    },
+    {
       "key": "PlasmoDB",
       "source": "PlasmoDB",
       "source_sha256": "a2c0fd146f191d4cc1cb881097b3a92cb63e739bc495bb49b66687ca8af04e72",
@@ -366,11 +422,11 @@
       "translation": "Shift ou Alt + arrastar"
     },
     {
-      "key": "Snapshot committed Starplast source",
-      "source": "Snapshot committed Starplast source",
-      "source_sha256": "07a86ea4accdc0a6ee9da6cf1a8c8cf674664dc14b37c14eb7d20a65eeb9bd94",
+      "key": "Snapshot committed ParaScape source",
+      "source": "Snapshot committed ParaScape source",
+      "source_sha256": "99ff5e2093c8ec92df2e1c076eb2ea52c1fe9c9e387c69bbcfbbc398e099b8c1",
       "table": "ui",
-      "translation": "Criar um instantâneo do código Starplast registrado em commits"
+      "translation": "Criar um instantâneo do código ParaScape registrado em commits"
     },
     {
       "key": "Split the object at its waist",
@@ -378,62 +434,6 @@
       "source_sha256": "e5402a35faab13abaebc69c6a90089b5c01d8ec5cf4ad772b5124bfc20e2c270",
       "table": "ui",
       "translation": "Dividir o objeto em sua parte estreita"
-    },
-    {
-      "key": "Starplast",
-      "source": "Starplast",
-      "source_sha256": "c27341f8d84fe8c40f17b8c114654bcb45a36ecd5bb9172d0e9675b1c1effea4",
-      "table": "ui",
-      "translation": "Starplast"
-    },
-    {
-      "key": "Starplast could not open",
-      "source": "Starplast could not open",
-      "source_sha256": "b04ee6b68cc7a6c831ac52c727ebc3b587cc9774bc07379bf73c147010e265ef",
-      "table": "ui",
-      "translation": "Não foi possível abrir Starplast"
-    },
-    {
-      "key": "Starplast exited with code {code}. See {path} for details.",
-      "source": "Starplast exited with code {code}. See {path} for details.",
-      "source_sha256": "c8e67494a08441bcf28cf46f8199aaa71aff5a2b13d0592870dafbe2a7a0522b",
-      "table": "ui",
-      "translation": "Starplast encerrou com o código {code}. Consulte {path} para obter detalhes."
-    },
-    {
-      "key": "Starplast installation cancelled.",
-      "source": "Starplast installation cancelled.",
-      "source_sha256": "354d0168cccef2f5ab065824154f5a0eae1303353367f9afc528baabd09c9888",
-      "table": "ui",
-      "translation": "Instalação do Starplast cancelada."
-    },
-    {
-      "key": "Starplast installation failed. Review the details and try again.",
-      "source": "Starplast installation failed. Review the details and try again.",
-      "source_sha256": "2c6705a237f55fb6aa109b9a52899bb00775941bf65d59fbf10e5f7018e435a8",
-      "table": "ui",
-      "translation": "A instalação do Starplast falhou. Revise os detalhes e tente novamente."
-    },
-    {
-      "key": "Starplast is installed",
-      "source": "Starplast is installed",
-      "source_sha256": "a7e2c6435d7bb1a55f20324c385e8cf488d3ba1050559bbebaa7049b032199de",
-      "table": "ui",
-      "translation": "Starplast está instalado"
-    },
-    {
-      "key": "Starplast is installed.",
-      "source": "Starplast is installed.",
-      "source_sha256": "e44553ee3ccbdadf3553b8288ecada1326b28baa20f56c476a602a426ff1e31e",
-      "table": "ui",
-      "translation": "Starplast está instalado."
-    },
-    {
-      "key": "Starplast source",
-      "source": "Starplast source",
-      "source_sha256": "a89c7805fe7e6192826f67c4049c9240209b53b99c7fa23860974e8e9cd9fbb6",
-      "table": "ui",
-      "translation": "Origem do Starplast"
     },
     {
       "key": "Sweep away the objects it passes",

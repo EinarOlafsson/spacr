@@ -4692,14 +4692,14 @@ class MainWindow(QMainWindow):
 
 
     def _open_organism_module(self, key: str) -> None:
-        """Open an organism assay or its separate Starplast application.
+        """Open an organism assay or its separate ParaScape application.
 
         :param key: a module route from the organism catalogue.
         """
-        if key == 'starplast':
-            from .starplast import open_starplast
+        if key == 'parascape':
+            from .parascape import open_parascape
 
-            open_starplast(self)
+            open_parascape(self)
         else:
             self.open_module(key)
 
@@ -4719,7 +4719,7 @@ class MainWindow(QMainWindow):
     def _refresh_app_action_visibility(self) -> None:
         """Keep the spaCR menu in sync with module maturity preferences."""
         for key, action in getattr(self, "_app_actions", {}).items():
-            action.setVisible(key == 'starplast' or app_is_visible(key))
+            action.setVisible(key == 'parascape' or app_is_visible(key))
         for key, menu in getattr(self, '_organism_menus', {}).items():
             menu.menuAction().setVisible(app_is_visible(key))
 

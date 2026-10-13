@@ -41,10 +41,10 @@
     },
     {
       "table": "ui",
-      "key": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in Starplast. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
-      "source": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in Starplast. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
-      "source_sha256": "c090c47c506dae6de2c1805553b5a319be3d942bcad5b0a36793c316bf4789a7",
-      "translation": "Ein gemeinsamer Zellbauplan der Apicomplexa, mit der SwissBioPics-Grafik, die auch in Starplast verwendet wird. Fahren Sie mit der Maus darüber für eine UniProt-Lokalisationsbeschreibung und markieren Sie mehrere Kompartimente, um sie hervorgehoben zu lassen. Parasitenform und Organellenorganisation variieren je nach Art und Lebenszyklusstadium; dies ist keine Rekonstruktion des Blutstadiums. Toxoplasma-hyperLOPIT-Zuordnungen werden nicht auf Plasmodium übertragen."
+      "key": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in ParaScape. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
+      "source": "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in ParaScape. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
+      "source_sha256": "7b9e5166e7e57a405fb01a52f6d63240635b0e3fd817e9e366772dc51c55759d",
+      "translation": "Ein gemeinsamer Zellbauplan der Apicomplexa, mit der SwissBioPics-Grafik, die auch in ParaScape verwendet wird. Fahren Sie mit der Maus darüber für eine UniProt-Lokalisationsbeschreibung und markieren Sie mehrere Kompartimente, um sie hervorgehoben zu lassen. Parasitenform und Organellenorganisation variieren je nach Art und Lebenszyklusstadium; dies ist keine Rekonstruktion des Blutstadiums. Toxoplasma-hyperLOPIT-Zuordnungen werden nicht auf Plasmodium übertragen."
     },
     {
       "table": "ui",
@@ -118,10 +118,10 @@
     },
     {
       "table": "ui",
-      "key": "Checking the installed Starplast version and PyPI…",
-      "source": "Checking the installed Starplast version and PyPI…",
-      "source_sha256": "48a0895ff04ff436502899a7660a0a6db27e5817120aeabb4e6c7c8cead566a9",
-      "translation": "Installierte Starplast-Version und PyPI werden geprüft…"
+      "key": "Checking the installed ParaScape version and PyPI…",
+      "source": "Checking the installed ParaScape version and PyPI…",
+      "source_sha256": "5cfd7f901cd3cd3c269c55118b7f69e2dbe7a3507062a7889ec7c910c2c801ae",
+      "translation": "Installierte ParaScape-Version und PyPI werden geprüft…"
     },
     {
       "table": "ui",
@@ -251,10 +251,10 @@
     },
     {
       "table": "ui",
-      "key": "Explore the apicomplexan cell using Starplast's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
-      "source": "Explore the apicomplexan cell using Starplast's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
-      "source_sha256": "7da76b8536419eaa9c117468cb3f56e9f610b29dd9d1274c793d2d13824dc10b",
-      "translation": "Erkunden Sie die Apicomplexa-Zelle mit den Toxoplasma-hyperLOPIT-Labels von Starplast. Fahren Sie mit der Maus darüber für eine Lokalisationsbeschreibung, markieren Sie mehrere Kompartimente, um sie hervorgehoben zu lassen, oder setzen Sie sie mit Auswahl löschen zurück. Mehrere Klassen teilen sich eine Form; dichte Granula verwenden die allgemeine Form zytoplasmatischer Granula. Ribosomen, Proteasomen, apikale Klassen und gemischte Endomembranvesikel haben hier keine passende Form. Die Illustration zeigt Kompartimentnamen, keine Proteinmessungen."
+      "key": "Explore the apicomplexan cell using ParaScape's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
+      "source": "Explore the apicomplexan cell using ParaScape's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
+      "source_sha256": "d15122e91befb1cf9db9139d22e19e767ced9397781bf7e59f2c4387a795d5b9",
+      "translation": "Erkunden Sie die Apicomplexa-Zelle mit den Toxoplasma-hyperLOPIT-Labels von ParaScape. Fahren Sie mit der Maus darüber für eine Lokalisationsbeschreibung, markieren Sie mehrere Kompartimente, um sie hervorgehoben zu lassen, oder setzen Sie sie mit Auswahl löschen zurück. Mehrere Klassen teilen sich eine Form; dichte Granula verwenden die allgemeine Form zytoplasmatischer Granula. Ribosomen, Proteasomen, apikale Klassen und gemischte Endomembranvesikel haben hier keine passende Form. Die Illustration zeigt Kompartimentnamen, keine Proteinmessungen."
     },
     {
       "table": "ui",
@@ -629,6 +629,13 @@
     },
     {
       "table": "ui",
+      "key": "ParaScape {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
+      "source": "ParaScape {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
+      "source_sha256": "b5accb1ab020b58d357581ec6cbddee67e3d4a924804b7c52851ce445d74e512",
+      "translation": "ParaScape {installed} ist installiert. Version {latest} ist auf PyPI verfügbar. Vor dem Öffnen über pip aktualisieren?"
+    },
+    {
+      "table": "ui",
       "key": "Paste the figure legend, or annotate by hand",
       "source": "Paste the figure legend, or annotate by hand",
       "source_sha256": "46f99bbe7054352d0a4f1db11d9375a37c89e37d8685bcacf09820e66cc19b36",
@@ -794,13 +801,6 @@
       "source": "Spin about {axis} only: a drag turns the volume about that measurement's axis and leaves it where it is on screen.",
       "source_sha256": "038fc5eae4ccd903146954f46304dd7d82b50df3b495da9405ceda7c937d6829",
       "translation": "Nur um {axis} drehen: Ziehen dreht das Volumen um die Achse dieser Messgröße und lässt es an seiner Position auf dem Bildschirm."
-    },
-    {
-      "table": "ui",
-      "key": "Starplast {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
-      "source": "Starplast {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
-      "source_sha256": "f96d5567768357eb4dba1f83b69255c35a189990fd3acc267a1ace2017162a32",
-      "translation": "Starplast {installed} ist installiert. Version {latest} ist auf PyPI verfügbar. Vor dem Öffnen über pip aktualisieren?"
     },
     {
       "table": "ui",
@@ -1126,10 +1126,10 @@
     },
     {
       "table": "ui",
-      "key": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in Starplast. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
-      "source": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in Starplast. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
-      "source_sha256": "ebb593b82afa1a40521a11f6e0d27f24059ad63ef3a0aff1c5cffefb33ed1e10",
-      "translation": "Das Kompartimentdiagramm verbindet Bildgebungsphänotypen mit dem subzellulären Vokabular von Starplast. ToxoDB liefert Gen- und Genomkontext, UniProt liefert Proteinannotationen. Der hyperLOPIT-Atlas liefert experimentelle Lokalisationsbelege für Toxoplasma-Proteine; ein hier hervorgehobenes Organell ist eine Orientierung zu diesem Vokabular, keine Vorhersage für ein gewähltes Gen und kein Beweis für die Ursache eines Phänotyps."
+      "key": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in ParaScape. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
+      "source": "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in ParaScape. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
+      "source_sha256": "486cc736ebc04f37f783b8e95fe4dff7c6a8c3f1795d4213c8712c82f6dbe554",
+      "translation": "Das Kompartimentdiagramm verbindet Bildgebungsphänotypen mit dem subzellulären Vokabular von ParaScape. ToxoDB liefert Gen- und Genomkontext, UniProt liefert Proteinannotationen. Der hyperLOPIT-Atlas liefert experimentelle Lokalisationsbelege für Toxoplasma-Proteine; ein hier hervorgehobenes Organell ist eine Orientierung zu diesem Vokabular, keine Vorhersage für ein gewähltes Gen und kein Beweis für die Ursache eines Phänotyps."
     },
     {
       "table": "ui",
@@ -1448,10 +1448,10 @@
     },
     {
       "table": "ui",
-      "key": "Upgrade Starplast through pip from PyPI in its separate environment at {path}. Close any running Starplast windows before upgrading. Starplast is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
-      "source": "Upgrade Starplast through pip from PyPI in its separate environment at {path}. Close any running Starplast windows before upgrading. Starplast is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
-      "source_sha256": "e457bc3cf0b529f5fc157c1fadd1fa1a6e14824255bbd1aad7ab0fd2fb6b4473",
-      "translation": "Starplast über pip aus PyPI in seiner separaten Umgebung unter {path} aktualisieren. Schließen Sie vor dem Aktualisieren alle laufenden Starplast-Fenster. Starplast ist im Alpha-Stadium; Downloads und Speicherbedarf hängen von der Version ab. Die Pakete von spaCR werden nicht verändert."
+      "key": "Upgrade ParaScape through pip from PyPI in its separate environment at {path}. Close any running ParaScape windows before upgrading. ParaScape is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
+      "source": "Upgrade ParaScape through pip from PyPI in its separate environment at {path}. Close any running ParaScape windows before upgrading. ParaScape is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
+      "source_sha256": "ec2ce02efb53ca414003af40ffc41d8edd734e24f7baccf140040b879c9dc92a",
+      "translation": "ParaScape über pip aus PyPI in seiner separaten Umgebung unter {path} aktualisieren. Schließen Sie vor dem Aktualisieren alle laufenden ParaScape-Fenster. ParaScape ist im Alpha-Stadium; Downloads und Speicherbedarf hängen von der Version ab. Die Pakete von spaCR werden nicht verändert."
     },
     {
       "table": "ui",

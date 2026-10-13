@@ -1,5 +1,5 @@
 ================================================================================
-IMAGE UMAP REBUILT THE starplast WAY: TABLE, VIEWER, GRID, WALK, GPU
+IMAGE UMAP REBUILT THE ParaScape WAY: TABLE, VIEWER, GRID, WALK, GPU
 ================================================================================
 
 Status:    DONE 2026-08-14 — re-verified against the tree 2026-09-13. The
@@ -14,14 +14,14 @@ Status:    DONE 2026-08-14 — re-verified against the tree 2026-09-13. The
 Requested: 2026-08-13, verbatim:
 
     "i asked for the first option (the cluster montage). but then we built
-     starplast together and that is much much much better. there during the
+     parascape together and that is much much much better. there during the
      search a table is formed with values and scores, i can click each row in
      this table to spawn a that rows umap (3d umap) and then i can luster that
      umap. i should also be able to press abutton to spawn a grid showing all
      umaps with black backgrounds then cklick a umap to loade it into the umap
      window. i should be able to install a cuML version of spacr that is
      restricted to python 3.11 - 3.12 but can generate UMAPS on the GPU (just
-     like i can in starplast). so i dont want the old grid at the end, i dont
+     like i can in parascape). so i dont want the old grid at the end, i dont
      want the default spacr Figure generation slider, i want a 2D, 3D UMAP
      container (where it says "No search has been run yet") to the left of
      that is where the table should live, there should be a button that spawns
@@ -106,28 +106,28 @@ THE LAYOUT, AS ASKED
     backgrounds; clicking one loads it into the container.
 
 --------------------------------------------------------------------------------
-WHAT TO TAKE FROM starplast, AND WHAT NOT TO
+WHAT TO TAKE FROM parascape, AND WHAT NOT TO
 --------------------------------------------------------------------------------
 
-`/mnt/firecuda2/Claude/repo/starplast` is the reference, and the parts worth
-copying are named rather than "make it like starplast":
+`/mnt/firecuda2/Claude/repo/parascape` is the reference, and the parts worth
+copying are named rather than "make it like parascape":
 
-    starplast/gpu.py          `available()`, `enabled()`, `describe()`,
+    parascape/gpu.py          `available()`, `enabled()`, `describe()`,
                               `worth_it()`, `umap_class()`. It already ranks
                               three backends, carries the MEASURED size
                               threshold below which the copy to the device
                               costs more than it saves, and states that a
                               cuML map is a DIFFERENT MAP of the same data
                               rather than the same map faster.
-    starplast/embedding.py    `EmbeddingSpec` -- the whole recipe as one
+    parascape/embedding.py    `EmbeddingSpec` -- the whole recipe as one
                               frozen record that round-trips, so a table row
                               IS a spec and clicking it can rebuild exactly
                               that map.
-    starplast/tuning.py       the walk.
-    starplast/clustering.py   HDBSCAN on the embedding.
+    parascape/tuning.py       the walk.
+    parascape/clustering.py   HDBSCAN on the embedding.
 
 spaCR already has `spacr/gpu_reduce.py`, written for instruction 86 and never
-used. It should become the spaCR half of starplast's gpu.py rather than a
+used. It should become the spaCR half of parascape's gpu.py rather than a
 second answer.
 
 --------------------------------------------------------------------------------
@@ -181,7 +181,7 @@ BUILT:
                            `python_supported()`, `SUPPORTED_PYTHON`.
   the GPU button           left of Run search, says just "GPU", checkable.
 
-THE ROW IS THE RECIPE, which is the design starplast's `EmbeddingSpec`
+THE ROW IS THE RECIPE, which is the design parascape's `EmbeddingSpec`
 teaches. A stored row rebuilds EXACTLY the map it scored, not a map with the
 same settings -- otherwise clicking row 7 draws something row 7's score does
 not describe and nobody would notice. The columns are part of it, and so is
@@ -264,7 +264,7 @@ not one comparable walk. The compact `GPU` control is immediately LEFT of
 built ready/install/wrong-Python/no-device decision and restart warning remain
 the only installation path.
 
-STARPLAST'S useful contracts were carried across: coordinates travel with the
+PARASCAPE'S useful contracts were carried across: coordinates travel with the
 row; the gallery holds the map rather than screenshots alone; the clustering
 walk partitions a fixed embedding; and the backend is recipe provenance. Its
 PyQt6/pyqtgraph/OpenGL stack was not copied into this PySide6 application.

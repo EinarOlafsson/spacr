@@ -20,50 +20,50 @@
       "current_block": "Background subtraction precedes PSF processing, then denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector."
     },
     {
-      "path": "docs/i18n/reviewed/api/de/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/de/2026-09-22-parascape-and-diagram.json",
       "language": "de",
-      "label": "spacr._starplast.REPOSITORY#0",
+      "label": "spacr._parascape.REPOSITORY#0",
       "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
       "action": "retire_changed_source",
       "current_block": "Optional explicit source for development installations."
     },
     {
-      "path": "docs/i18n/reviewed/api/de/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/de/2026-09-22-parascape-and-diagram.json",
       "language": "de",
-      "label": "spacr._starplast.default_source#0",
-      "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+      "label": "spacr._parascape.default_source#0",
+      "source_sha256": "87d26f138050d0844a13427b5d85111e36cf81093952c3c4c7dda884c059f226",
       "action": "retire_changed_source",
       "current_block": "Use PyPI unless a developer explicitly overrides the installation source."
     },
     {
-      "path": "docs/i18n/reviewed/api/de/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/de/2026-09-22-parascape-and-diagram.json",
       "language": "de",
-      "label": "spacr._starplast.default_source#1",
-      "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
+      "label": "spacr._parascape.default_source#1",
+      "source_sha256": "ac0b1b5d402721c19855c05b1fabb7f024a317e799dccc71e313892d88f0365f",
       "action": "retire_changed_source",
-      "current_block": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name."
+      "current_block": "``SPACR_PARASCAPE_SOURCE`` or the unpinned PyPI package name."
     },
     {
-      "path": "docs/i18n/reviewed/api/de/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/de/2026-09-22-parascape-and-diagram.json",
       "language": "de",
-      "label": "spacr._starplast.install_starplast#2",
+      "label": "spacr._parascape.install_parascape#2",
       "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
       "action": "retire_changed_source",
-      "current_block": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
+      "current_block": "parascape on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
     },
     {
-      "path": "docs/i18n/reviewed/api/de/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/de/2026-09-22-parascape-and-diagram.json",
       "language": "de",
-      "label": "spacr._starplast.install_starplast#10",
+      "label": "spacr._parascape.install_parascape#10",
       "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
       "action": "retire_changed_source",
       "current_block": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL."
     },
     {
-      "path": "docs/i18n/reviewed/api/de/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/de/2026-09-22-parascape-and-diagram.json",
       "language": "de",
-      "label": "spacr.qt.starplast.open_starplast#0",
-      "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+      "label": "spacr.qt.parascape.open_parascape#0",
+      "source_sha256": "5d3a89ae482213122d62c6c7a4c0a2f3c3359e6f48a9314a09b39dda0a9af133",
       "action": "retire_changed_source",
       "current_block": "Check for updates on every open and offer pip upgrades before launching."
     },
@@ -84,50 +84,50 @@
       "current_block": "Background subtraction precedes PSF processing, then denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector."
     },
     {
-      "path": "docs/i18n/reviewed/api/es/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/es/2026-09-22-parascape-and-diagram.json",
       "language": "es",
-      "label": "spacr._starplast.REPOSITORY#0",
+      "label": "spacr._parascape.REPOSITORY#0",
       "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
       "action": "retire_changed_source",
       "current_block": "Optional explicit source for development installations."
     },
     {
-      "path": "docs/i18n/reviewed/api/es/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/es/2026-09-22-parascape-and-diagram.json",
       "language": "es",
-      "label": "spacr._starplast.default_source#0",
-      "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+      "label": "spacr._parascape.default_source#0",
+      "source_sha256": "87d26f138050d0844a13427b5d85111e36cf81093952c3c4c7dda884c059f226",
       "action": "retire_changed_source",
       "current_block": "Use PyPI unless a developer explicitly overrides the installation source."
     },
     {
-      "path": "docs/i18n/reviewed/api/es/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/es/2026-09-22-parascape-and-diagram.json",
       "language": "es",
-      "label": "spacr._starplast.default_source#1",
-      "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
+      "label": "spacr._parascape.default_source#1",
+      "source_sha256": "ac0b1b5d402721c19855c05b1fabb7f024a317e799dccc71e313892d88f0365f",
       "action": "retire_changed_source",
-      "current_block": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name."
+      "current_block": "``SPACR_PARASCAPE_SOURCE`` or the unpinned PyPI package name."
     },
     {
-      "path": "docs/i18n/reviewed/api/es/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/es/2026-09-22-parascape-and-diagram.json",
       "language": "es",
-      "label": "spacr._starplast.install_starplast#2",
+      "label": "spacr._parascape.install_parascape#2",
       "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
       "action": "retire_changed_source",
-      "current_block": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
+      "current_block": "parascape on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
     },
     {
-      "path": "docs/i18n/reviewed/api/es/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/es/2026-09-22-parascape-and-diagram.json",
       "language": "es",
-      "label": "spacr._starplast.install_starplast#10",
+      "label": "spacr._parascape.install_parascape#10",
       "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
       "action": "retire_changed_source",
       "current_block": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL."
     },
     {
-      "path": "docs/i18n/reviewed/api/es/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/es/2026-09-22-parascape-and-diagram.json",
       "language": "es",
-      "label": "spacr.qt.starplast.open_starplast#0",
-      "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+      "label": "spacr.qt.parascape.open_parascape#0",
+      "source_sha256": "5d3a89ae482213122d62c6c7a4c0a2f3c3359e6f48a9314a09b39dda0a9af133",
       "action": "retire_changed_source",
       "current_block": "Check for updates on every open and offer pip upgrades before launching."
     },
@@ -156,50 +156,50 @@
       "current_block": "Background subtraction precedes PSF processing, then denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector."
     },
     {
-      "path": "docs/i18n/reviewed/api/fr/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/fr/2026-09-22-parascape-and-diagram.json",
       "language": "fr",
-      "label": "spacr._starplast.REPOSITORY#0",
+      "label": "spacr._parascape.REPOSITORY#0",
       "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
       "action": "retire_changed_source",
       "current_block": "Optional explicit source for development installations."
     },
     {
-      "path": "docs/i18n/reviewed/api/fr/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/fr/2026-09-22-parascape-and-diagram.json",
       "language": "fr",
-      "label": "spacr._starplast.default_source#0",
-      "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+      "label": "spacr._parascape.default_source#0",
+      "source_sha256": "87d26f138050d0844a13427b5d85111e36cf81093952c3c4c7dda884c059f226",
       "action": "retire_changed_source",
       "current_block": "Use PyPI unless a developer explicitly overrides the installation source."
     },
     {
-      "path": "docs/i18n/reviewed/api/fr/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/fr/2026-09-22-parascape-and-diagram.json",
       "language": "fr",
-      "label": "spacr._starplast.default_source#1",
-      "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
+      "label": "spacr._parascape.default_source#1",
+      "source_sha256": "ac0b1b5d402721c19855c05b1fabb7f024a317e799dccc71e313892d88f0365f",
       "action": "retire_changed_source",
-      "current_block": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name."
+      "current_block": "``SPACR_PARASCAPE_SOURCE`` or the unpinned PyPI package name."
     },
     {
-      "path": "docs/i18n/reviewed/api/fr/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/fr/2026-09-22-parascape-and-diagram.json",
       "language": "fr",
-      "label": "spacr._starplast.install_starplast#2",
+      "label": "spacr._parascape.install_parascape#2",
       "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
       "action": "retire_changed_source",
-      "current_block": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
+      "current_block": "parascape on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
     },
     {
-      "path": "docs/i18n/reviewed/api/fr/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/fr/2026-09-22-parascape-and-diagram.json",
       "language": "fr",
-      "label": "spacr._starplast.install_starplast#10",
+      "label": "spacr._parascape.install_parascape#10",
       "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
       "action": "retire_changed_source",
       "current_block": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL."
     },
     {
-      "path": "docs/i18n/reviewed/api/fr/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/fr/2026-09-22-parascape-and-diagram.json",
       "language": "fr",
-      "label": "spacr.qt.starplast.open_starplast#0",
-      "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+      "label": "spacr.qt.parascape.open_parascape#0",
+      "source_sha256": "5d3a89ae482213122d62c6c7a4c0a2f3c3359e6f48a9314a09b39dda0a9af133",
       "action": "retire_changed_source",
       "current_block": "Check for updates on every open and offer pip upgrades before launching."
     },
@@ -220,50 +220,50 @@
       "current_block": "Background subtraction precedes PSF processing, then denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector."
     },
     {
-      "path": "docs/i18n/reviewed/api/hi/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/hi/2026-09-22-parascape-and-diagram.json",
       "language": "hi",
-      "label": "spacr._starplast.REPOSITORY#0",
+      "label": "spacr._parascape.REPOSITORY#0",
       "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
       "action": "retire_changed_source",
       "current_block": "Optional explicit source for development installations."
     },
     {
-      "path": "docs/i18n/reviewed/api/hi/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/hi/2026-09-22-parascape-and-diagram.json",
       "language": "hi",
-      "label": "spacr._starplast.default_source#0",
-      "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+      "label": "spacr._parascape.default_source#0",
+      "source_sha256": "87d26f138050d0844a13427b5d85111e36cf81093952c3c4c7dda884c059f226",
       "action": "retire_changed_source",
       "current_block": "Use PyPI unless a developer explicitly overrides the installation source."
     },
     {
-      "path": "docs/i18n/reviewed/api/hi/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/hi/2026-09-22-parascape-and-diagram.json",
       "language": "hi",
-      "label": "spacr._starplast.default_source#1",
-      "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
+      "label": "spacr._parascape.default_source#1",
+      "source_sha256": "ac0b1b5d402721c19855c05b1fabb7f024a317e799dccc71e313892d88f0365f",
       "action": "retire_changed_source",
-      "current_block": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name."
+      "current_block": "``SPACR_PARASCAPE_SOURCE`` or the unpinned PyPI package name."
     },
     {
-      "path": "docs/i18n/reviewed/api/hi/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/hi/2026-09-22-parascape-and-diagram.json",
       "language": "hi",
-      "label": "spacr._starplast.install_starplast#2",
+      "label": "spacr._parascape.install_parascape#2",
       "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
       "action": "retire_changed_source",
-      "current_block": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
+      "current_block": "parascape on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
     },
     {
-      "path": "docs/i18n/reviewed/api/hi/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/hi/2026-09-22-parascape-and-diagram.json",
       "language": "hi",
-      "label": "spacr._starplast.install_starplast#10",
+      "label": "spacr._parascape.install_parascape#10",
       "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
       "action": "retire_changed_source",
       "current_block": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL."
     },
     {
-      "path": "docs/i18n/reviewed/api/hi/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/hi/2026-09-22-parascape-and-diagram.json",
       "language": "hi",
-      "label": "spacr.qt.starplast.open_starplast#0",
-      "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+      "label": "spacr.qt.parascape.open_parascape#0",
+      "source_sha256": "5d3a89ae482213122d62c6c7a4c0a2f3c3359e6f48a9314a09b39dda0a9af133",
       "action": "retire_changed_source",
       "current_block": "Check for updates on every open and offer pip upgrades before launching."
     },
@@ -316,50 +316,50 @@
       "current_block": "Background subtraction precedes PSF processing, then denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector."
     },
     {
-      "path": "docs/i18n/reviewed/api/is/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/is/2026-09-22-parascape-and-diagram.json",
       "language": "is",
-      "label": "spacr._starplast.REPOSITORY#0",
+      "label": "spacr._parascape.REPOSITORY#0",
       "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
       "action": "retire_changed_source",
       "current_block": "Optional explicit source for development installations."
     },
     {
-      "path": "docs/i18n/reviewed/api/is/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/is/2026-09-22-parascape-and-diagram.json",
       "language": "is",
-      "label": "spacr._starplast.default_source#0",
-      "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+      "label": "spacr._parascape.default_source#0",
+      "source_sha256": "87d26f138050d0844a13427b5d85111e36cf81093952c3c4c7dda884c059f226",
       "action": "retire_changed_source",
       "current_block": "Use PyPI unless a developer explicitly overrides the installation source."
     },
     {
-      "path": "docs/i18n/reviewed/api/is/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/is/2026-09-22-parascape-and-diagram.json",
       "language": "is",
-      "label": "spacr._starplast.default_source#1",
-      "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
+      "label": "spacr._parascape.default_source#1",
+      "source_sha256": "ac0b1b5d402721c19855c05b1fabb7f024a317e799dccc71e313892d88f0365f",
       "action": "retire_changed_source",
-      "current_block": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name."
+      "current_block": "``SPACR_PARASCAPE_SOURCE`` or the unpinned PyPI package name."
     },
     {
-      "path": "docs/i18n/reviewed/api/is/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/is/2026-09-22-parascape-and-diagram.json",
       "language": "is",
-      "label": "spacr._starplast.install_starplast#2",
+      "label": "spacr._parascape.install_parascape#2",
       "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
       "action": "retire_changed_source",
-      "current_block": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
+      "current_block": "parascape on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
     },
     {
-      "path": "docs/i18n/reviewed/api/is/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/is/2026-09-22-parascape-and-diagram.json",
       "language": "is",
-      "label": "spacr._starplast.install_starplast#10",
+      "label": "spacr._parascape.install_parascape#10",
       "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
       "action": "retire_changed_source",
       "current_block": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL."
     },
     {
-      "path": "docs/i18n/reviewed/api/is/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/is/2026-09-22-parascape-and-diagram.json",
       "language": "is",
-      "label": "spacr.qt.starplast.open_starplast#0",
-      "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+      "label": "spacr.qt.parascape.open_parascape#0",
+      "source_sha256": "5d3a89ae482213122d62c6c7a4c0a2f3c3359e6f48a9314a09b39dda0a9af133",
       "action": "retire_changed_source",
       "current_block": "Check for updates on every open and offer pip upgrades before launching."
     },
@@ -372,50 +372,50 @@
       "current_block": "Background subtraction precedes PSF processing, then denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector."
     },
     {
-      "path": "docs/i18n/reviewed/api/ko/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/ko/2026-09-22-parascape-and-diagram.json",
       "language": "ko",
-      "label": "spacr._starplast.REPOSITORY#0",
+      "label": "spacr._parascape.REPOSITORY#0",
       "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
       "action": "retire_changed_source",
       "current_block": "Optional explicit source for development installations."
     },
     {
-      "path": "docs/i18n/reviewed/api/ko/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/ko/2026-09-22-parascape-and-diagram.json",
       "language": "ko",
-      "label": "spacr._starplast.default_source#0",
-      "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+      "label": "spacr._parascape.default_source#0",
+      "source_sha256": "87d26f138050d0844a13427b5d85111e36cf81093952c3c4c7dda884c059f226",
       "action": "retire_changed_source",
       "current_block": "Use PyPI unless a developer explicitly overrides the installation source."
     },
     {
-      "path": "docs/i18n/reviewed/api/ko/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/ko/2026-09-22-parascape-and-diagram.json",
       "language": "ko",
-      "label": "spacr._starplast.default_source#1",
-      "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
+      "label": "spacr._parascape.default_source#1",
+      "source_sha256": "ac0b1b5d402721c19855c05b1fabb7f024a317e799dccc71e313892d88f0365f",
       "action": "retire_changed_source",
-      "current_block": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name."
+      "current_block": "``SPACR_PARASCAPE_SOURCE`` or the unpinned PyPI package name."
     },
     {
-      "path": "docs/i18n/reviewed/api/ko/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/ko/2026-09-22-parascape-and-diagram.json",
       "language": "ko",
-      "label": "spacr._starplast.install_starplast#2",
+      "label": "spacr._parascape.install_parascape#2",
       "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
       "action": "retire_changed_source",
-      "current_block": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
+      "current_block": "parascape on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
     },
     {
-      "path": "docs/i18n/reviewed/api/ko/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/ko/2026-09-22-parascape-and-diagram.json",
       "language": "ko",
-      "label": "spacr._starplast.install_starplast#10",
+      "label": "spacr._parascape.install_parascape#10",
       "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
       "action": "retire_changed_source",
       "current_block": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL."
     },
     {
-      "path": "docs/i18n/reviewed/api/ko/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/ko/2026-09-22-parascape-and-diagram.json",
       "language": "ko",
-      "label": "spacr.qt.starplast.open_starplast#0",
-      "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+      "label": "spacr.qt.parascape.open_parascape#0",
+      "source_sha256": "5d3a89ae482213122d62c6c7a4c0a2f3c3359e6f48a9314a09b39dda0a9af133",
       "action": "retire_changed_source",
       "current_block": "Check for updates on every open and offer pip upgrades before launching."
     },
@@ -436,50 +436,50 @@
       "current_block": "Background subtraction precedes PSF processing, then denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector."
     },
     {
-      "path": "docs/i18n/reviewed/api/pt/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/pt/2026-09-22-parascape-and-diagram.json",
       "language": "pt",
-      "label": "spacr._starplast.REPOSITORY#0",
+      "label": "spacr._parascape.REPOSITORY#0",
       "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
       "action": "retire_changed_source",
       "current_block": "Optional explicit source for development installations."
     },
     {
-      "path": "docs/i18n/reviewed/api/pt/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/pt/2026-09-22-parascape-and-diagram.json",
       "language": "pt",
-      "label": "spacr._starplast.default_source#0",
-      "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+      "label": "spacr._parascape.default_source#0",
+      "source_sha256": "87d26f138050d0844a13427b5d85111e36cf81093952c3c4c7dda884c059f226",
       "action": "retire_changed_source",
       "current_block": "Use PyPI unless a developer explicitly overrides the installation source."
     },
     {
-      "path": "docs/i18n/reviewed/api/pt/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/pt/2026-09-22-parascape-and-diagram.json",
       "language": "pt",
-      "label": "spacr._starplast.default_source#1",
-      "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
+      "label": "spacr._parascape.default_source#1",
+      "source_sha256": "ac0b1b5d402721c19855c05b1fabb7f024a317e799dccc71e313892d88f0365f",
       "action": "retire_changed_source",
-      "current_block": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name."
+      "current_block": "``SPACR_PARASCAPE_SOURCE`` or the unpinned PyPI package name."
     },
     {
-      "path": "docs/i18n/reviewed/api/pt/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/pt/2026-09-22-parascape-and-diagram.json",
       "language": "pt",
-      "label": "spacr._starplast.install_starplast#2",
+      "label": "spacr._parascape.install_parascape#2",
       "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
       "action": "retire_changed_source",
-      "current_block": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
+      "current_block": "parascape on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
     },
     {
-      "path": "docs/i18n/reviewed/api/pt/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/pt/2026-09-22-parascape-and-diagram.json",
       "language": "pt",
-      "label": "spacr._starplast.install_starplast#10",
+      "label": "spacr._parascape.install_parascape#10",
       "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
       "action": "retire_changed_source",
       "current_block": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL."
     },
     {
-      "path": "docs/i18n/reviewed/api/pt/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/pt/2026-09-22-parascape-and-diagram.json",
       "language": "pt",
-      "label": "spacr.qt.starplast.open_starplast#0",
-      "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+      "label": "spacr.qt.parascape.open_parascape#0",
+      "source_sha256": "5d3a89ae482213122d62c6c7a4c0a2f3c3359e6f48a9314a09b39dda0a9af133",
       "action": "retire_changed_source",
       "current_block": "Check for updates on every open and offer pip upgrades before launching."
     },
@@ -508,50 +508,50 @@
       "current_block": "Background subtraction precedes PSF processing, then denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector."
     },
     {
-      "path": "docs/i18n/reviewed/api/sv/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/sv/2026-09-22-parascape-and-diagram.json",
       "language": "sv",
-      "label": "spacr._starplast.REPOSITORY#0",
+      "label": "spacr._parascape.REPOSITORY#0",
       "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
       "action": "retire_changed_source",
       "current_block": "Optional explicit source for development installations."
     },
     {
-      "path": "docs/i18n/reviewed/api/sv/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/sv/2026-09-22-parascape-and-diagram.json",
       "language": "sv",
-      "label": "spacr._starplast.default_source#0",
-      "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+      "label": "spacr._parascape.default_source#0",
+      "source_sha256": "87d26f138050d0844a13427b5d85111e36cf81093952c3c4c7dda884c059f226",
       "action": "retire_changed_source",
       "current_block": "Use PyPI unless a developer explicitly overrides the installation source."
     },
     {
-      "path": "docs/i18n/reviewed/api/sv/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/sv/2026-09-22-parascape-and-diagram.json",
       "language": "sv",
-      "label": "spacr._starplast.default_source#1",
-      "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
+      "label": "spacr._parascape.default_source#1",
+      "source_sha256": "ac0b1b5d402721c19855c05b1fabb7f024a317e799dccc71e313892d88f0365f",
       "action": "retire_changed_source",
-      "current_block": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name."
+      "current_block": "``SPACR_PARASCAPE_SOURCE`` or the unpinned PyPI package name."
     },
     {
-      "path": "docs/i18n/reviewed/api/sv/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/sv/2026-09-22-parascape-and-diagram.json",
       "language": "sv",
-      "label": "spacr._starplast.install_starplast#2",
+      "label": "spacr._parascape.install_parascape#2",
       "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
       "action": "retire_changed_source",
-      "current_block": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
+      "current_block": "parascape on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
     },
     {
-      "path": "docs/i18n/reviewed/api/sv/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/sv/2026-09-22-parascape-and-diagram.json",
       "language": "sv",
-      "label": "spacr._starplast.install_starplast#10",
+      "label": "spacr._parascape.install_parascape#10",
       "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
       "action": "retire_changed_source",
       "current_block": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL."
     },
     {
-      "path": "docs/i18n/reviewed/api/sv/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/sv/2026-09-22-parascape-and-diagram.json",
       "language": "sv",
-      "label": "spacr.qt.starplast.open_starplast#0",
-      "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+      "label": "spacr.qt.parascape.open_parascape#0",
+      "source_sha256": "5d3a89ae482213122d62c6c7a4c0a2f3c3359e6f48a9314a09b39dda0a9af133",
       "action": "retire_changed_source",
       "current_block": "Check for updates on every open and offer pip upgrades before launching."
     },
@@ -572,50 +572,50 @@
       "current_block": "Background subtraction precedes PSF processing, then denoising. Denoising precedes contrast to avoid amplifying noise; contrast precedes sharpening to avoid stretching its halos. Morphology precedes splitting because it changes which pixels are connected. :func:`prepare` runs background, PSF, denoise, contrast and sharpen; :func:`finish` runs morphology and split after the selected detector."
     },
     {
-      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-parascape-and-diagram.json",
       "language": "zh_CN",
-      "label": "spacr._starplast.REPOSITORY#0",
+      "label": "spacr._parascape.REPOSITORY#0",
       "source_sha256": "c2267aa8a4405de45791b7404686fcaff83a9812e1e3ea9915d30b3fea88129b",
       "action": "retire_changed_source",
       "current_block": "Optional explicit source for development installations."
     },
     {
-      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-parascape-and-diagram.json",
       "language": "zh_CN",
-      "label": "spacr._starplast.default_source#0",
-      "source_sha256": "693f3c4dc51a4f3d23b8d200358e570371be774de6cf6abde238a257465facf6",
+      "label": "spacr._parascape.default_source#0",
+      "source_sha256": "87d26f138050d0844a13427b5d85111e36cf81093952c3c4c7dda884c059f226",
       "action": "retire_changed_source",
       "current_block": "Use PyPI unless a developer explicitly overrides the installation source."
     },
     {
-      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-parascape-and-diagram.json",
       "language": "zh_CN",
-      "label": "spacr._starplast.default_source#1",
-      "source_sha256": "a91be3f6f4467a3b1ed04e398a5263f659d03fe4d439f8767b0d2fa04eb2f232",
+      "label": "spacr._parascape.default_source#1",
+      "source_sha256": "ac0b1b5d402721c19855c05b1fabb7f024a317e799dccc71e313892d88f0365f",
       "action": "retire_changed_source",
-      "current_block": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name."
+      "current_block": "``SPACR_PARASCAPE_SOURCE`` or the unpinned PyPI package name."
     },
     {
-      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-parascape-and-diagram.json",
       "language": "zh_CN",
-      "label": "spacr._starplast.install_starplast#2",
+      "label": "spacr._parascape.install_parascape#2",
       "source_sha256": "0ab444ecaa45d1361c252ef6908622f4143c43752b7b5dd98e8e6a9946e0a133",
       "action": "retire_changed_source",
-      "current_block": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
+      "current_block": "parascape on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin."
     },
     {
-      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-parascape-and-diagram.json",
       "language": "zh_CN",
-      "label": "spacr._starplast.install_starplast#10",
+      "label": "spacr._parascape.install_parascape#10",
       "source_sha256": "cd8eec18b8084bd3e41ec8920c92e5acf4df4d7095e932728edc85b5b5ad9ceb",
       "action": "retire_changed_source",
       "current_block": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL."
     },
     {
-      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-parascape-and-diagram.json",
       "language": "zh_CN",
-      "label": "spacr.qt.starplast.open_starplast#0",
-      "source_sha256": "4596d47cefb165deb0e95859126499255dc6ae68414ece6d088f11ae0340b4d3",
+      "label": "spacr.qt.parascape.open_parascape#0",
+      "source_sha256": "5d3a89ae482213122d62c6c7a4c0a2f3c3359e6f48a9314a09b39dda0a9af133",
       "action": "retire_changed_source",
       "current_block": "Check for updates on every open and offer pip upgrades before launching."
     }
@@ -634,7 +634,7 @@
       "records_preserved": 31
     },
     {
-      "path": "docs/i18n/reviewed/api/de/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/de/2026-09-22-parascape-and-diagram.json",
       "before_sha256": "545cf02724fbf4df8c7ec829077f484a024d64c0d3b900836accdae05dbd6503",
       "after_sha256": "78ac55e84cce1627427ba843d2ae17d11ecc678977f90c581832e1e7a55cf39d",
       "records_preserved": 56
@@ -652,7 +652,7 @@
       "records_preserved": 31
     },
     {
-      "path": "docs/i18n/reviewed/api/es/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/es/2026-09-22-parascape-and-diagram.json",
       "before_sha256": "09f5dc85186e5529e22f428d4f23634a6e4f67277425417e0f88cf835f2f4fa4",
       "after_sha256": "6b6fa7b95a0718d343dde4fb3e7dc82ba91c75695bf592c33514c0b0c2d8c9c3",
       "records_preserved": 56
@@ -676,7 +676,7 @@
       "records_preserved": 31
     },
     {
-      "path": "docs/i18n/reviewed/api/fr/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/fr/2026-09-22-parascape-and-diagram.json",
       "before_sha256": "71634b5893846c1aa080161734049d73937e078eda02ae2b67173cb8901a7dad",
       "after_sha256": "c9751bb4848291420e836b31457d5a948215ad6dc3ecbc25547c3f24898137bc",
       "records_preserved": 56
@@ -694,7 +694,7 @@
       "records_preserved": 31
     },
     {
-      "path": "docs/i18n/reviewed/api/hi/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/hi/2026-09-22-parascape-and-diagram.json",
       "before_sha256": "0da863a17aa0c03ca8b61a82b87215c9be5c5855d14b2e48e25544bd26b54ea8",
       "after_sha256": "bccd10f405a01162b62b2c927ef182b25f18b9ba82fb2546e5ce86c5e393a47a",
       "records_preserved": 56
@@ -736,7 +736,7 @@
       "records_preserved": 31
     },
     {
-      "path": "docs/i18n/reviewed/api/is/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/is/2026-09-22-parascape-and-diagram.json",
       "before_sha256": "78b84679b885181bbef55f2ae7cb10c3e71bb187dd9b56688704e3e547f8953d",
       "after_sha256": "b340059a8080ade58774949e765379af1b7f020c6367d8bda51c249d1a60bf61",
       "records_preserved": 56
@@ -748,7 +748,7 @@
       "records_preserved": 31
     },
     {
-      "path": "docs/i18n/reviewed/api/ko/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/ko/2026-09-22-parascape-and-diagram.json",
       "before_sha256": "9583ffa94896543ce21442abf20af1aea7f603f73945e82ff079e76270f38c65",
       "after_sha256": "3dc4a4593f42b73b7c9c63604bd1e5e5f3606e047ca0ecb4d9c05120dd463f9d",
       "records_preserved": 56
@@ -766,7 +766,7 @@
       "records_preserved": 31
     },
     {
-      "path": "docs/i18n/reviewed/api/pt/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/pt/2026-09-22-parascape-and-diagram.json",
       "before_sha256": "ae350b6c7bbfd569a3d501e029588f32ebe4f299fbc75e0ce13575661f141ca6",
       "after_sha256": "a5978214b2d6eeb2bf6de7c6604364719a7e3796cac3f73f55a91b1f6c74867d",
       "records_preserved": 56
@@ -784,7 +784,7 @@
       "records_preserved": 31
     },
     {
-      "path": "docs/i18n/reviewed/api/sv/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/sv/2026-09-22-parascape-and-diagram.json",
       "before_sha256": "62a6e86c3cd17b329e85e95afb45cf55a5e0ea192c39ebd8daba7024c3d2eda9",
       "after_sha256": "b0d9753c30213581f22b0efe58ec545022604061ee720487ae9e82a75aad5526",
       "records_preserved": 56
@@ -802,7 +802,7 @@
       "records_preserved": 31
     },
     {
-      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-starplast-and-diagram.json",
+      "path": "docs/i18n/reviewed/api/zh_CN/2026-09-22-parascape-and-diagram.json",
       "before_sha256": "df6c8c07e0af97f51160820e2de3218b9f51110b14ceb03678372db007d9a9a9",
       "after_sha256": "3e5d8dc1345c8b897ebe5f50fe5f2f1ff45695c61d584419d246fe45d435237d",
       "records_preserved": 56

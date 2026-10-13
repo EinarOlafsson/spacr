@@ -1,6 +1,6 @@
-"""Install and launch the separate Starplast desktop application.
+"""Install and launch the separate ParaScape desktop application.
 
-Starplast uses PyQt6 and never imports into spaCR's PySide6 process. Its
+ParaScape uses PyQt6 and never imports into spaCR's PySide6 process. Its
 environment lives under ``~/.spacr/apps`` (or ``SPACR_APPS_DIR``). Installation
 reuses the segmentation installers' interpreter discovery, isolated command
 environment and cancellable subprocess runner, without registering a detector.
@@ -20,17 +20,19 @@ from types import SimpleNamespace
 from . import _segmentation_backends as environments
 
 
-REPOSITORY = "git+https://github.com/EinarOlafsson/starplast.git@main"
+REPOSITORY = "git+https://github.com/EinarOlafsson/parascape.git@main"
 """Optional explicit source for development installations."""
-PYPI_PACKAGE = "starplast"
+PYPI_PACKAGE = "parascape"
 """Install the latest compatible stable release from the official PyPI index."""
-_SPEC = SimpleNamespace(name="starplast", label="Starplast", python=((3, 10), (3, 13)), size_gb=12)
-_OWNER = ".spacr-starplast.json"
+MINIMUM_VERSION = "0.0.1.0"
+"""Oldest release spaCR installs; compared with ``packaging.version.Version``."""
+_SPEC = SimpleNamespace(name="parascape", label="ParaScape", python=((3, 10), (3, 13)), size_gb=12)
+_OWNER = ".spacr-parascape.json"
 _SELFTEST = (
     "import json, importlib.metadata; from PyQt6 import QtWidgets; "
-    "from starplast import paths; from starplast.app import main; "
+    "from parascape import paths; from parascape.app import main; "
     "ok, message = paths.check(); assert ok, message; "
-    "print(json.dumps({'ok': True, 'version': importlib.metadata.version('starplast')}))"
+    "print(json.dumps({'ok': True, 'version': importlib.metadata.version('parascape')}))"
 )
 
 
@@ -46,19 +48,38 @@ def apps_root(root=None) -> Path:
 def default_source() -> str:
     """Use PyPI unless a developer explicitly overrides the installation source.
 
-    :returns: ``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name.
+    :returns: ``SPACR_PARASCAPE_SOURCE`` or the unpinned PyPI package name.
     """
-    override = os.environ.get("SPACR_STARPLAST_SOURCE")
+    override = os.environ.get("SPACR_PARASCAPE_SOURCE")
     if override:
         return override
     return PYPI_PACKAGE
 
 
+def pypi_requirement() -> str:
+    """Return the pip requirement that installs or upgrades from PyPI.
+
+    :returns: the package name with its minimum supported release.
+    """
+    return f"{PYPI_PACKAGE}>={MINIMUM_VERSION}"
+
+
+def gui_command(env: Path) -> Path:
+    """Return the ``parascape`` console script of an environment.
+
+    :param env: ParaScape's virtual environment.
+    :returns: the script beside the environment's interpreter, with the
+        interpreter's suffix (``.exe`` on Windows).
+    """
+    python = Path(environments._env_python(str(env)))
+    return python.with_name("parascape").with_suffix(python.suffix)
+
+
 def _record(env: Path) -> dict:
-    """Read only a valid spaCR-owned Starplast environment record."""
+    """Read only a valid spaCR-owned ParaScape environment record."""
     try:
         value = json.loads((env / _OWNER).read_text(encoding="utf-8"))
-        return value if isinstance(value, dict) and value.get("app") == "starplast" else {}
+        return value if isinstance(value, dict) and value.get("app") == "parascape" else {}
     except (OSError, ValueError):
         return {}
 
@@ -69,7 +90,7 @@ def is_installed(root=None) -> bool:
     :param root: external-application folder.
     :returns: true only with a completed record and environment interpreter.
     """
-    env = apps_root(root) / "starplast"
+    env = apps_root(root) / "parascape"
     return (not env.is_symlink() and _record(env).get("ready") is True
             and Path(environments._env_python(str(env))).is_file())
 
@@ -77,7 +98,7 @@ def is_installed(root=None) -> bool:
 def process_environment(env: Path) -> dict:
     """Isolate Python, pip and Qt plugin lookup from the running spaCR process.
 
-    :param env: Starplast's virtual environment.
+    :param env: ParaScape's virtual environment.
     :returns: subprocess variables retaining desktop display and user settings.
     """
     values = environments._clean_env(str(env))
@@ -103,27 +124,27 @@ def process_environment(env: Path) -> dict:
 def _claim(root: Path) -> None:
     """Claim the install, refusing concurrent work and retaining live locks."""
     root.mkdir(parents=True, exist_ok=True)
-    path = root / "starplast.lock"
+    path = root / "parascape.lock"
     if path.exists():
-        if environments._read_lock(str(root), "starplast"):
-            raise environments._InstallFailed("Starplast is already being installed.")
+        if environments._read_lock(str(root), "parascape"):
+            raise environments._InstallFailed("ParaScape is already being installed.")
         path.unlink()
     try:
         with path.open("x", encoding="utf-8") as stream:
             json.dump({"pid": os.getpid(), "host": socket.gethostname()}, stream)
     except FileExistsError as exc:
-        raise environments._InstallFailed("Starplast is already being installed.") from exc
+        raise environments._InstallFailed("ParaScape is already being installed.") from exc
 
 
-def install_starplast(source=None, *, root=None, progress=None, cancel=None,
+def install_parascape(source=None, *, root=None, progress=None, cancel=None,
                      runner=None, preflight=None) -> Path:
-    """Build an isolated environment, install Starplast and check its bundled data.
+    """Build an isolated environment, install ParaScape and check its bundled data.
 
     Local Git sources are archived from committed HEAD into temporary storage;
     pip never writes build files into the original checkout. A failed install
-    removes only the environment created here, and retains ``starplast-install.log``.
+    removes only the environment created here, and retains ``parascape-install.log``.
 
-    :param source: starplast on PyPI, or an explicit local Git checkout or
+    :param source: parascape on PyPI, or an explicit local Git checkout or
         repository URL; default_source otherwise. PyPI resolves the latest
         compatible stable release at installation time, without a version pin.
     :param root: external-application folder.
@@ -137,18 +158,18 @@ def install_starplast(source=None, *, root=None, progress=None, cancel=None,
         checkout, the PyPI package, nor an allowed official repository URL.
     """
     root = apps_root(root)
-    env = root / "starplast"
+    env = root / "parascape"
     if is_installed(root):
         return env
     source = str(source or default_source()).strip()
     local = Path(source).expanduser()
     is_local = source != PYPI_PACKAGE and local.exists()
     if is_local:
-        if not (local / ".git").exists() or not (local / "starplast/app.py").is_file():
-            raise ValueError("Choose a Starplast Git checkout containing starplast/app.py.")
+        if not (local / ".git").exists() or not (local / "parascape/app.py").is_file():
+            raise ValueError("Choose a ParaScape Git checkout containing parascape/app.py.")
         source = str(local.resolve())
-    elif source not in (PYPI_PACKAGE, REPOSITORY) and not source.startswith("git+https://github.com/EinarOlafsson/starplast.git@"):
-        raise ValueError("Choose starplast on PyPI, a local Starplast Git checkout or its official GitHub repository.")
+    elif source not in (PYPI_PACKAGE, REPOSITORY) and not source.startswith("git+https://github.com/EinarOlafsson/parascape.git@"):
+        raise ValueError("Choose parascape on PyPI, a local ParaScape Git checkout or its official GitHub repository.")
     report = progress or (lambda *_args: None)
     run = runner or environments._run_step
     _claim(root)
@@ -157,33 +178,33 @@ def install_starplast(source=None, *, root=None, progress=None, cancel=None,
         if is_installed(root):
             return env
         if cancel is not None and cancel.is_set():
-            raise environments._InstallCancelled("Starplast installation cancelled.")
+            raise environments._InstallCancelled("ParaScape installation cancelled.")
         if env.is_symlink() or (env.exists() and not _record(env)):
-            raise environments._InstallFailed(f"The folder {env} is not a spaCR-owned Starplast environment.")
+            raise environments._InstallFailed(f"The folder {env} is not a spaCR-owned ParaScape environment.")
         report(0, 5, "Checking Python, network and free disk space")
         interpreter = (preflight or environments._preflight)(_SPEC, str(root))
         if cancel is not None and cancel.is_set():
-            raise environments._InstallCancelled("Starplast installation cancelled.")
+            raise environments._InstallCancelled("ParaScape installation cancelled.")
         if env.exists():
             environments._remove_tree(str(env), str(root))
         env.mkdir()
         built = True
-        (env / _OWNER).write_text(json.dumps({"app": "starplast", "ready": False}), encoding="utf-8")
+        (env / _OWNER).write_text(json.dumps({"app": "parascape", "ready": False}), encoding="utf-8")
         python = environments._env_python(str(env))
         variables = process_environment(env)
-        with tempfile.TemporaryDirectory(prefix="starplast-source-", dir=root) as temporary:
-            requirement = source
+        with tempfile.TemporaryDirectory(prefix="parascape-source-", dir=root) as temporary:
+            requirement = pypi_requirement() if source == PYPI_PACKAGE else source
             steps = []
             if is_local:
-                requirement = str(Path(temporary) / "starplast.tar")
-                steps.append(("Snapshot committed Starplast source", ["git", "-C", source, "archive", "--format=tar", "--output", requirement, "HEAD"]))
+                requirement = str(Path(temporary) / "parascape.tar")
+                steps.append(("Snapshot committed ParaScape source", ["git", "-C", source, "archive", "--format=tar", "--output", requirement, "HEAD"]))
             steps.extend([
-                ("Create Starplast environment", list(interpreter) + ["-m", "venv", str(env)]),
+                ("Create ParaScape environment", list(interpreter) + ["-m", "venv", str(env)]),
                 ("Install pip", [python, "-I", "-m", "pip", "install", "--index-url", "https://pypi.org/simple", "--upgrade", "pip"]),
-                ("Install Starplast and dependencies", [python, "-I", "-m", "pip", "install", "--index-url", "https://pypi.org/simple", "--upgrade", "--no-cache-dir", requirement]),
-                ("Check Starplast and bundled data", [python, "-I", "-c", _SELFTEST]),
+                ("Install ParaScape and dependencies", [python, "-I", "-m", "pip", "install", "--index-url", "https://pypi.org/simple", "--upgrade", "--no-cache-dir", requirement]),
+                ("Check ParaScape and bundled data", [python, "-I", "-c", _SELFTEST]),
             ])
-            with (root / "starplast-install.log").open("w", encoding="utf-8") as log:
+            with (root / "parascape-install.log").open("w", encoding="utf-8") as log:
                 for number, (label, argv) in enumerate(steps):
                     report(number, len(steps), label)
                     log.write("$ " + environments._quote(argv) + "\n")
@@ -197,28 +218,28 @@ def install_starplast(source=None, *, root=None, progress=None, cancel=None,
 
                     code, tail = run(argv, env=variables, cwd=str(root), on_line=line, cancel=cancel)
                     if code:
-                        raise environments._InstallFailed(label + " failed:\n" + "\n".join(tail[-40:]) + f"\nLog: {root / 'starplast-install.log'}")
+                        raise environments._InstallFailed(label + " failed:\n" + "\n".join(tail[-40:]) + f"\nLog: {root / 'parascape-install.log'}")
             try:
                 result = json.loads(tail[-1])
                 if result.get("ok") is not True:
                     raise ValueError("self-test did not succeed")
             except (IndexError, ValueError, AttributeError) as exc:
-                raise environments._InstallFailed("Starplast did not confirm that its imports and bundled data are ready.") from exc
-        record = {"app": "starplast", "ready": True, "source": source, "version": result.get("version", "")}
+                raise environments._InstallFailed("ParaScape did not confirm that its imports and bundled data are ready.") from exc
+        record = {"app": "parascape", "ready": True, "source": source, "version": result.get("version", "")}
         temporary = env / (_OWNER + ".tmp")
         temporary.write_text(json.dumps(record, indent=2), encoding="utf-8")
         temporary.replace(env / _OWNER)
-        report(len(steps), len(steps), "Starplast is installed")
+        report(len(steps), len(steps), "ParaScape is installed")
         return env
     except BaseException:
         if built:
             environments._remove_tree(str(env), str(root))
         raise
     finally:
-        environments._release_lock(str(root), "starplast")
+        environments._release_lock(str(root), "parascape")
 
 
-def check_starplast_update(*, root=None, cancel=None, runner=None) -> dict:
+def check_parascape_update(*, root=None, cancel=None, runner=None) -> dict:
     """Compare the actual isolated installation with compatible stable PyPI releases.
 
     :param root: external-application folder.
@@ -231,12 +252,12 @@ def check_starplast_update(*, root=None, cancel=None, runner=None) -> dict:
 
     root = apps_root(root)
     if not is_installed(root):
-        raise RuntimeError("Starplast must be installed before checking updates.")
-    env = root / "starplast"
+        raise RuntimeError("ParaScape must be installed before checking updates.")
+    env = root / "parascape"
     python = environments._env_python(str(env))
     run = runner or environments._run_step
     commands = [
-        [python, "-I", "-c", "import importlib.metadata; print(importlib.metadata.version('starplast'))"],
+        [python, "-I", "-c", "import importlib.metadata; print(importlib.metadata.version('parascape'))"],
         [python, "-I", "-m", "pip", "--disable-pip-version-check", "index", "versions",
          PYPI_PACKAGE, "--index-url", "https://pypi.org/simple", "--timeout", "8", "--retries", "0", "--no-cache-dir"],
     ]
@@ -244,22 +265,22 @@ def check_starplast_update(*, root=None, cancel=None, runner=None) -> dict:
     for command in commands:
         code, lines = run(command, env=process_environment(env), cwd=str(root), cancel=cancel)
         if code:
-            raise RuntimeError("Could not check Starplast updates:\n" + "\n".join(lines[-10:]))
+            raise RuntimeError("Could not check ParaScape updates:\n" + "\n".join(lines[-10:]))
         outputs.append("\n".join(lines))
     installed = outputs[0].strip()
-    latest = re.search(r"^starplast \(([^)]+)\)\s*$", outputs[1], re.MULTILINE)
+    latest = re.search(r"^parascape \(([^)]+)\)\s*$", outputs[1], re.MULTILINE)
     if not latest:
-        raise RuntimeError("PyPI did not return a compatible Starplast release.")
+        raise RuntimeError("PyPI did not return a compatible ParaScape release.")
     version = latest.group(1)
     return {"installed": installed, "latest": version,
             "available": Version(version) > Version(installed)}
 
 
-def upgrade_starplast(source=None, *, root=None, progress=None, cancel=None,
+def upgrade_parascape(source=None, *, root=None, progress=None, cancel=None,
                      runner=None) -> Path:
     """Upgrade the owned environment using pip and PyPI, then verify its data.
 
-    :param source: ignored; upgrades always use the PyPI Starplast package.
+    :param source: ignored; upgrades always use the PyPI ParaScape package.
     :param root: external-application folder.
     :param progress: optional ``(step, total, text)`` callback.
     :param cancel: optional subprocess cancellation event.
@@ -269,25 +290,25 @@ def upgrade_starplast(source=None, *, root=None, progress=None, cancel=None,
         for diagnosis; an interrupted environment must be repaired before launch.
     """
     root = apps_root(root)
-    env = root / "starplast"
+    env = root / "parascape"
     report = progress or (lambda *_args: None)
     run = runner or environments._run_step
     _claim(root)
     try:
         if env.is_symlink() or not _record(env) or not Path(environments._env_python(str(env))).is_file():
-            raise RuntimeError("Starplast must be installed before upgrading.")
+            raise RuntimeError("ParaScape must be installed before upgrading.")
         if cancel is not None and cancel.is_set():
-            raise environments._InstallCancelled("Starplast upgrade cancelled.")
+            raise environments._InstallCancelled("ParaScape upgrade cancelled.")
         python = environments._env_python(str(env))
         record = _record(env)
         record["ready"] = False
         (env / _OWNER).write_text(json.dumps(record), encoding="utf-8")
         steps = [
-            ("Upgrade Starplast from PyPI", [python, "-I", "-m", "pip", "install",
-             "--index-url", "https://pypi.org/simple", "--upgrade", "--no-cache-dir", PYPI_PACKAGE]),
-            ("Check Starplast and bundled data", [python, "-I", "-c", _SELFTEST]),
+            ("Upgrade ParaScape from PyPI", [python, "-I", "-m", "pip", "install",
+             "--index-url", "https://pypi.org/simple", "--upgrade", "--no-cache-dir", pypi_requirement()]),
+            ("Check ParaScape and bundled data", [python, "-I", "-c", _SELFTEST]),
         ]
-        with (root / "starplast-upgrade.log").open("w", encoding="utf-8") as log:
+        with (root / "parascape-upgrade.log").open("w", encoding="utf-8") as log:
             for number, (label, command) in enumerate(steps):
                 report(number, len(steps), label)
                 log.write("$ " + environments._quote(command) + "\n")
@@ -308,19 +329,19 @@ def upgrade_starplast(source=None, *, root=None, progress=None, cancel=None,
             if result.get("ok") is not True:
                 raise ValueError("self-test did not succeed")
         except (IndexError, ValueError, AttributeError) as exc:
-            raise environments._InstallFailed("Starplast did not confirm that its imports and bundled data are ready.") from exc
+            raise environments._InstallFailed("ParaScape did not confirm that its imports and bundled data are ready.") from exc
         record.update(ready=True, source=PYPI_PACKAGE, version=result.get("version", ""))
         temporary = env / (_OWNER + ".tmp")
         temporary.write_text(json.dumps(record, indent=2), encoding="utf-8")
         temporary.replace(env / _OWNER)
-        report(len(steps), len(steps), "Starplast is installed")
+        report(len(steps), len(steps), "ParaScape is installed")
         return env
     finally:
-        environments._release_lock(str(root), "starplast")
+        environments._release_lock(str(root), "parascape")
 
 
-def launch_starplast(*, root=None, popen=None):
-    """Start Starplast as a separate process, logging output beside its environment.
+def launch_parascape(*, root=None, popen=None):
+    """Start ParaScape as a separate process, logging output beside its environment.
 
     :param root: external-application folder.
     :param popen: optional subprocess.Popen substitute for focused tests.
@@ -329,10 +350,10 @@ def launch_starplast(*, root=None, popen=None):
     """
     root = apps_root(root)
     if not is_installed(root):
-        raise RuntimeError("Starplast must be installed before it can open.")
-    env = root / "starplast"
-    with (root / "starplast-launch.log").open("ab") as log:
+        raise RuntimeError("ParaScape must be installed before it can open.")
+    env = root / "parascape"
+    with (root / "parascape-launch.log").open("ab") as log:
         return (popen or subprocess.Popen)(
-            [environments._env_python(str(env)), "-I", "-m", "starplast"],
+            [str(gui_command(env))],
             cwd=str(root), env=process_environment(env), stdin=subprocess.DEVNULL,
             stdout=log, stderr=subprocess.STDOUT, **environments._detached())

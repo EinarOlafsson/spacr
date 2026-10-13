@@ -318,7 +318,7 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
-      "label": "spacr.qt.starplast.StarplastUpdateCheckDialog.__init__.check#0",
+      "label": "spacr.qt.parascape.ParaScapeUpdateCheckDialog.__init__.check#0",
       "source": "Store the comparison until the worker's finished signal arrives.",
       "source_sha256": "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a",
       "context": "Store the comparison until the worker's finished signal arrives.",
@@ -326,11 +326,11 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
-      "label": "spacr.qt.starplast.open_starplast.check#0",
-      "source": "Reap the detached child and show failures without closing Starplast on spaCR exit.",
-      "source_sha256": "40050d761bdce5e3875cf3f8cc99132292c6e09c7fe4c9b4abaad189cc9d416b",
-      "context": "Reap the detached child and show failures without closing Starplast on spaCR exit.",
-      "translation": "回收分离的子进程并显示失败信息，且不会在 spaCR 退出时关闭 Starplast。",
+      "label": "spacr.qt.parascape.open_parascape.check#0",
+      "source": "Reap the detached child and show failures without closing ParaScape on spaCR exit.",
+      "source_sha256": "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28",
+      "context": "Reap the detached child and show failures without closing ParaScape on spaCR exit.",
+      "translation": "回收分离的子进程并显示失败信息，且不会在 spaCR 退出时关闭 ParaScape。",
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {

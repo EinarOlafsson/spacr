@@ -1639,12 +1639,12 @@ runtime reviews still need source reconciliation. Translations and the full
 reference remain open; see411_threshold_source_refresh_2026-09-22.json.
 
 2026-09-22 — CODEX: CURRENT EXTERNAL APP / DIAGRAM API HANDOFFS PUBLISHED
-Commits a567c178a and a69909cc5 publish/reconcile21 Starplast, diagram, organism
+Commits a567c178a and a69909cc5 publish/reconcile21 ParaScape, diagram, organism
 registry and sample-route API entries in all nine locales. Sphinx -W passes;
 all21 actual anchors and189 served locale entries were checked. The first
 batch passes167 focused checks, the stable-layout follow-up166. Required
 parameter omissions stay2293. The shared explicit-module visibility policy
-publishes Starplast services while excluding private helpers/import aliases.
+publishes ParaScape services while excluding private helpers/import aliases.
 English inventory11356 API entries; all nine review loaders pass. Existing
 full-catalog browser acceptance and the remaining nested-helper rollout are
 still open. Structural/source-hash census after the subsequent heading batch:
@@ -2099,7 +2099,7 @@ large ones (preferences, utils, plot, fractal_travel, gui_scale, ml).
 2026-10-03 — 23 MORE MODULES ENABLED (PARTIAL; 190 of 1,157)
 ENABLED_MODULES grows by 23 modules with two helpers each (hits,
 object_settings_table, qt.dnd, qt.hf_download, qt.menus, qt.prerun, ten
-qt.screens, qt.settings_search, qt.starplast and seven qt.widgets). The normal
+qt.screens, qt.settings_search, qt.parascape and seven qt.widgets). The normal
 API writer adds 46 symbols (12,171 -> 12,217; 45 helpers plus nightly's new
 public ConditionSourceTable.setModel) in English and all nine locales; earlier
 records unchanged. 62 unique blocks got direct AI translations with AI

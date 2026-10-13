@@ -74,7 +74,7 @@
     "spacr.point_spread.PSFResult:image",
     "spacr.point_spread.PSFResult:provenance",
     "spacr.psf_measurement.measurement_psf_signature:plan",
-    "spacr.qt.starplast.StarplastUpdateCheckDialog.closeEvent:event",
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.closeEvent:event",
     "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.set_preview_busy:busy"
   ]
 }

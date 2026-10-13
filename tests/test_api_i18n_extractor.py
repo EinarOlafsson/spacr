@@ -41,11 +41,12 @@ builder = importlib.import_module("build_documentation_i18n")
 # With live_preview.BOUND_ROWS (2026-09-26) it moved bc6cd219 -> c894d34b; the
 # previous-surface digest below, without the added set, is unchanged.
 _NEW_VISIBLE_DIGEST = (
-    "c894d34b5cd1ee4d4341e82d42a1358d515f8db623a6c21fd165e5aba153fdb0"
+    "283580f3b6bd6b66c98e6aa26c44c37d49696e9940d7ce39cac7e0ca2cb5cda7"
 )
 _PREVIOUS_VISIBLE_DIGEST = (
-    "f1da16e8943c80d31589172003964db63641f8bea219ff99385af929fcc51d70"
+    "d756bd8ed64b13f473eee9905cdee6a394866efc00b09cd2725f8ead4e4a4195"
 )
+_LAUNCHER_ASSIGNMENTS = {"spacr._parascape.MINIMUM_VERSION"}
 _ASSIGNMENTS_ADDED_2026_09_25 = frozenset({
     "spacr.qt.widgets.live_preview.SESSION_MASK_LIMIT",
     "spacr.qt.widgets.plaque_preview.AUTOMATIC_BOX_THICKNESS",
@@ -274,40 +275,40 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert psf_validator in dunders
     # The exact Make Masks animation registry is one new documented value.
     # Removing it reproduces the previous visible-member digest exactly.
-    # Starplast's package identity is the only further assignment. Removing
+    # ParaScape's package identity is the only further assignment. Removing
     # it recovers the previous fingerprint, independently of the count.
     # 23 -> 32 on 2026-09-25: exactly _ASSIGNMENTS_ADDED_2026_09_25 (+9 / -0
     # by set difference against af6d77376). The historical digests below are
     # checked on the surface without them.
     # 32 -> 34 with mask_engine's FILTER_BOUNDS and FILTER_KEYS (03a02c3b8).
     # 34 -> 35 on 2026-09-26 with live_preview.BOUND_ROWS (+1 / -0 against
-    # 4f6c58418).
+    # 4f6c58418). _parascape.MINIMUM_VERSION (2026-10-12) is subtracted with its contract.
     spatial_arrivals = _spatial_arrivals()
     assert len(spatial_arrivals) == 22
     assert {key: docs[key] for key in spatial_arrivals} == spatial_arrivals
     assert not spatial_arrivals.keys() & dunders
-    assignments = assignments - spatial_arrivals.keys()
+    assignments = assignments - spatial_arrivals.keys() - _LAUNCHER_ASSIGNMENTS
     assert len(assignments) == 35
     assert _ASSIGNMENTS_ADDED_2026_09_25 <= assignments
     new_assignments = assignments
     assignments = assignments - _ASSIGNMENTS_ADDED_2026_09_25
-    assert "spacr._starplast.PYPI_PACKAGE" in assignments
+    assert "spacr._parascape.PYPI_PACKAGE" in assignments
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
          *(f"new_constant_attribute\0{key}" for key in assignments)]
-    ) == "adb64fcaf42611b6ef69aad5c07735f04f8957bdf078448a4bc3022c1cffe335"
+    ) == "417e53d93cd6259149951890b9ea9a00b163952790abdfbaff605f2f01785d3d"
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
          *(f"new_constant_attribute\0{key}" for key in assignments
-           if key != "spacr._starplast.PYPI_PACKAGE")]
-    ) == "cc3552d55d0153f2e473b6339b96ff9aac59a260890414753cb7465146cc52c3"
+           if key != "spacr._parascape.PYPI_PACKAGE")]
+    ) == "3383032ca618a1a6039eb4eaf1960968479acc2aa770fe65c328babba5a2e96e"
     assert "spacr.qt.widgets.make_masks_help.ANIMATIONS" in assignments
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
          *(f"new_constant_attribute\0{key}" for key in assignments
            if key not in {"spacr.qt.widgets.make_masks_help.ANIMATIONS",
-                          "spacr._starplast.PYPI_PACKAGE"})]
-    ) == "afc091d698cdc339051446cea1a31997174d2dfbfb2452c0517da83f32ed96a9"
+                          "spacr._parascape.PYPI_PACKAGE"})]
+    ) == "aa7adc1a4f67f506b55961f8e83c8bf091e98bda0a605a2a9fc8c3cfca141f13"
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders),
          *(f"new_constant_attribute\0{key}" for key in assignments)]
@@ -1269,7 +1270,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 474 adds six module/class/method entries and four documented registries.
     # All ten have source-bound records in the nine locale catalogs.
     # Removing the four registry IDs reproduces the previous visible digest.
-    # Starplast contributes fourteen entries; diagram interactions add two.
+    # ParaScape contributes fourteen entries; diagram interactions add two.
     # All sixteen and the three changed entries have nine-language catalogs.
     # Removing REPOSITORY restores the prior visible-member digest exactly;
     # features/data/411_external_app_api_2026-09-22.json records the audit.
@@ -1547,6 +1548,14 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert {key: docs[key] for key in dna_rain_arrivals} == dna_rain_arrivals
     assert not dna_rain_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **dna_rain_arrivals}
+    # 2026-10-12: the ParaScape launcher pins its minimum release and launches the console script; three arrivals.
+    launcher_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "parascape_launcher_api_arrivals_2026-10-12.json").read_text())
+    assert len(launcher_arrivals) == 3
+    assert {key: docs[key] for key in launcher_arrivals} == launcher_arrivals
+    assert not launcher_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **launcher_arrivals}
     actual = len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1936,7 +1945,7 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary(monke
     # RE-MEASURED 2026-09-21 the same way: pre-filter 11,155 -> 11,390,
     # post-filter 10,931 -> 11,166, boundary 224 -> 224. Both halves moved
     # by exactly 235, so every arrival is rendered.
-    # The sixteen Starplast/diagram additions occur on both sides; the
+    # The sixteen ParaScape/diagram additions occur on both sides; the
     # independently measured non-rendered boundary remains 224.
     # The nine ruler entries are rendered; the excluded set is unchanged.
     # Re-measured both sides on 2026-09-23: 11,740 before filtering and
@@ -2040,12 +2049,13 @@ def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
     assignment_keys = (_visible_assignment_docs()
                        - _spatial_arrivals().keys())
 
-    # Four organism registries, Starplast's URL/package identity and the
+    # Four organism registries, ParaScape's URL/package identity and the
     # Make Masks animation registry add seven to the original sixteen; the
     # nine _ASSIGNMENTS_ADDED_2026_09_25 constants make 32.
     # 34 with mask_engine's FILTER_BOUNDS and FILTER_KEYS; 35 with
-    # live_preview.BOUND_ROWS (2026-09-26).
-    assert len(assignment_keys) == 35
+    # live_preview.BOUND_ROWS (2026-09-26); 36 with _parascape.MINIMUM_VERSION
+    # (2026-10-12).
+    assert len(assignment_keys) == 36
     assert assignment_keys <= docs.keys()
     assert all("Show Value" not in docs[key] for key in assignment_keys)
     assert docs["spacr.batch_correction.METHODS"] == (

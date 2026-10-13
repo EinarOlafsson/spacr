@@ -46,7 +46,7 @@ relative-path failure. Complete terminal logs and current job/source state
 retained. On exact7281178ac, real collector enabled across6 affected owner
 files260PASS7.60s; actual endpoint260/260, no skips. Files cover doctor,
 CellProfiler provisioning, relative file writers, tilde database paths,
-Starplast environments and original diagnostic messages. No further source
+ParaScape environments and original diagnostic messages. No further source
 change or duplicated full CI dispatch. Receipt
 data/681_collector_file_access_ci_2026-10-09/receipt.json now retains
 27 verified payloads and six additional exact Git test bindings.

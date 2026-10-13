@@ -5,7 +5,7 @@
   "note": "Feature 411, maintainer decisions 2026-09-25: API documentation debt. Each record is the final text of an AI technical review against the English docstring block and its model context, starting from a local machine-translation draft (the builder's OPUS-MT/M2M100 decode with the MADLAD-400 7B tail) where one passed the builder gates, otherwise written from the English; review_basis says which. MT drafts are never published unreviewed. No human and no native speaker has read these records.",
   "records": [
     {
-      "label": "spacr._starplast.check_starplast_update#2",
+      "label": "spacr._parascape.check_parascape_update#2",
       "source": "optional cancellation event for subprocesses.",
       "source_sha256": "2a6038ff6c10abd2e914afb14d3270a32aed55b6bf50fbd0ab73dadcd74a5664",
       "context": "optional cancellation event for subprocesses.",
@@ -13,7 +13,7 @@
       "review_basis": "written from the English (no current MT draft)"
     },
     {
-      "label": "spacr._starplast.upgrade_starplast#4",
+      "label": "spacr._parascape.upgrade_parascape#4",
       "source": "optional subprocess cancellation event.",
       "source_sha256": "e54aecea5b4d06972d3ce00c359fa613130de9f95bf38c9c6fc61a0d9a6e636c",
       "context": "optional subprocess cancellation event.",

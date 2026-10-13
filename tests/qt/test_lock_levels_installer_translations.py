@@ -17,7 +17,7 @@ def locale(request, monkeypatch):
     language = request.param
     monkeypatch.setattr(i18n, "current_language", lambda: language)
     targets = {}
-    for filename in ("2026-09-22-lock-levels-starplast-controls.json",
+    for filename in ("2026-09-22-lock-levels-parascape-controls.json",
                      "2026-09-22-shared-ruler.json",
                      "2026-09-24-release-captions.json"):
         payload = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
@@ -27,23 +27,23 @@ def locale(request, monkeypatch):
 
 
 def test_installer_controls_and_callback_prefixes_are_localized(qtbot, tmp_path, locale):
-    from spacr.qt.starplast import StarplastInstallDialog
+    from spacr.qt.parascape import ParaScapeInstallDialog
 
     language, targets = locale
-    dialog = StarplastInstallDialog(root=tmp_path)
+    dialog = ParaScapeInstallDialog(root=tmp_path)
     qtbot.addWidget(dialog)
-    assert dialog.windowTitle() == targets["Install Starplast (alpha)"]
+    assert dialog.windowTitle() == targets["Install ParaScape (alpha)"]
     assert dialog.start_button.text() == targets["Install and open"]
     assert dialog.browse.text() == targets["Choose checkout…"]
     assert dialog.status.text() == targets["Ready to install when you choose Install and open."]
-    assert str(tmp_path / "starplast") in dialog.explanation.text()
+    assert str(tmp_path / "parascape") in dialog.explanation.text()
     explanation = next(source for source in targets
-                       if source.startswith('Starplast is an alpha application'))
-    assert dialog.explanation.text() == targets[explanation].format(path=str(tmp_path / 'starplast'))
+                       if source.startswith('ParaScape is an alpha application'))
+    assert dialog.explanation.text() == targets[explanation].format(path=str(tmp_path / 'parascape'))
     assert '12 GB' in dialog.explanation.text()
     assert '4 GB' not in dialog.explanation.text() and '7 GB' not in dialog.explanation.text()
     assert 'PyPI' in dialog.explanation.text()
-    for source in ("Create Starplast environment", "Install pip", "Install Starplast and dependencies"):
+    for source in ("Create ParaScape environment", "Install pip", "Install ParaScape and dependencies"):
         dialog._progress(2, 7, source + ": command output /tmp/example --flag")
         assert dialog.status.text() == targets[source] + ": command output /tmp/example --flag"
     assert dialog._thread is None

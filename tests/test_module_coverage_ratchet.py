@@ -403,10 +403,10 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert "spacr/qt/gui_scale.py" in shipped
     assert "spacr/qt/widgets/preview_scale.py" in shipped
     added_since_608 = {
-        'spacr/_starplast.py', 'spacr/qt/cpu_modes.py', 'spacr/qt/detect_chain.py',
+        'spacr/_parascape.py', 'spacr/qt/cpu_modes.py', 'spacr/qt/detect_chain.py',
         'spacr/qt/organelle_modes.py', 'spacr/qt/organisms.py',
         'spacr/qt/screens/organism_screen.py', 'spacr/qt/secondary_masks.py',
-        'spacr/qt/starplast.py', 'spacr/qt/widgets/image_ruler.py',
+        'spacr/qt/parascape.py', 'spacr/qt/widgets/image_ruler.py',
         'spacr/qt/widgets/organism_diagram.py', 'spacr/qt/widgets/primary_mask_selector.py',
         'spacr/qt/widgets/sample_project.py', 'spacr/qt/widgets/workflow_diagram.py',
         'spacr/qt/widgets/zoom_view.py',

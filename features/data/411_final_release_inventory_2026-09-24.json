@@ -247,12 +247,12 @@
     "new_member": "spacr.point_spread.PSF.__post_init__",
     "new_present": true,
     "current_digest": "e287c1b880ad2cfeb73fa91c11ae468e19f6c5871adcfabc2f4b02dbd7611206",
-    "without_new_digest": "cc3552d55d0153f2e473b6339b96ff9aac59a260890414753cb7465146cc52c3"
+    "without_new_digest": "3383032ca618a1a6039eb4eaf1960968479acc2aa770fe65c328babba5a2e96e"
   },
   "hashes": {
-    "full": "f1da16e8943c80d31589172003964db63641f8bea219ff99385af929fcc51d70",
-    "without_psf": "adb64fcaf42611b6ef69aad5c07735f04f8957bdf078448a4bc3022c1cffe335",
-    "without_psf_starplast": "cc3552d55d0153f2e473b6339b96ff9aac59a260890414753cb7465146cc52c3",
-    "without_psf_starplast_animations": "afc091d698cdc339051446cea1a31997174d2dfbfb2452c0517da83f32ed96a9"
+    "full": "d756bd8ed64b13f473eee9905cdee6a394866efc00b09cd2725f8ead4e4a4195",
+    "without_psf": "417e53d93cd6259149951890b9ea9a00b163952790abdfbaff605f2f01785d3d",
+    "without_psf_parascape": "3383032ca618a1a6039eb4eaf1960968479acc2aa770fe65c328babba5a2e96e",
+    "without_psf_parascape_animations": "aa7adc1a4f67f506b55961f8e83c8bf091e98bda0a605a2a9fc8c3cfca141f13"
   }
 }

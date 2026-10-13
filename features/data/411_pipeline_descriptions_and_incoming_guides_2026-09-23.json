@@ -387,8 +387,8 @@
     "added": [
       "spacr.qt.widgets.make_masks_help.ANIMATIONS"
     ],
-    "before": "afc091d698cdc339051446cea1a31997174d2dfbfb2452c0517da83f32ed96a9",
-    "after": "cc3552d55d0153f2e473b6339b96ff9aac59a260890414753cb7465146cc52c3"
+    "before": "aa7adc1a4f67f506b55961f8e83c8bf091e98bda0a605a2a9fc8c3cfca141f13",
+    "after": "3383032ca618a1a6039eb4eaf1960968479acc2aa770fe65c328babba5a2e96e"
   },
   "checks": {
     "sphinx": {

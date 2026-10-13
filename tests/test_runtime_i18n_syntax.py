@@ -260,7 +260,7 @@ def _requested_detection_retirements(language, filename):
     originals = evidence / 'original-runtime-reviews-r1'
     receipt = originals / 'receipt.json'
     assert hashlib.sha256(receipt.read_bytes()).hexdigest() == (
-        '6760071e677058dcb4ea46a55510793e7195b9b0c89f72b8bda3ad1cb62ced3d')
+        '3c795473005f52251d3197dc8c45be8e41d8b787bbf60de867090cd00318cc53')
     relative = f'docs/i18n/reviewed/runtime/{language}/{filename}'
     entries = [entry for entry in json.loads(receipt.read_text())
                if entry['file'] == relative]

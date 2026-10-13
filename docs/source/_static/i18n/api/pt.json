@@ -272,19 +272,19 @@
         "e1519a2ffff715d099b957b28e1750fc0697acb2eb039b47c2982d1e8832041b"
       ]
     },
-    "spacr._starplast": {
+    "spacr._parascape": {
       "source_blocks_sha256": [
-        "ad62b704e0aee65fa3f7c3e9956ed0508d9f8543d01f56d2003c53325a401f36",
-        "74f8ee31180544a14a2f612b2f08ac18a2a54db204a1894d805d9d068430cb74"
+        "498ba8c9a53a6d02da88b0ee264119a35ad2cee087572c4fa1dd37e8d7233de1",
+        "cf595a300473f00f87f2c6673b893835b729aa7734ba2e6ce503505dc2873734"
       ],
-      "source_sha256": "eced2ad5a7cee86848df1f1111914f766d0e7c5832f4b6c4db75313c8b9f9273",
-      "text": "Instalar e iniciar a aplicação de ambiente de trabalho Starplast em separado.\n\nO Starplast utiliza PyQt6 e nunca é importado no processo PySide6 do spaCR. O seu ambiente reside em ``~/.spacr/apps`` (ou ``SPACR_APPS_DIR``). A instalação reutiliza a procura do interpretador, o ambiente isolado de comandos e a execução cancelável de subprocessos dos instaladores de segmentação, sem registar um detetor.",
+      "source_sha256": "bf7ad7c791219c2b870579472f34700145c51f19479dad1f1ac137f3c05d1583",
+      "text": "Instalar e iniciar a aplicação de ambiente de trabalho ParaScape em separado.\n\nO ParaScape utiliza PyQt6 e nunca é importado no processo PySide6 do spaCR. O seu ambiente reside em ``~/.spacr/apps`` (ou ``SPACR_APPS_DIR``). A instalação reutiliza a procura do interpretador, o ambiente isolado de comandos e a execução cancelável de subprocessos dos instaladores de segmentação, sem registar um detetor.",
       "translation_source_blocks_sha256": [
-        "ad62b704e0aee65fa3f7c3e9956ed0508d9f8543d01f56d2003c53325a401f36",
-        "74f8ee31180544a14a2f612b2f08ac18a2a54db204a1894d805d9d068430cb74"
+        "498ba8c9a53a6d02da88b0ee264119a35ad2cee087572c4fa1dd37e8d7233de1",
+        "cf595a300473f00f87f2c6673b893835b729aa7734ba2e6ce503505dc2873734"
       ]
     },
-    "spacr._starplast.PYPI_PACKAGE": {
+    "spacr._parascape.PYPI_PACKAGE": {
       "source_blocks_sha256": [
         "24043ad21025cbd4614682bd8f4ff20c74a910f2aae11b2cb369479090f91585"
       ],
@@ -294,7 +294,7 @@
         "24043ad21025cbd4614682bd8f4ff20c74a910f2aae11b2cb369479090f91585"
       ]
     },
-    "spacr._starplast.REPOSITORY": {
+    "spacr._parascape.REPOSITORY": {
       "source_blocks_sha256": [
         "62d2579e5a409ab73664aebf2e332a6ce0bfdf50f69543911b4654fa4c68cfce"
       ],
@@ -304,7 +304,7 @@
         "62d2579e5a409ab73664aebf2e332a6ce0bfdf50f69543911b4654fa4c68cfce"
       ]
     },
-    "spacr._starplast.apps_root": {
+    "spacr._parascape.apps_root": {
       "source_blocks_sha256": [
         "6a7af16818daab7868d44a9a962977ade7f7e6bf6bebff0b57d68c349d532666",
         "c7360877fceb195e388c59b4592ca1cc45d153d8be0fd712ee7017165361d044",
@@ -318,7 +318,7 @@
         "470faf1d4a70dcf02fbc5e41f8a70155fd7c32db0a1326fd535d74a5af26dc4a"
       ]
     },
-    "spacr._starplast.check_starplast_update": {
+    "spacr._parascape.check_parascape_update": {
       "source_blocks_sha256": [
         "ac37e36f747dc794e3a8d52b633a03c6b0724a3b4fa5c59420f9ca7fb1e369ff",
         "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
@@ -338,23 +338,23 @@
         "f735c67c1ddfaace436e814516661ec496778fe9e1727746808578f24f5e8802"
       ]
     },
-    "spacr._starplast.default_source": {
+    "spacr._parascape.default_source": {
       "source_blocks_sha256": [
         "f8ac08042343fa09872e85dad9cf8e4e9f1c004d6c40310cf04eb5c51252cd49",
-        "eefc7385a8be3c85e49a119b1aceac9968def78e51ee4ad2396978c14fb50283"
+        "36d3db9dec8bb3cb3e632388c365bfac4f3c8eb3677d2c168b31812e9cbb7852"
       ],
-      "source_sha256": "589cbc6779c7dd152eb4e16708aca109a2ef89730f067feda5e34b2f208b0c02",
-      "text": "Usa o PyPI, a menos que um desenvolvedor substitua explicitamente a fonte de instalação.\n\n:returns: ``SPACR_STARPLAST_SOURCE`` ou o nome do pacote PyPI sem versão fixada.",
+      "source_sha256": "8eac964405e6aca0254f51211ef29204f957509986258ab548b1b12cf8caa963",
+      "text": "Usa o PyPI, a menos que um desenvolvedor substitua explicitamente a fonte de instalação.\n\n:returns: ``SPACR_PARASCAPE_SOURCE`` ou o nome do pacote PyPI sem versão fixada.",
       "translation_source_blocks_sha256": [
         "f8ac08042343fa09872e85dad9cf8e4e9f1c004d6c40310cf04eb5c51252cd49",
-        "eefc7385a8be3c85e49a119b1aceac9968def78e51ee4ad2396978c14fb50283"
+        "36d3db9dec8bb3cb3e632388c365bfac4f3c8eb3677d2c168b31812e9cbb7852"
       ]
     },
-    "spacr._starplast.install_starplast": {
+    "spacr._parascape.install_parascape": {
       "source_blocks_sha256": [
-        "c029b9a9d13102b5d0ac1873eb72b091438b936258acbe9d34e177b639bb5ad3",
-        "8bf395ce1edd446644ac92b5000e3ece591765545e361e7e9f6a7170997ace64",
-        "a6dd51e96b540c9586a79238e3aa62de516e2a6035a114f5a6e5c9261aef2ccb",
+        "fe178d66eb65ca8fe74a8e397a241c81c4afca71aee4fbf10f6f0b08e8c2be90",
+        "ec538fe26c07a86412d6a6d60eecc2194d57cef7a6533808b3cc4811bc25bf6d",
+        "ba804868c40c314aa56be73c88caae908ab8ada0c3a5636b024d36d2515ded79",
         "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
         "4ed654a860401b9f0f255e1a9edab3bd66fad6e0194be8158d2e153ba8cffe5b",
         "2656552f1501ed970e8f3d8d43ff3a67e28942c3018e63135a4c2cc11d68cc2b",
@@ -364,12 +364,12 @@
         "b0fa1aa89eefda622a27e3d6cdbe1a7cb14107177559b0e11e6a4a7c75fbe60e",
         "1cd328cac94b83da34716fd85839249408b78b0541b7f7113c03b1056b789890"
       ],
-      "source_sha256": "126a4914c173ed19878a392214a751217b8ac98f515229d635e0b7b6335e91be",
-      "text": "Criar um ambiente isolado, instalar o Starplast e verificar os dados incluídos.\n\nAs fontes locais do Git são arquivadas a partir do HEAD confirmado para armazenamento temporário; o pip nunca escreve ficheiros de compilação na cópia de trabalho original. Uma instalação falhada remove apenas o ambiente criado aqui e conserva ``starplast-install.log``.\n\n:param source: starplast no PyPI, ou uma cópia de trabalho local explícita do Git ou URL de repositório; caso contrário, default_source. O PyPI resolve a versão estável compatível mais recente no momento da instalação, sem fixar versão.\n:param root: pasta das aplicações externas.\n:param progress: função de retorno ``(step, steps, text)``; chamada fora da thread da GUI.\n:param cancel: threading.Event; cancela comandos e os seus processos descendentes.\n:param runner: substituto opcional do executor de subprocessos para testes específicos.\n:param preflight: substituto opcional da verificação prévia do interpretador para testes específicos.\n:returns: caminho do ambiente cuja instalação foi concluída.\n:raises RuntimeError: a instalação falhou, foi cancelada ou a pasta não está identificada como pertencendo à aplicação.\n:raises ValueError: a fonte selecionada não é uma cópia de trabalho local do Git adequada, nem o pacote PyPI, nem um URL de repositório oficial permitido.",
+      "source_sha256": "224dbb79c59c5efc29766e230abf199c581ab03af5fa43a1705a8d5ac9e6ad87",
+      "text": "Criar um ambiente isolado, instalar o ParaScape e verificar os dados incluídos.\n\nAs fontes locais do Git são arquivadas a partir do HEAD confirmado para armazenamento temporário; o pip nunca escreve ficheiros de compilação na cópia de trabalho original. Uma instalação falhada remove apenas o ambiente criado aqui e conserva ``parascape-install.log``.\n\n:param source: parascape no PyPI, ou uma cópia de trabalho local explícita do Git ou URL de repositório; caso contrário, default_source. O PyPI resolve a versão estável compatível mais recente no momento da instalação, sem fixar versão.\n:param root: pasta das aplicações externas.\n:param progress: função de retorno ``(step, steps, text)``; chamada fora da thread da GUI.\n:param cancel: threading.Event; cancela comandos e os seus processos descendentes.\n:param runner: substituto opcional do executor de subprocessos para testes específicos.\n:param preflight: substituto opcional da verificação prévia do interpretador para testes específicos.\n:returns: caminho do ambiente cuja instalação foi concluída.\n:raises RuntimeError: a instalação falhou, foi cancelada ou a pasta não está identificada como pertencendo à aplicação.\n:raises ValueError: a fonte selecionada não é uma cópia de trabalho local do Git adequada, nem o pacote PyPI, nem um URL de repositório oficial permitido.",
       "translation_source_blocks_sha256": [
-        "c029b9a9d13102b5d0ac1873eb72b091438b936258acbe9d34e177b639bb5ad3",
-        "8bf395ce1edd446644ac92b5000e3ece591765545e361e7e9f6a7170997ace64",
-        "a6dd51e96b540c9586a79238e3aa62de516e2a6035a114f5a6e5c9261aef2ccb",
+        "fe178d66eb65ca8fe74a8e397a241c81c4afca71aee4fbf10f6f0b08e8c2be90",
+        "ec538fe26c07a86412d6a6d60eecc2194d57cef7a6533808b3cc4811bc25bf6d",
+        "ba804868c40c314aa56be73c88caae908ab8ada0c3a5636b024d36d2515ded79",
         "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
         "10c0ccfb82f3bf7cf4b34ccefe5498be92e365d26298919d02445b613cb84f49",
         "2656552f1501ed970e8f3d8d43ff3a67e28942c3018e63135a4c2cc11d68cc2b",
@@ -380,7 +380,7 @@
         "1cd328cac94b83da34716fd85839249408b78b0541b7f7113c03b1056b789890"
       ]
     },
-    "spacr._starplast.install_starplast.line": {
+    "spacr._parascape.install_parascape.line": {
       "source_blocks_sha256": [
         "e21abcebf3117e0ae68a6ceff3105ba31157ea13da5fb0e0164355b3cafbcb8e"
       ],
@@ -390,7 +390,7 @@
         "e21abcebf3117e0ae68a6ceff3105ba31157ea13da5fb0e0164355b3cafbcb8e"
       ]
     },
-    "spacr._starplast.is_installed": {
+    "spacr._parascape.is_installed": {
       "source_blocks_sha256": [
         "4bd420acbea20227f4dc92b044695602fe67703a36a05d39f425bea1b9d6b0d9",
         "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
@@ -404,42 +404,42 @@
         "7ccf055f3d9f37a5995150edfd23e82d1fd7de6aec0de590a338e541ca1955d0"
       ]
     },
-    "spacr._starplast.launch_starplast": {
+    "spacr._parascape.launch_parascape": {
       "source_blocks_sha256": [
-        "30f66effd11899e3cb690969ca0321a439469447bb20deeedcd18650d9e3c106",
+        "f145417d025fe8bc3a0a0e27c8daa20832ecbf9d30f7beaa94df546f85b625c9",
         "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
         "0e87f4cf6a53cf6767b44e02d7ce995b2a4fa151bf3bd128f7b9a1c6b1ae66d9",
         "1d3fd591d11296a0b0cec6791671fcbbe2339ba37b5fd895553d856e952c36e3",
         "84a5041d19ec5f4dbba54ff90490ee51a27f0305aea04039c223f1dba189e163"
       ],
-      "source_sha256": "bbbcf044ee71764ed6ff3473b7040a473bcf075baf653efcc79c846210b4c3b9",
-      "text": "Iniciar o Starplast como processo separado e registar a saída junto ao seu ambiente.\n\n:param root: pasta das aplicações externas.\n:param popen: substituto opcional de subprocess.Popen para testes específicos.\n:returns: processo filho que a UI monitoriza para detetar erros de arranque.\n:raises RuntimeError: não existe nenhum ambiente com a instalação concluída.",
+      "source_sha256": "485d43eca4483b35c51b2f4c53f3aa1f2c38263e0023c07577b4eb9361a78032",
+      "text": "Iniciar o ParaScape como processo separado e registar a saída junto ao seu ambiente.\n\n:param root: pasta das aplicações externas.\n:param popen: substituto opcional de subprocess.Popen para testes específicos.\n:returns: processo filho que a UI monitoriza para detetar erros de arranque.\n:raises RuntimeError: não existe nenhum ambiente com a instalação concluída.",
       "translation_source_blocks_sha256": [
-        "30f66effd11899e3cb690969ca0321a439469447bb20deeedcd18650d9e3c106",
+        "f145417d025fe8bc3a0a0e27c8daa20832ecbf9d30f7beaa94df546f85b625c9",
         "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
         "0e87f4cf6a53cf6767b44e02d7ce995b2a4fa151bf3bd128f7b9a1c6b1ae66d9",
         "1d3fd591d11296a0b0cec6791671fcbbe2339ba37b5fd895553d856e952c36e3",
         "84a5041d19ec5f4dbba54ff90490ee51a27f0305aea04039c223f1dba189e163"
       ]
     },
-    "spacr._starplast.process_environment": {
+    "spacr._parascape.process_environment": {
       "source_blocks_sha256": [
         "d7bd8cb8f372ad37e63619756cef63b92eeda9bb6b16d3568c578c4110f7b940",
-        "8bfc5e18fff444810045dbf96701d3d0a4b713bd090e45a0e306aba5674be1f1",
+        "8051a7ed082e0840a0fc40b81cf167e440ccfab49c224daac1d1ced8a1abcdac",
         "4f4d4995d43da0ae95580a53d82a56c2a003c799476c9a278e3a83a20cbd5f83"
       ],
-      "source_sha256": "f48fdf84b6ce238f46b381208925776df203b0784165ac2573ef278e0b7a0dee",
-      "text": "Isolar a procura do Python, do pip e dos complementos Qt do processo spaCR em execução.\n\n:param env: ambiente virtual do Starplast.\n:returns: variáveis do subprocesso que preservam a apresentação do ambiente de trabalho e as definições do utilizador.",
+      "source_sha256": "e243e3480f48cb5cb55a08ade1f139d658bc668ec27dcaaf3bad0a7c46d10d76",
+      "text": "Isolar a procura do Python, do pip e dos complementos Qt do processo spaCR em execução.\n\n:param env: ambiente virtual do ParaScape.\n:returns: variáveis do subprocesso que preservam a apresentação do ambiente de trabalho e as definições do utilizador.",
       "translation_source_blocks_sha256": [
         "b3242dc58c9441ed202916b831a70b7863ba0630a08aa81b666f18e4ee584250",
-        "8bfc5e18fff444810045dbf96701d3d0a4b713bd090e45a0e306aba5674be1f1",
+        "8051a7ed082e0840a0fc40b81cf167e440ccfab49c224daac1d1ced8a1abcdac",
         "4f4d4995d43da0ae95580a53d82a56c2a003c799476c9a278e3a83a20cbd5f83"
       ]
     },
-    "spacr._starplast.upgrade_starplast": {
+    "spacr._parascape.upgrade_parascape": {
       "source_blocks_sha256": [
         "ebff26c8b458079570815e35318891db3647d276ae314b6c4f128699cbf4b9b3",
-        "97c77d0e0cf8e8afb97d775baea9fbe0d8e2729261134fd76d2f7a49c38167e3",
+        "0689f9793c64792f0eaa5b3bfed07fdbd1698533cbc5d5fab647e812d65433c2",
         "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
         "c8e11f066eaa06173ba973c531735a8a9eeca096c70ae447a172ca9ac233f1be",
         "e54aecea5b4d06972d3ce00c359fa613130de9f95bf38c9c6fc61a0d9a6e636c",
@@ -447,11 +447,11 @@
         "19691b329b7e74e50f4e192cb57fc51c47afd7a7f33a69212ec001efbd6f85cb",
         "3836df398c12ee6f660411d3764bcc71a8d34b321aed0b9bdeeffd17ab03907c"
       ],
-      "source_sha256": "928ec9f05a8dc5685ba38167dc043a4a28ca8965257e565873796dc6b1b52340",
-      "text": "Atualiza o ambiente próprio usando pip e PyPI e, em seguida, verifica seus dados.\n\n:param source: ignorado; as atualizações sempre usam o pacote Starplast do PyPI.\n:param root: pasta das aplicações externas.\n:param progress: callback ``(step, total, text)`` opcional.\n:param cancel: evento opcional de cancelamento de subprocesso.\n:param runner: executor de comandos opcional, para testes.\n:returns: caminho do ambiente verificado.\n:raises RuntimeError: a atualização falhou ou foi cancelada. Arquivos e logs permanecem para diagnóstico; um ambiente interrompido deve ser reparado antes da inicialização.",
+      "source_sha256": "b4ee388c09fe5f5636b51409fa92ce792a99be065c024b9bfcf3c38b0eab0ef6",
+      "text": "Atualiza o ambiente próprio usando pip e PyPI e, em seguida, verifica seus dados.\n\n:param source: ignorado; as atualizações sempre usam o pacote ParaScape do PyPI.\n:param root: pasta das aplicações externas.\n:param progress: callback ``(step, total, text)`` opcional.\n:param cancel: evento opcional de cancelamento de subprocesso.\n:param runner: executor de comandos opcional, para testes.\n:returns: caminho do ambiente verificado.\n:raises RuntimeError: a atualização falhou ou foi cancelada. Arquivos e logs permanecem para diagnóstico; um ambiente interrompido deve ser reparado antes da inicialização.",
       "translation_source_blocks_sha256": [
         "ebff26c8b458079570815e35318891db3647d276ae314b6c4f128699cbf4b9b3",
-        "97c77d0e0cf8e8afb97d775baea9fbe0d8e2729261134fd76d2f7a49c38167e3",
+        "0689f9793c64792f0eaa5b3bfed07fdbd1698533cbc5d5fab647e812d65433c2",
         "d75a80b243ff5000798beda3aac5de86bc453b8ad08bd58749f77f085ce7f56d",
         "c8e11f066eaa06173ba973c531735a8a9eeca096c70ae447a172ca9ac233f1be",
         "e54aecea5b4d06972d3ce00c359fa613130de9f95bf38c9c6fc61a0d9a6e636c",
@@ -460,7 +460,7 @@
         "3836df398c12ee6f660411d3764bcc71a8d34b321aed0b9bdeeffd17ab03907c"
       ]
     },
-    "spacr._starplast.upgrade_starplast.line": {
+    "spacr._parascape.upgrade_parascape.line": {
       "source_blocks_sha256": [
         "093920db800f3cb3d6dc846d453da0c1e930584fdb19446b0fd9df15ebae9b3c"
       ],
@@ -88035,13 +88035,13 @@
     "spacr.qt.organisms.ORGANISMS": {
       "source_blocks_sha256": [
         "387f4cdb233d3ccbba5fe3a015a89eb1ce6f01a103b47dd7fd7f4664969d1216",
-        "a56d63eaada705a2dcd6146ee9c5b8c7258c0808f987e7579563e0290941850e"
+        "786abdc877bd3aa844a5850f63c6c30be4849d8c9ecd08f55d86ffce349a3570"
       ],
       "source_sha256": "72bbfed31e1275e32d039241032b7e1b13fe01a190718ee9e078da55e1a00d11",
-      "text": "Guias de organismos com as chaves ``toxoplasma``, ``plasmodium``, ``candida``, ``trypanosoma``, ``leishmania``, ``giardia``, ``virus`` e ``mammalian``.\n\nCada registro fornece um nome de exibição, uma descrição, uma URL de fonte biológica, um nome de arquivo de diagrama incluído e uma nota do diagrama; ``source_label`` nomeia a fonte biológica quando ela não é o CDC. As cinco últimas páginas são recursos alfa. ``sections`` contém triplas de título, texto e chave de ensaio vinculada; ``links`` contém pares de rótulo de exibição e URL. ``modules`` contém tuplas de chave de rota, título, descrição e chave de ícone. Uma rota ``None`` denota um ensaio específico do organismo sem pipeline próprio. ``workflows`` mapeia a chave de ícone de um bloco desses para o módulo existente que mede sua leitura, uma predefinição de configurações aplicada ao abrir e uma nota sobre como usá-lo; um bloco ``None`` ausente de ``workflows`` é Coming soon. ``starplast`` inicia um aplicativo externo a partir da página de Toxoplasma; não é uma chave do registro de análises do spaCR nem um backend de segmentação. O texto de exibição é traduzido no uso; chaves de rota, URLs e nomes de recursos permanecem fixos.",
+      "text": "Guias de organismos com as chaves ``toxoplasma``, ``plasmodium``, ``candida``, ``trypanosoma``, ``leishmania``, ``giardia``, ``virus`` e ``mammalian``.\n\nCada registro fornece um nome de exibição, uma descrição, uma URL de fonte biológica, um nome de arquivo de diagrama incluído e uma nota do diagrama; ``source_label`` nomeia a fonte biológica quando ela não é o CDC. As cinco últimas páginas são recursos alfa. ``sections`` contém triplas de título, texto e chave de ensaio vinculada; ``links`` contém pares de rótulo de exibição e URL. ``modules`` contém tuplas de chave de rota, título, descrição e chave de ícone. Uma rota ``None`` denota um ensaio específico do organismo sem pipeline próprio. ``workflows`` mapeia a chave de ícone de um bloco desses para o módulo existente que mede sua leitura, uma predefinição de configurações aplicada ao abrir e uma nota sobre como usá-lo; um bloco ``None`` ausente de ``workflows`` é Coming soon. ``parascape`` inicia um aplicativo externo a partir da página de Toxoplasma; não é uma chave do registro de análises do spaCR nem um backend de segmentação. O texto de exibição é traduzido no uso; chaves de rota, URLs e nomes de recursos permanecem fixos.",
       "translation_source_blocks_sha256": [
         "387f4cdb233d3ccbba5fe3a015a89eb1ce6f01a103b47dd7fd7f4664969d1216",
-        "f7b4a9861531db5941d53bfda9336f30af1c025b615b7b5dbd91c5b2e3b1d247"
+        "aa847bf5352248422bd109b86c68185516b73957866074b4ce9411400ab212b7"
       ]
     },
     "spacr.qt.organisms.workflow": {
@@ -109735,7 +109735,7 @@
         "16b23bf825a6dddbe7fed8a730ad1fb22ac92a24bd33e231101c96026e518850",
         "3118d2e8276129f10ee74636bcdb2192718366011aca521ca285e57d59657888",
         "3ff5936a6dc0cecc6db54a2188e880f2e27a3e40bb4462514d23ef2293825b1d",
-        "f692528df9f9c6e05be0dbe36c197d0d40844c50405a184520563729094986c1",
+        "fa59d6c776f5143afeda0752e74eec805a678674558bda44a36ee64d6a0d9c07",
         "8843da7eb78c64330b37365265b1adf8e7e176ae2bec0d9d68b4f16add016584",
         "dcf0ba4b15cffcbc9293b166c91b1e28fe0c6986c41cd1359b1291b0745c893e",
         "693e86c368aece52b6b8d6464ca2eb70b2e81f54788003647a11d4cd2faf0a4f",
@@ -109744,12 +109744,12 @@
         "636f7995605beea6a62049349b797f2745b0174c4ae3e7d2a26e8578966a959d"
       ],
       "source_sha256": "39436205348cd87807d79d5f69fe307dcc593e957006659b62dd49749b057a4d",
-      "text": "Explore guias de organismos e abra os módulos de análise de imagens disponíveis.\n\nEm Home, escolha um organismo para ler sua introdução, explorar o diagrama da célula e navegar por seus blocos de ensaios. Essas páginas de guia não exigem arquivos de entrada e não produzem arquivos de análise. Arraste o divisor para dar mais espaço ao painel de informações ou ao de módulos; cada painel rola de forma independente. Passe o mouse sobre um componente do diagrama para ler sua descrição, selecione vários componentes para mantê-los destacados e use Clear components para redefinir a seleção.\n\n.. _spacr.qt.screens.organism_screen.toxoplasma:\n\nToxoplasma\n----------\nAbra Home > Toxoplasma e escolha Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay ou Replication Assay. O módulo selecionado fornece seus seletores de entrada, configurações, pré-visualização e controles Run. Use o controle Test data dele quando houver um exemplo disponível. O Plaque Assay começa com imagens; os outros ensaios usam as tabelas de medição e as relações entre objetos correspondentes. Siga a ajuda de entrada de cada módulo antes de executar e depois abra os resultados na pasta de saída selecionada. O Starplast abre uma aplicação separada para explorar o mapa de conhecimento de Toxoplasma; a primeira inicialização oferece a instalação. Gliding motility abre o Motility Assay com o QC de infecção desligado. Egress, Bradyzoite conversion e Host cell damage mostram Coming soon e ficam desativados.\n\n.. _spacr.qt.screens.organism_screen.plasmodium:\n\nPlasmodium\n----------\nAbra Home > Plasmodium para navegar por tópicos de estágio sanguíneo, estágio hepático, motilidade e resposta a compostos. Explore o diagrama de apicomplexo e siga os links para PlasmoDB ou UniProt para informações específicas do organismo. Três blocos abrem módulos existentes: Parasitaemia abre o Host–Pathogen Analysis, Sporozoite motility abre o Motility Assay com o QC de infecção desligado e Drug response imaging abre o Dose–Response. A dica de cada bloco diz quais entradas preparar. Os outros cinco blocos mostram Coming soon e ficam desativados. Esta página em si não grava resultados; o módulo aberto grava na pasta de saída selecionada.\n\n.. _spacr.qt.screens.organism_screen.candida:\n\nCandida\n-------\nAbra Home > Candida para navegar por tópicos de morfologia, filamentação, biofilme e interação com células hospedeiras. Explore o diagrama de levedura em brotamento e siga os links para o Candida Genome Database ou o UniProt para informações sobre genes e proteínas. Quatro blocos abrem módulos existentes: Adhesion e Epithelial invasion abrem o Invasion Assay, Phagocytosis abre o Host–Pathogen Analysis e Antifungal response abre o Dose–Response. Filamentation, Germ tube formation, Biofilm e Morphology mostram Coming soon e ficam desativados. Esta página não requer dados; o módulo aberto grava na pasta de saída selecionada.\n\n.. _spacr.qt.screens.organism_screen.alpha_pages:\n\nTrypanosoma, Leishmania, Giardia, infecção viral e células de mamífero\n----------------------------------------------------------------------\nEstas cinco páginas aparecem na Home apenas com Preferences > Show alpha features ligado. Cada uma segue o mesmo layout: uma introdução, uma célula do SwissBioPics cujos compartimentos selecionáveis são as localizações subcelulares do UniProt anotadas para aquele táxon, quatro seções temáticas e oito blocos. Blocos ativos abrem um módulo existente com uma predefinição (Motility Assay, Invasion Assay, Host–Pathogen Analysis, Dose–Response, Plaque Assay, Recruitment, Mask ou Measure), e os demais dizem Coming soon. Giardia usa a célula eucariótica genérica, a página do vírus a célula hospedeira com um vírion e a página de mamíferos a célula animal. As páginas não precisam de arquivos de entrada; o módulo aberto grava na pasta de saída selecionada.",
+      "text": "Explore guias de organismos e abra os módulos de análise de imagens disponíveis.\n\nEm Home, escolha um organismo para ler sua introdução, explorar o diagrama da célula e navegar por seus blocos de ensaios. Essas páginas de guia não exigem arquivos de entrada e não produzem arquivos de análise. Arraste o divisor para dar mais espaço ao painel de informações ou ao de módulos; cada painel rola de forma independente. Passe o mouse sobre um componente do diagrama para ler sua descrição, selecione vários componentes para mantê-los destacados e use Clear components para redefinir a seleção.\n\n.. _spacr.qt.screens.organism_screen.toxoplasma:\n\nToxoplasma\n----------\nAbra Home > Toxoplasma e escolha Plaque Assay, Recruitment, Host–Pathogen, Invasion Assay ou Replication Assay. O módulo selecionado fornece seus seletores de entrada, configurações, pré-visualização e controles Run. Use o controle Test data dele quando houver um exemplo disponível. O Plaque Assay começa com imagens; os outros ensaios usam as tabelas de medição e as relações entre objetos correspondentes. Siga a ajuda de entrada de cada módulo antes de executar e depois abra os resultados na pasta de saída selecionada. O ParaScape abre uma aplicação separada para explorar o mapa de conhecimento de Toxoplasma; a primeira inicialização oferece a instalação. Gliding motility abre o Motility Assay com o QC de infecção desligado. Egress, Bradyzoite conversion e Host cell damage mostram Coming soon e ficam desativados.\n\n.. _spacr.qt.screens.organism_screen.plasmodium:\n\nPlasmodium\n----------\nAbra Home > Plasmodium para navegar por tópicos de estágio sanguíneo, estágio hepático, motilidade e resposta a compostos. Explore o diagrama de apicomplexo e siga os links para PlasmoDB ou UniProt para informações específicas do organismo. Três blocos abrem módulos existentes: Parasitaemia abre o Host–Pathogen Analysis, Sporozoite motility abre o Motility Assay com o QC de infecção desligado e Drug response imaging abre o Dose–Response. A dica de cada bloco diz quais entradas preparar. Os outros cinco blocos mostram Coming soon e ficam desativados. Esta página em si não grava resultados; o módulo aberto grava na pasta de saída selecionada.\n\n.. _spacr.qt.screens.organism_screen.candida:\n\nCandida\n-------\nAbra Home > Candida para navegar por tópicos de morfologia, filamentação, biofilme e interação com células hospedeiras. Explore o diagrama de levedura em brotamento e siga os links para o Candida Genome Database ou o UniProt para informações sobre genes e proteínas. Quatro blocos abrem módulos existentes: Adhesion e Epithelial invasion abrem o Invasion Assay, Phagocytosis abre o Host–Pathogen Analysis e Antifungal response abre o Dose–Response. Filamentation, Germ tube formation, Biofilm e Morphology mostram Coming soon e ficam desativados. Esta página não requer dados; o módulo aberto grava na pasta de saída selecionada.\n\n.. _spacr.qt.screens.organism_screen.alpha_pages:\n\nTrypanosoma, Leishmania, Giardia, infecção viral e células de mamífero\n----------------------------------------------------------------------\nEstas cinco páginas aparecem na Home apenas com Preferences > Show alpha features ligado. Cada uma segue o mesmo layout: uma introdução, uma célula do SwissBioPics cujos compartimentos selecionáveis são as localizações subcelulares do UniProt anotadas para aquele táxon, quatro seções temáticas e oito blocos. Blocos ativos abrem um módulo existente com uma predefinição (Motility Assay, Invasion Assay, Host–Pathogen Analysis, Dose–Response, Plaque Assay, Recruitment, Mask ou Measure), e os demais dizem Coming soon. Giardia usa a célula eucariótica genérica, a página do vírus a célula hospedeira com um vírion e a página de mamíferos a célula animal. As páginas não precisam de arquivos de entrada; o módulo aberto grava na pasta de saída selecionada.",
       "translation_source_blocks_sha256": [
         "16b23bf825a6dddbe7fed8a730ad1fb22ac92a24bd33e231101c96026e518850",
         "3118d2e8276129f10ee74636bcdb2192718366011aca521ca285e57d59657888",
         "3ff5936a6dc0cecc6db54a2188e880f2e27a3e40bb4462514d23ef2293825b1d",
-        "1f122a280306d92a2f03916a16f6d0a5ab88c26819a18603ab32de17a92db6af",
+        "5d16dce2fcbcdf13d411ef078d3f527eb2155cc523c6f23933961dcd0c47a978",
         "8843da7eb78c64330b37365265b1adf8e7e176ae2bec0d9d68b4f16add016584",
         "dcf0ba4b15cffcbc9293b166c91b1e28fe0c6986c41cd1359b1291b0745c893e",
         "693e86c368aece52b6b8d6464ca2eb70b2e81f54788003647a11d4cd2faf0a4f",
@@ -118558,17 +118558,17 @@
         "abcbc5bd9305ad77f63e4d737da75d57f01f8f75209876132dea6fceec277b4c"
       ]
     },
-    "spacr.qt.starplast": {
+    "spacr.qt.parascape": {
       "source_blocks_sha256": [
-        "6324de87676e73424c18efc7faa0f46fa8e28eb1faf6d0c0043aab6017d939d6"
+        "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4"
       ],
-      "source_sha256": "6324de87676e73424c18efc7faa0f46fa8e28eb1faf6d0c0043aab6017d939d6",
-      "text": "Instalar o Starplast separadamente e depois iniciar e monitorizar o seu processo de ambiente de trabalho.",
+      "source_sha256": "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4",
+      "text": "Instalar o ParaScape separadamente e depois iniciar e monitorizar o seu processo de ambiente de trabalho.",
       "translation_source_blocks_sha256": [
-        "6324de87676e73424c18efc7faa0f46fa8e28eb1faf6d0c0043aab6017d939d6"
+        "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4"
       ]
     },
-    "spacr.qt.starplast.StarplastInstallDialog": {
+    "spacr.qt.parascape.ParaScapeInstallDialog": {
       "source_blocks_sha256": [
         "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
         "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
@@ -118586,7 +118586,7 @@
         "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
       ]
     },
-    "spacr.qt.starplast.StarplastInstallDialog.closeEvent": {
+    "spacr.qt.parascape.ParaScapeInstallDialog.closeEvent": {
       "source_blocks_sha256": [
         "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
         "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
@@ -118600,7 +118600,7 @@
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
-    "spacr.qt.starplast.StarplastInstallDialog.reject": {
+    "spacr.qt.parascape.ParaScapeInstallDialog.reject": {
       "source_blocks_sha256": [
         "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
       ],
@@ -118610,7 +118610,7 @@
         "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
       ]
     },
-    "spacr.qt.starplast.StarplastInstallDialog.start": {
+    "spacr.qt.parascape.ParaScapeInstallDialog.start": {
       "source_blocks_sha256": [
         "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
       ],
@@ -118620,7 +118620,7 @@
         "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
       ]
     },
-    "spacr.qt.starplast.StarplastUpdateCheckDialog": {
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog": {
       "source_blocks_sha256": [
         "17474f21efe74ce8e27cd0c152705795f1ca4e356c9c7165dfedaf9157ad0906"
       ],
@@ -118630,7 +118630,7 @@
         "450cc032373b2a63cb949d6a6e788a5aca71fe48d5bfd4fe5cfdd52d226d5d71"
       ]
     },
-    "spacr.qt.starplast.StarplastUpdateCheckDialog.__init__.check": {
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.__init__.check": {
       "source_blocks_sha256": [
         "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a"
       ],
@@ -118640,7 +118640,7 @@
         "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a"
       ]
     },
-    "spacr.qt.starplast.StarplastUpdateCheckDialog.closeEvent": {
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.closeEvent": {
       "source_blocks_sha256": [
         "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
         "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
@@ -118654,7 +118654,7 @@
         "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
       ]
     },
-    "spacr.qt.starplast.StarplastUpdateCheckDialog.reject": {
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.reject": {
       "source_blocks_sha256": [
         "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda"
       ],
@@ -118664,7 +118664,7 @@
         "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda"
       ]
     },
-    "spacr.qt.starplast.open_starplast": {
+    "spacr.qt.parascape.open_parascape": {
       "source_blocks_sha256": [
         "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
         "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
@@ -118680,14 +118680,14 @@
         "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
       ]
     },
-    "spacr.qt.starplast.open_starplast.check": {
+    "spacr.qt.parascape.open_parascape.check": {
       "source_blocks_sha256": [
-        "40050d761bdce5e3875cf3f8cc99132292c6e09c7fe4c9b4abaad189cc9d416b"
+        "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28"
       ],
-      "source_sha256": "40050d761bdce5e3875cf3f8cc99132292c6e09c7fe4c9b4abaad189cc9d416b",
-      "text": "Recolhe o processo filho desanexado e mostra falhas sem fechar o Starplast ao sair do spaCR.",
+      "source_sha256": "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28",
+      "text": "Recolhe o processo filho desanexado e mostra falhas sem fechar o ParaScape ao sair do spaCR.",
       "translation_source_blocks_sha256": [
-        "40050d761bdce5e3875cf3f8cc99132292c6e09c7fe4c9b4abaad189cc9d416b"
+        "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28"
       ]
     },
     "spacr.qt.startup_benchmark": {
@@ -162327,13 +162327,13 @@
     "spacr.qt.widgets.organism_diagram": {
       "source_blocks_sha256": [
         "76263f7cdb6dde91651e4a9b3dfb65eebf528e3833b91652325267a7ac23b41f",
-        "73a00965ae22aaea7121b31db7eaa2e6f720527bec004fecee4af238a944121c"
+        "78d7b218ff6ab74d9bc2f39bce2dd52d74360b1e479371ff596e2c8552be6a22"
       ],
       "source_sha256": "e9dee4dfe2f5013acc8f6c2bba1802f979320ee75c1112dce905a1b612ba6d50",
-      "text": "Células SwissBioPics sem ligação à rede, com rótulos de compartimentos UniProt selecionáveis.\n\nO mapeamento de Toxoplasma hyperLOPIT para SL segue o Starplast ``celldiagram.py`` de Einar Olafsson (MIT, revisão 53703bafdf0604576a05b589400051a6b09e62ea). As ilustrações são de Philippe Le Mercier, SIB, CC BY 4.0; os registos de origem acompanham os SVGs. Os metadados ocultos e o logótipo de atribuição são removidos apenas da cópia renderizada; o recurso original e a atribuição visível são mantidos. Não são utilizados importações de PyQt6, pedidos de rede nem dados de localização medidos.",
+      "text": "Células SwissBioPics sem ligação à rede, com rótulos de compartimentos UniProt selecionáveis.\n\nO mapeamento de Toxoplasma hyperLOPIT para SL segue o ParaScape ``celldiagram.py`` de Einar Olafsson (MIT, revisão 53703bafdf0604576a05b589400051a6b09e62ea). As ilustrações são de Philippe Le Mercier, SIB, CC BY 4.0; os registos de origem acompanham os SVGs. Os metadados ocultos e o logótipo de atribuição são removidos apenas da cópia renderizada; o recurso original e a atribuição visível são mantidos. Não são utilizados importações de PyQt6, pedidos de rede nem dados de localização medidos.",
       "translation_source_blocks_sha256": [
         "76263f7cdb6dde91651e4a9b3dfb65eebf528e3833b91652325267a7ac23b41f",
-        "73a00965ae22aaea7121b31db7eaa2e6f720527bec004fecee4af238a944121c"
+        "78d7b218ff6ab74d9bc2f39bce2dd52d74360b1e479371ff596e2c8552be6a22"
       ]
     },
     "spacr.qt.widgets.organism_diagram.APICOMPLEXAN_LABELS": {
@@ -201105,7 +201105,7 @@
     "spacr.umap_search.walk_clusters": {
       "source_blocks_sha256": [
         "a930cd2663340bfca409d285a1bd4a32b048e1a65fa5b67f83625cb5e26a8286",
-        "3de9d77c4e3f019184b4ec1eb24ba19a30961d76735bd6d189b6c6a75de07f2b",
+        "310bf179b0c8df3da48fd937967afa81d8ee66930286b64f7116b4a4a9c07b6f",
         "9699771d247e679515b73bc3fe05e4984f0801010b5da1c1dc87e01747784a65",
         "2c2f3447895c0e912c82b4b5115bfaa46b8b964b8b96d0b98959d6ba172413d5",
         "2778e2dc17085b7e4c2cccc39064e534e2f9018aa707a360229f3247b6f20431",
@@ -201113,10 +201113,10 @@
         "e5193ada3e93250e4d5cb56a9638df4c17a34aa8d4c8fcfafecdbd536bb4f50a"
       ],
       "source_sha256": "eed653c46f8c28553c2323f816ece847a3af219b029376be83369136d9299adc",
-      "text": "Tente escalas HDBSCAN em um mapa e devolvê-los melhor-primeiro.\n\nEsta é a metade de agrupamento da caminhada no estilo Starplast. Ele pode executar para cada teste UMAP à medida que essa avaliação chega, ou mais tarde contra a linha de tabela que o usuário escolheu. Tamanhos duplicados e fora de alcance dos candidatos são ignorados; se nenhum tamanho for significativo, a chamada é recusada em vez de fabricar um vencedor de um cluster. Uma falha de agrupamento se propaga, enquanto uma silhueta indefinida é mantida como  ``nan`` e classifica abaixo.\n\n:param embedding: coordenadas finitas 2-D ou 3-D fixas para agrupar em cada escala candidata.\n:param min_cluster_sizes: candidatos a tamanhos mínimos de cluster HDBSCAN.\n:param min_samples: O limite de amostra de núcleo HDBSCAN opcional passou para todos os candidatos.\n:returns: partições pontuadas ordenadas melhor-primeiro, em seguida, pelo tamanho do cluster.\n:raises ValueError: quando o mapa ou a sequência de candidatos é inválida.",
+      "text": "Tente escalas HDBSCAN em um mapa e devolvê-los melhor-primeiro.\n\nEsta é a metade de agrupamento da caminhada no estilo ParaScape. Ele pode executar para cada teste UMAP à medida que essa avaliação chega, ou mais tarde contra a linha de tabela que o usuário escolheu. Tamanhos duplicados e fora de alcance dos candidatos são ignorados; se nenhum tamanho for significativo, a chamada é recusada em vez de fabricar um vencedor de um cluster. Uma falha de agrupamento se propaga, enquanto uma silhueta indefinida é mantida como  ``nan`` e classifica abaixo.\n\n:param embedding: coordenadas finitas 2-D ou 3-D fixas para agrupar em cada escala candidata.\n:param min_cluster_sizes: candidatos a tamanhos mínimos de cluster HDBSCAN.\n:param min_samples: O limite de amostra de núcleo HDBSCAN opcional passou para todos os candidatos.\n:returns: partições pontuadas ordenadas melhor-primeiro, em seguida, pelo tamanho do cluster.\n:raises ValueError: quando o mapa ou a sequência de candidatos é inválida.",
       "translation_source_blocks_sha256": [
         "a930cd2663340bfca409d285a1bd4a32b048e1a65fa5b67f83625cb5e26a8286",
-        "b38ce14cf99ac36a2dbdd80de009fb2deda576e64bf82611fe91c1a934bc1029",
+        "acf8de02713b314db979d0c5a645ec68202c99fa8eb6b0010d3cb6559216fb27",
         "9699771d247e679515b73bc3fe05e4984f0801010b5da1c1dc87e01747784a65",
         "2c2f3447895c0e912c82b4b5115bfaa46b8b964b8b96d0b98959d6ba172413d5",
         "2778e2dc17085b7e4c2cccc39064e534e2f9018aa707a360229f3247b6f20431",

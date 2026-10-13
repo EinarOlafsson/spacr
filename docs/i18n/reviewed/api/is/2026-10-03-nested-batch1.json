@@ -12,7 +12,7 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
-      "label": "spacr._starplast.install_starplast.line#0",
+      "label": "spacr._parascape.install_parascape.line#0",
       "source": "Persist all subprocess output and send the latest line to Qt.",
       "source_sha256": "e21abcebf3117e0ae68a6ceff3105ba31157ea13da5fb0e0164355b3cafbcb8e",
       "context": "Persist all subprocess output and send the latest line to Qt.",
@@ -20,7 +20,7 @@
       "review_basis": "Independent AI technical review against the English source; no native-speaker signoff."
     },
     {
-      "label": "spacr._starplast.upgrade_starplast.line#0",
+      "label": "spacr._parascape.upgrade_parascape.line#0",
       "source": "Persist pip diagnostics and update the progress display.",
       "source_sha256": "093920db800f3cb3d6dc846d453da0c1e930584fdb19446b0fd9df15ebae9b3c",
       "context": "Persist pip diagnostics and update the progress display.",

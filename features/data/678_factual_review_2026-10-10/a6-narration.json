@@ -1492,7 +1492,7 @@
   {
    "file": "spacr/resources/module_workflows.json",
    "text": "/modules/toxoplasma/guidance: \"... then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run.\"",
-   "reason": "spacr/qt/organisms.py Toxoplasma modules: four tiles have no key (Egress, Gliding motility, Bradyzoite conversion, Host cell damage), but a \"gliding\" workflow entry maps to Motility Assay, so whether Gliding motility runs is unclear; the list also omits Host–Pathogen and Starplast tiles. Not changed because I could not confirm the rendered tile states."
+   "reason": "spacr/qt/organisms.py Toxoplasma modules: four tiles have no key (Egress, Gliding motility, Bradyzoite conversion, Host cell damage), but a \"gliding\" workflow entry maps to Motility Assay, so whether Gliding motility runs is unclear; the list also omits Host–Pathogen and ParaScape tiles. Not changed because I could not confirm the rendered tile states."
   },
   {
    "file": "tools/tutorials/lessons/82_toxoplasma.json",

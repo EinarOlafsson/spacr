@@ -1,4 +1,4 @@
-"""Install Starplast separately, then launch and monitor its desktop process."""
+"""Install ParaScape separately, then launch and monitor its desktop process."""
 from __future__ import annotations
 
 import threading
@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
     QMessageBox, QPlainTextEdit, QProgressBar, QPushButton, QVBoxLayout,
 )
 
-from .. import _starplast as service
+from .. import _parascape as service
 from .._segmentation_backends import _InstallCancelled
 from .i18n import tr
 from .preferences import scaled_px
@@ -41,7 +41,7 @@ class _InstallThread(QThread):
             self.outcome = "installed"
 
 
-class StarplastInstallDialog(QDialog):
+class ParaScapeInstallDialog(QDialog):
     """Explain the alpha app and download size before installing in its own environment.
 
     :param parent: owning organism page.
@@ -53,28 +53,28 @@ class StarplastInstallDialog(QDialog):
         """Build the consent and progress controls; opening the dialog installs nothing."""
         super().__init__(parent)
         self.root = service.apps_root(root)
-        self.job = job or (service.upgrade_starplast if upgrade else service.install_starplast)
+        self.job = job or (service.upgrade_parascape if upgrade else service.install_parascape)
         self._thread = None
         self.installed = False
         self._closing = False
-        self.setWindowTitle(tr("Install Starplast (alpha)"))
+        self.setWindowTitle(tr("Install ParaScape (alpha)"))
         self.resize(scaled_px(660), scaled_px(540))
         layout = QVBoxLayout(self)
         self.explanation = QLabel(tr(
-            "Starplast is an alpha application for exploring the Toxoplasma knowledge map. "
+            "ParaScape is an alpha application for exploring the Toxoplasma knowledge map. "
             "Features and results may change. It opens in a separate window.\n\n"
-            "The latest compatible stable Starplast release is installed from PyPI. "
+            "The latest compatible stable ParaScape release is installed from PyPI. "
             "The package includes its gene data; dependencies add to the download and disk usage. "
             "Requirements vary with the version and platform. "
             "Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\n"
-            "Starplast gets its own environment at {path}; spaCR's packages are not changed. "
+            "ParaScape gets its own environment at {path}; spaCR's packages are not changed. "
             "The source is MIT licensed. A local Git checkout is an optional development source; "
             "local installs use committed files and leave the checkout untouched.",
-            path=str(self.root / "starplast")), self)
+            path=str(self.root / "parascape")), self)
         self.explanation.setWordWrap(True)
         self.explanation.setTextFormat(Qt.PlainText)
         layout.addWidget(self.explanation)
-        label = QLabel(tr("Starplast source"), self)
+        label = QLabel(tr("ParaScape source"), self)
         layout.addWidget(label)
         row = QHBoxLayout()
         self.source = QLineEdit(service.default_source(), self)
@@ -108,12 +108,12 @@ class StarplastInstallDialog(QDialog):
         buttons.addWidget(self.cancel_button)
         layout.addLayout(buttons)
         if upgrade:
-            self.setWindowTitle(tr("Upgrade Starplast"))
+            self.setWindowTitle(tr("Upgrade ParaScape"))
             self.explanation.setText(tr(
-                "Upgrade Starplast through pip from PyPI in its separate environment at {path}. "
-                "Close any running Starplast windows before upgrading. Starplast is in alpha; "
+                "Upgrade ParaScape through pip from PyPI in its separate environment at {path}. "
+                "Close any running ParaScape windows before upgrading. ParaScape is in alpha; "
                 "downloads and disk usage depend on the release. spaCR's packages are not changed.",
-                path=str(self.root / "starplast")))
+                path=str(self.root / "parascape")))
             self.source.setText(service.PYPI_PACKAGE)
             self.source.hide()
             self.browse.hide()
@@ -122,8 +122,8 @@ class StarplastInstallDialog(QDialog):
             self.status.setText(tr("Ready to upgrade through pip."))
 
     def _choose_source(self):
-        """Select a local Starplast Git checkout without changing any files."""
-        path = QFileDialog.getExistingDirectory(self, tr("Choose Starplast checkout"))
+        """Select a local ParaScape Git checkout without changing any files."""
+        path = QFileDialog.getExistingDirectory(self, tr("Choose ParaScape checkout"))
         if path:
             self.source.setText(path)
 
@@ -167,11 +167,11 @@ class StarplastInstallDialog(QDialog):
         self.cancel_button.setText(tr("Close"))
         self.installed = worker.outcome == "installed"
         if self.installed:
-            self.status.setText(tr("Starplast is installed."))
+            self.status.setText(tr("ParaScape is installed."))
         elif worker.outcome == "cancelled":
-            self.status.setText(tr("Starplast installation cancelled."))
+            self.status.setText(tr("ParaScape installation cancelled."))
         else:
-            self.status.setText(tr("Starplast installation failed. Review the details and try again."))
+            self.status.setText(tr("ParaScape installation failed. Review the details and try again."))
             self.details.appendPlainText(worker.error)
             self.start_button.setText(tr("Try again"))
         worker.deleteLater()
@@ -186,7 +186,7 @@ class StarplastInstallDialog(QDialog):
             self._closing = True
             self._thread.cancel.set()
             self.cancel_button.setEnabled(False)
-            self.status.setText(tr("Cancelling Starplast installation…"))
+            self.status.setText(tr("Cancelling ParaScape installation…"))
         else:
             super().reject()
 
@@ -203,7 +203,7 @@ class StarplastInstallDialog(QDialog):
             super().closeEvent(event)
 
 
-class StarplastUpdateCheckDialog(QDialog):
+class ParaScapeUpdateCheckDialog(QDialog):
     """Check PyPI off the GUI thread, allowing a cancelled check to open the installed app."""
 
     def __init__(self, parent=None, *, root=None):
@@ -212,9 +212,9 @@ class StarplastUpdateCheckDialog(QDialog):
         self.result_data = None
         self.error = ""
         self._closing = False
-        self.setWindowTitle(tr("Checking Starplast updates"))
+        self.setWindowTitle(tr("Checking ParaScape updates"))
         layout = QVBoxLayout(self)
-        self.status = QLabel(tr("Checking the installed Starplast version and PyPI…"), self)
+        self.status = QLabel(tr("Checking the installed ParaScape version and PyPI…"), self)
         layout.addWidget(self.status)
         progress = QProgressBar(self)
         progress.setRange(0, 0)
@@ -226,7 +226,7 @@ class StarplastUpdateCheckDialog(QDialog):
 
         def check(_source, *, root, cancel, progress):
             """Store the comparison until the worker's finished signal arrives."""
-            self.result_data = service.check_starplast_update(root=root, cancel=cancel)
+            self.result_data = service.check_parascape_update(root=root, cancel=cancel)
 
         self._thread = _InstallThread(None, service.apps_root(root), check, self)
         self._thread.finished.connect(self._finished)
@@ -264,7 +264,7 @@ class StarplastUpdateCheckDialog(QDialog):
             super().closeEvent(event)
 
 
-def open_starplast(parent=None, *, root=None):
+def open_parascape(parent=None, *, root=None):
     """Check for updates on every open and offer pip upgrades before launching.
 
     :param parent: organism page requesting the launch.
@@ -273,50 +273,50 @@ def open_starplast(parent=None, *, root=None):
     """
     root = service.apps_root(root)
     if not service.is_installed(root):
-        dialog = StarplastInstallDialog(parent, root=root)
+        dialog = ParaScapeInstallDialog(parent, root=root)
         if dialog.exec() != QDialog.Accepted or not dialog.installed:
             return None
-    check = StarplastUpdateCheckDialog(parent, root=root)
+    check = ParaScapeUpdateCheckDialog(parent, root=root)
     if check.exec() == QDialog.Accepted:
         if check.error:
-            QMessageBox.information(parent, tr("Starplast update check unavailable"), tr(
+            QMessageBox.information(parent, tr("ParaScape update check unavailable"), tr(
                 "The update check could not finish. Opening the installed version.\n\n{error}",
                 error=check.error))
         elif check.result_data and check.result_data["available"]:
             result = check.result_data
             question = QMessageBox(parent)
-            question.setWindowTitle(tr("Starplast update available"))
+            question.setWindowTitle(tr("ParaScape update available"))
             question.setText(tr(
-                "Starplast {installed} is installed. Version {latest} is available on PyPI. "
+                "ParaScape {installed} is installed. Version {latest} is available on PyPI. "
                 "Upgrade through pip before opening?", **result))
             upgrade = question.addButton(tr("Upgrade"), QMessageBox.AcceptRole)
             later = question.addButton(tr("Not now"), QMessageBox.RejectRole)
             question.setDefaultButton(later)
             question.exec()
             if question.clickedButton() == upgrade:
-                dialog = StarplastInstallDialog(parent, root=root, upgrade=True)
+                dialog = ParaScapeInstallDialog(parent, root=root, upgrade=True)
                 dialog.start()
                 if dialog.exec() != QDialog.Accepted or not dialog.installed:
                     return None
     try:
-        process = service.launch_starplast(root=root)
+        process = service.launch_parascape(root=root)
     except (OSError, RuntimeError) as exc:
-        QMessageBox.warning(parent, tr("Starplast could not open"), str(exc))
+        QMessageBox.warning(parent, tr("ParaScape could not open"), str(exc))
         return None
     timer = QTimer(QApplication.instance())
     timer.setInterval(500)
 
     def check():
-        """Reap the detached child and show failures without closing Starplast on spaCR exit."""
+        """Reap the detached child and show failures without closing ParaScape on spaCR exit."""
         code = process.poll()
         if code is None:
             return
         timer.stop()
         timer.deleteLater()
         if code:
-            QMessageBox.warning(QApplication.activeWindow(), tr("Starplast could not open"), tr(
-                "Starplast exited with code {code}. See {path} for details.",
-                code=code, path=str(root / "starplast-launch.log")))
+            QMessageBox.warning(QApplication.activeWindow(), tr("ParaScape could not open"), tr(
+                "ParaScape exited with code {code}. See {path} for details.",
+                code=code, path=str(root / "parascape-launch.log")))
 
     timer.timeout.connect(check)
     timer.start()

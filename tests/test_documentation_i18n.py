@@ -191,15 +191,15 @@ TOOLS = ROOT / "tools"
 # English is refreshed; the locale inventory and source-hash assertions below
 # remain strict and still report the unfinished translated catalog rebuild.
 # 474: ten organism API entries, translated and source-bound in all nine locales.
-# +27 Starplast/ruler/diagram entries, then +22 flowchart/secondary entries.
+# +27 ParaScape/ruler/diagram entries, then +22 flowchart/secondary entries.
 # Source subtraction is recorded in the two dated 411 API receipts.
 # +7 Timeflows nested helpers, with all nine catalogs updated for those keys.
 # +9 held-out validation module/functions/reporting helpers in all locales.
 # +12 inference/cursor/help/schema entries. English and Help are refreshed;
 # all locale key/hash checks remain strict while translations are completed.
 # +12 image-quality/Host–Pathogen entries; strict locale checks remain active.
-# Starplast update APIs add five entries; the retired Demos label removes one.
-# Exact added/removed sets: features/data/411_starplast_demos_api_2026-09-23.json.
+# ParaScape update APIs add five entries; the retired Demos label removes one.
+# Exact added/removed sets: features/data/411_parascape_demos_api_2026-09-23.json.
 # Training and plaque calibration delta: 411_training_calibration_api_2026-09-23.json.
 # Growth, asynchronous review and fallback delta: 411_growth_and_async_api_2026-09-23.json.
 # Cancelled worker ownership: 411_cancelled_preview_api_2026-09-23.json.
@@ -3417,6 +3417,14 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     assert {key: docs[key] for key in dna_rain_arrivals} == dna_rain_arrivals
     assert not dna_rain_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **dna_rain_arrivals}
+    # 2026-10-12: the ParaScape launcher pins its minimum release and launches the console script; three arrivals.
+    launcher_arrivals = json.loads((ROOT / "tests/data"
+        / "release_contracts"
+        / "parascape_launcher_api_arrivals_2026-10-12.json").read_text())
+    assert len(launcher_arrivals) == 3
+    assert {key: docs[key] for key in launcher_arrivals} == launcher_arrivals
+    assert not launcher_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **launcher_arrivals}
     assert len(docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys()
                - volume_arrivals.keys() - zoo_arrivals.keys()) == DOCUMENTATION_API_SYMBOL_COUNT_RATCHET, (
         "The public documentation inventory changed. Regenerate every API "

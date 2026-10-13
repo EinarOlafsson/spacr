@@ -237,7 +237,7 @@
     "A second readout from the same wells, such as the host-cell count. Each group's host EC50 divided by its response EC50 is the selectivity index.",
     "A selected SubCell channel is outside the loaded crops. Open Channels… and map the four planes again.",
     "A settings CSV exported by a module or settings.json from a run manifest. It is fully resolved before submission.",
-    "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in Starplast. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
+    "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in ParaScape. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
     "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
     "A single dimension is not a phenotype and means nothing on its own. These are only interpretable as a vector — through a reduction, a retrieval, or an attribution.",
     "A slow starfield in three layers of depth.",
@@ -826,7 +826,7 @@
     "Cancel load",
     "Cancellation requested for {job}.",
     "Cancelled. Nothing was left behind.",
-    "Cancelling Starplast installation…",
+    "Cancelling ParaScape installation…",
     "Cancelling remote job…",
     "Cancelling the suggestion run after its current step…",
     "Candida Genome Database",
@@ -1025,7 +1025,7 @@
     "Channels…",
     "Chart Z' instead",
     "Cheapest design: {replicates} replicates, {wells} wells per condition, {fields} fields per well; power {power:.2f}, {simulated:.2f} in 500 simulated experiments.",
-    "Check Starplast and bundled data",
+    "Check ParaScape and bundled data",
     "Check disk space",
     "Check expressions and show each condition's matches, unmatched rows and overlaps without modifying the working table.",
     "Check figure integrity on export",
@@ -1037,11 +1037,11 @@
     "Check the plaque diameter and thresholds on one sampled field before running the assay.",
     "Checked images ({count})",
     "Checking Python, network and free disk space",
-    "Checking Starplast updates",
+    "Checking ParaScape updates",
     "Checking annotation schema for this table…",
     "Checking compatible GPUs…",
     "Checking condition assignments…",
-    "Checking the installed Starplast version and PyPI…",
+    "Checking the installed ParaScape version and PyPI…",
     "Checking this computer can install it",
     "Checkpoint interval in epochs. Default 100. Cellpose always saves the final model even when the run is shorter than this interval.",
     "Checkpoint output folder. Cellpose writes weights into its models subfolder. Leave blank for <image source>/models/cellpose_model. Use trained model reads this location too.",
@@ -1055,7 +1055,7 @@
     "Choose CSV…",
     "Choose Computer Vision for crops or streamed object images, or Tabular Machine Learning for measured feature columns. The two families consume different inputs.",
     "Choose PCA whitening and its decomposition solver. Change these when component scales or the dimensions of a large table make the default solver unsuitable.",
-    "Choose Starplast checkout",
+    "Choose ParaScape checkout",
     "Choose a U-Net checkpoint",
     "Choose a coefficient table",
     "Choose a coefficient table.",
@@ -1714,7 +1714,7 @@
     "Coverage",
     "Cp prob",
     "Cp probability",
-    "Create Starplast environment",
+    "Create ParaScape environment",
     "Create an execution profile first.",
     "Create columns from named groups",
     "Create it anyway — the new name is deliberate",
@@ -2354,7 +2354,7 @@
     "Explore measurements using visualization, tabulation, gating and feature-analysis tools.",
     "Explore pipeline flowcharts, their modules, inputs and outputs, and optionally start with example data.",
     "Explore the Toxoplasma knowledge map in a separate alpha application.",
-    "Explore the apicomplexan cell using Starplast's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
+    "Explore the apicomplexan cell using ParaScape's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
     "Explore the modules, inputs and outputs in each pipeline. Hover a module or arrow for details. Select a pipeline and choose Start example to open its first module with sample data. Ctrl+wheel zooms a diagram; drag to pan.",
     "Exponent the intensities are raised to on 0..1, above 0; 1.0 is off. Below 1 lifts the dim end so faint objects rise out of the background; above 1 pushes it down and keeps only the bright ones. Default 1.0.",
     "Export CSV…",
@@ -3456,8 +3456,8 @@
     "Inspect track speed and infection-related measurements with an explicit frame interval and pixel calibration.",
     "Install Cellpose 3…",
     "Install PyTorch",
-    "Install Starplast (alpha)",
-    "Install Starplast and dependencies",
+    "Install ParaScape (alpha)",
+    "Install ParaScape and dependencies",
     "Install a vendor CLI, or sign in to one you have.",
     "Install and open",
     "Install failed",
@@ -6886,7 +6886,7 @@
     "Smoothing after background subtraction and the PSF, before the contrast curves. gaussian is a Gaussian filter with the strength as sigma in pixels; median removes speckle and keeps edges; bilateral and nlm (non-local means) keep edges better and are slow on whole fields; tv is total-variation (Chambolle), the edge-preserving smoother offered in place of anisotropic diffusion; none is off. Default 'none'.",
     "Snakemake…",
     "Snap to the nearest axis when a spin ends",
-    "Snapshot committed Starplast source",
+    "Snapshot committed ParaScape source",
     "Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.",
     "Soft colour blobs, large and small, drifting and slowly changing size.",
     "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.",
@@ -6976,18 +6976,18 @@
     "StarDist 0.9.2 is BSD-3-Clause (Copyright 2018-2025 Uwe Schmidt, Martin Weigert), CSBDeep 0.8.2 BSD-3-Clause and TensorFlow 2.21 Apache-2.0. The pretrained models are downloaded by StarDist itself from the stardist/stardist-models GitHub release (BSD-3-Clause), checked against the digest StarDist pins, into the backend's own folder. spaCR ships none of it.",
     "StarDist, star-convex polygons for nuclei, with its 2D_versatile_fluo, 2D_versatile_he and 2D_paper_dsb2018 models or a StarDist model folder of your own. It runs on TensorFlow in an environment of its own; its masks and object probability come back in Cellpose-SAM's shapes.",
     "Starfield direction",
-    "Starplast",
-    "Starplast could not open",
-    "Starplast exited with code {code}. See {path} for details.",
-    "Starplast installation cancelled.",
-    "Starplast installation failed. Review the details and try again.",
-    "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThe latest compatible stable Starplast release is installed from PyPI. The package includes its gene data; dependencies add to the download and disk usage. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. A local Git checkout is an optional development source; local installs use committed files and leave the checkout untouched.",
-    "Starplast is installed",
-    "Starplast is installed.",
-    "Starplast source",
-    "Starplast update available",
-    "Starplast update check unavailable",
-    "Starplast {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
+    "ParaScape",
+    "ParaScape could not open",
+    "ParaScape exited with code {code}. See {path} for details.",
+    "ParaScape installation cancelled.",
+    "ParaScape installation failed. Review the details and try again.",
+    "ParaScape is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThe latest compatible stable ParaScape release is installed from PyPI. The package includes its gene data; dependencies add to the download and disk usage. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nParaScape gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. A local Git checkout is an optional development source; local installs use committed files and leave the checkout untouched.",
+    "ParaScape is installed",
+    "ParaScape is installed.",
+    "ParaScape source",
+    "ParaScape update available",
+    "ParaScape update check unavailable",
+    "ParaScape {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?",
     "Start example",
     "Start from a ready-made plate layout: controls in the outer columns, a dose series or an arrayed CRISPR screen, on 96 or 384 wells. Replaces the format, layout, edge, seed and conditions; the plate name is kept.",
     "Start from randomly initialised weights instead of fine-tuning the pretrained model. Keep this disabled unless the training set contains enough images to fit a model without pretrained weights; fine-tuning may require tens of images, whereas training from scratch commonly requires thousands. Default False.",
@@ -7388,7 +7388,7 @@
     "The columns defined so far, in the order they are computed — each one can use the ones above it. Delete removes the selected formula.",
     "The columns that could not be mapped, the ones that collide with a spaCR name, the ones with no pixel size to convert them, and how many measurement rows found an object in the masks.",
     "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
-    "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in Starplast. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
+    "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in ParaScape. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
     "The complex and rigid layer surrounding the cell. Cell walls are found in bacteria, archaea, fungi, plants, and algae. The cell wall envelopes the inner or plasma membrane in all bacteria and is surrounded by the outer membrane in bacteria with 2 membranes (Gram-negative). Bacterial cell walls contain peptidoglycan while those of archaea are not made of peptidoglycan, but some archaea may contain pseudopeptidoglycan, which is composed of N-acetyltalosaminuronic acid, instead of N-acetyl muramic acid in peptidoglycan. The plant cell wall is made of fibrils of cellulose embedded in a matrix of several other kinds of polymers such as pectin and lignin. Algal cell walls are usually composed of cellulose, glycoproteins, sporopollenin, calcium and various polysaccharides such as manosyl, xylanes, alginic acid. Diatom cell walls (or frustules) contain silica. The cell wall plays a role in cell shape, cell stability and development, and protection against environmental dangers.",
     "The condition the others are compared with: every log-rank pair and every hazard ratio is against it. It must be one of the conditions. Blank uses the first entry of time_to_event_conditions, or the first condition in sorted order. Default blank.",
     "The conversion produced no result.",
@@ -8076,8 +8076,8 @@
     "Updating {name}…",
     "Updating…",
     "Upgrade",
-    "Upgrade Starplast",
-    "Upgrade Starplast through pip from PyPI in its separate environment at {path}. Close any running Starplast windows before upgrading. Starplast is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
+    "Upgrade ParaScape",
+    "Upgrade ParaScape through pip from PyPI in its separate environment at {path}. Close any running ParaScape windows before upgrading. ParaScape is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed.",
     "Upgrade and open",
     "Upgrade unavailable: {error}",
     "Upload",
@@ -21330,7 +21330,7 @@
     ],
     [
       "UI",
-      "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in Starplast. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium."
+      "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in ParaScape. Hover for a UniProt location description and check several compartments to keep them highlighted. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium."
     ],
     [
       "UI",
@@ -23046,7 +23046,7 @@
     ],
     [
       "UI",
-      "Cancelling Starplast installation…"
+      "Cancelling ParaScape installation…"
     ],
     [
       "UI",
@@ -23538,7 +23538,7 @@
     ],
     [
       "UI",
-      "Check Starplast and bundled data"
+      "Check ParaScape and bundled data"
     ],
     [
       "UI",
@@ -23586,7 +23586,7 @@
     ],
     [
       "UI",
-      "Checking Starplast updates"
+      "Checking ParaScape updates"
     ],
     [
       "UI",
@@ -23602,7 +23602,7 @@
     ],
     [
       "UI",
-      "Checking the installed Starplast version and PyPI…"
+      "Checking the installed ParaScape version and PyPI…"
     ],
     [
       "UI",
@@ -23642,7 +23642,7 @@
     ],
     [
       "UI",
-      "Choose Starplast checkout"
+      "Choose ParaScape checkout"
     ],
     [
       "UI",
@@ -25806,7 +25806,7 @@
     ],
     [
       "UI",
-      "Create Starplast environment"
+      "Create ParaScape environment"
     ],
     [
       "UI",
@@ -27686,7 +27686,7 @@
     ],
     [
       "UI",
-      "Explore the apicomplexan cell using Starplast's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements."
+      "Explore the apicomplexan cell using ParaScape's Toxoplasma hyperLOPIT labels. Hover for a location description, check several compartments to keep them highlighted, or use Clear components to reset them. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements."
     ],
     [
       "UI",
@@ -30634,11 +30634,11 @@
     ],
     [
       "UI",
-      "Install Starplast (alpha)"
+      "Install ParaScape (alpha)"
     ],
     [
       "UI",
-      "Install Starplast and dependencies"
+      "Install ParaScape and dependencies"
     ],
     [
       "UI",
@@ -40146,7 +40146,7 @@
     ],
     [
       "UI",
-      "Snapshot committed Starplast source"
+      "Snapshot committed ParaScape source"
     ],
     [
       "UI",
@@ -40426,51 +40426,51 @@
     ],
     [
       "UI",
-      "Starplast"
+      "ParaScape"
     ],
     [
       "UI",
-      "Starplast could not open"
+      "ParaScape could not open"
     ],
     [
       "UI",
-      "Starplast exited with code {code}. See {path} for details."
+      "ParaScape exited with code {code}. See {path} for details."
     ],
     [
       "UI",
-      "Starplast installation cancelled."
+      "ParaScape installation cancelled."
     ],
     [
       "UI",
-      "Starplast installation failed. Review the details and try again."
+      "ParaScape installation failed. Review the details and try again."
     ],
     [
       "UI",
-      "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThe latest compatible stable Starplast release is installed from PyPI. The package includes its gene data; dependencies add to the download and disk usage. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. A local Git checkout is an optional development source; local installs use committed files and leave the checkout untouched."
+      "ParaScape is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThe latest compatible stable ParaScape release is installed from PyPI. The package includes its gene data; dependencies add to the download and disk usage. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nParaScape gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. A local Git checkout is an optional development source; local installs use committed files and leave the checkout untouched."
     ],
     [
       "UI",
-      "Starplast is installed"
+      "ParaScape is installed"
     ],
     [
       "UI",
-      "Starplast is installed."
+      "ParaScape is installed."
     ],
     [
       "UI",
-      "Starplast source"
+      "ParaScape source"
     ],
     [
       "UI",
-      "Starplast update available"
+      "ParaScape update available"
     ],
     [
       "UI",
-      "Starplast update check unavailable"
+      "ParaScape update check unavailable"
     ],
     [
       "UI",
-      "Starplast {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?"
+      "ParaScape {installed} is installed. Version {latest} is available on PyPI. Upgrade through pip before opening?"
     ],
     [
       "UI",
@@ -41606,7 +41606,7 @@
     ],
     [
       "UI",
-      "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in Starplast. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype."
+      "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in ParaScape. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype."
     ],
     [
       "UI",
@@ -43810,11 +43810,11 @@
     ],
     [
       "UI",
-      "Upgrade Starplast"
+      "Upgrade ParaScape"
     ],
     [
       "UI",
-      "Upgrade Starplast through pip from PyPI in its separate environment at {path}. Close any running Starplast windows before upgrading. Starplast is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed."
+      "Upgrade ParaScape through pip from PyPI in its separate environment at {path}. Close any running ParaScape windows before upgrading. ParaScape is in alpha; downloads and disk usage depend on the release. spaCR's packages are not changed."
     ],
     [
       "UI",

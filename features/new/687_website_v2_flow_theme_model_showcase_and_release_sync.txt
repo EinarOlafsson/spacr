@@ -361,14 +361,14 @@ spaCR 96/100 (three runs), spaCR/de 96/100, lock pages 100/100.
 
 2026-10-11 (round 6) — site-src fd92f55, deploy run 38140424074, live
 build 2026-10-11T12:52:19Z.
-- Starplast: new public page /projects/starplast/ and a landing card. The
-  text comes from the Starplast README, CITATION.cff and PyPI only. Version,
+- ParaScape: new public page /projects/parascape/ and a landing card. The
+  text comes from the ParaScape README, CITATION.cff and PyPI only. Version,
   release date and Python range are read from PyPI at build time (0.54.0,
   2026-10-05, Python >=3.10), and the hourly check now also rebuilds when
-  Starplast is released. The repository's dark and light gene-map screenshots
+  ParaScape is released. The repository's dark and light gene-map screenshots
   (MIT) follow the page theme. Install covers pip and spaCR's Toxoplasma-page
-  Starplast tile (alpha in spaCR). New i18n file
-  projects/starplast/i18n/en.json, 46 sp.* keys.
+  ParaScape tile (alpha in spaCR). New i18n file
+  projects/parascape/i18n/en.json, 46 sp.* keys.
 - Background: spaCR field is now the default (stored choices still win).
   Advection stays inline as the fallback.
 - Overscroll bounce: a wheel at the top or bottom, a touch pull or a
@@ -418,7 +418,7 @@ build 2026-10-11T13:52:12Z.
 Verified live: 100/100 headless checks. Lighthouse mobile under load 61-63
 (another session's hung headless Chrome GPU process at about 750% CPU, plus
 validate_n2v_lowlight.py jobs): home 93/100, spaCR 76/85/83 (accessibility
-100), Starplast 69/100, live_cell lock 98/100. To be re-measured at low
+100), ParaScape 69/100, live_cell lock 98/100. To be re-measured at low
 load.
 
 
@@ -438,11 +438,11 @@ build 2026-10-11T15:28:26Z.
   stock 0.300/0.373 figures are still in the group text.
 - When the re-scored PV and plaque numbers land on HF and in the zoo, run
   tools/models/collect.py and rebuild.
-- Translator fallback: the 13:31 "Starplast page translations" deploy
+- Translator fallback: the 13:31 "ParaScape page translations" deploy
   (run 38143501691) failed with "unknown i18n key showcase.class.nuclei".
   The fallback added in 7df304e fixes it, and later runs pass.
 Verified live: 100/100 headless checks. Lighthouse at load 45: home 93,
-spaCR 83/84/84, Starplast 86; accessibility 100.
+spaCR 83/84/84, ParaScape 86; accessibility 100.
 
 
 2026-10-12 (round 9, Timepose) — site-src e39eb48 and a5cc008, deploy runs
@@ -469,12 +469,12 @@ spaCR 83/84/84, Starplast 86; accessibility 100.
 - i18n: no new keys. The home page and the gated pages have no i18n
   folder and are English-only, as Cellect is, and the nav names are not
   keyed. check_i18n passes.
-- Build fix: PyPI no longer has a starplast project (404), and that failed
-  the 15:27 scheduled deploy. starplastMeta now keeps the deployed version
+- Build fix: PyPI no longer has a parascape project (404), and that failed
+  the 15:27 scheduled deploy. parascapeMeta now keeps the deployed version
   (from the live build.json) and the release date and Python range (from
   the live page). The deploy workflow's hourly check still curls PyPI
-  starplast with -f, so scheduled checks will keep failing until the
-  Starplast lane moves the site to the new package name.
+  parascape with -f, so scheduled checks will keep failing until the
+  ParaScape lane moves the site to the new package name.
 Verified live: the home card and nav show Timepose; /projects/timepose/
 serves the StatiCrypt password form; the password decrypts the live copy
 into the Timepose page (4 sections, schematic present); the deployed tree

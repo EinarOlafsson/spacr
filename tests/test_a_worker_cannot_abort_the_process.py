@@ -34,7 +34,7 @@ WORKER_MODULES = (
     "spacr/qt/screens/queue.py",
     "spacr/qt/screens/annotate.py",
     "spacr/qt/widgets/sra_picker.py",
-    "spacr/qt/starplast.py",
+    "spacr/qt/parascape.py",
     "spacr/qt/widgets/primary_mask_selector.py",
     "spacr/qt/widgets/channel_sort_dialog.py",
 )

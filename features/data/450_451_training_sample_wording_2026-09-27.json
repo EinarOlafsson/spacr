@@ -320,7 +320,7 @@
     {
       "path": "docs/i18n/reviewed/runtime/hi/2026-09-25-runtime-debt-messages.json",
       "archive": "features/data/450_451_retired_runtime_review_2026-09-27/hi/2026-09-25-runtime-debt-messages.json",
-      "sha256": "6745f0e46c084694f456c2826b0f0aaf98a39b0b302b9dc86d08aba3ea6f4def",
+      "sha256": "709de4254dc1eb0da67af286856ecb4fcb783c6e73e6b1fdbdb63e232c1a57f6",
       "retired_records": [
         {
           "table": "ui",
@@ -369,7 +369,7 @@
     {
       "path": "docs/i18n/reviewed/runtime/ko/2026-09-25-runtime-debt-messages.json",
       "archive": "features/data/450_451_retired_runtime_review_2026-09-27/ko/2026-09-25-runtime-debt-messages.json",
-      "sha256": "e29cc23850b23d20cbe9d1f345015af1f5d9afb175585e953621aa3434304c0c",
+      "sha256": "28c7960bb6c7adea2be7ca7392cfd7150e78fdabfff7a862d5de381cc1526a1a",
       "retired_records": [
         {
           "table": "ui",
@@ -397,7 +397,7 @@
     {
       "path": "docs/i18n/reviewed/runtime/is/2026-09-25-runtime-debt-messages.json",
       "archive": "features/data/450_451_retired_runtime_review_2026-09-27/is/2026-09-25-runtime-debt-messages.json",
-      "sha256": "e1af10d8d0b60b3c74120f5a6d1c344c09abf3583f50c8a695afad995844b162",
+      "sha256": "68763fb4229e616abfb6bba695e5e26a088b2cce1a06abb0dc8fb42cd126c29f",
       "retired_records": [
         {
           "table": "ui",

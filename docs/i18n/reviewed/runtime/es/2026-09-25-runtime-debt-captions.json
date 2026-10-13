@@ -174,10 +174,10 @@
     },
     {
       "table": "ui",
-      "key": "Checking Starplast updates",
-      "source": "Checking Starplast updates",
-      "source_sha256": "a3d65fd99ad08ddac19229db2a089f7c20c9b80d4e9f44a3a94f2b278ec0e8c7",
-      "translation": "Comprobando actualizaciones de Starplast"
+      "key": "Checking ParaScape updates",
+      "source": "Checking ParaScape updates",
+      "source_sha256": "e3a791db6e6a17dfd24dc07086bdaa161ab0738d1bb0371a635368169299505e",
+      "translation": "Comprobando actualizaciones de ParaScape"
     },
     {
       "table": "ui",
@@ -1063,6 +1063,20 @@
     },
     {
       "table": "ui",
+      "key": "ParaScape update available",
+      "source": "ParaScape update available",
+      "source_sha256": "91c6e66181933390caa3590094fb2f695bb7d51ae9c1c7ac7f87a8c92d8d9ce8",
+      "translation": "Actualización de ParaScape disponible"
+    },
+    {
+      "table": "ui",
+      "key": "ParaScape update check unavailable",
+      "source": "ParaScape update check unavailable",
+      "source_sha256": "20a640084194fedd675aca11bef62af5a34220a31e6a826a1d59517725a57937",
+      "translation": "Comprobación de actualizaciones de ParaScape no disponible"
+    },
+    {
+      "table": "ui",
       "key": "Parameter Sweep",
       "source": "Parameter Sweep",
       "source_sha256": "68d58d3ea462f5baa1c1c50ee11db7e8ebca142126dad8110a7f19d1b56a1c90",
@@ -1616,20 +1630,6 @@
     },
     {
       "table": "ui",
-      "key": "Starplast update available",
-      "source": "Starplast update available",
-      "source_sha256": "095c5aa897a81cdd664ffb3e43852631a8e3912036e4d5b512c75d6976217c22",
-      "translation": "Actualización de Starplast disponible"
-    },
-    {
-      "table": "ui",
-      "key": "Starplast update check unavailable",
-      "source": "Starplast update check unavailable",
-      "source_sha256": "4c0c531e4d946a89abcd0695be8ef80e041b678f7d9b54165b6577dabff922ca",
-      "translation": "Comprobación de actualizaciones de Starplast no disponible"
-    },
-    {
-      "table": "ui",
       "key": "Stored PNG order",
       "source": "Stored PNG order",
       "source_sha256": "dcfad4368086424a35dd18fda2b7c373b47f00ff3e456775a04e6b7d5eb1c800",
@@ -2001,10 +2001,10 @@
     },
     {
       "table": "ui",
-      "key": "Upgrade Starplast",
-      "source": "Upgrade Starplast",
-      "source_sha256": "f4970f9850e828d9685b5829ef8927139f4348ef08bb3ea4490926d4b374a6ae",
-      "translation": "Actualizar Starplast"
+      "key": "Upgrade ParaScape",
+      "source": "Upgrade ParaScape",
+      "source_sha256": "44c7b520742ab6490101d5f80567258e26b94348b118aa9f986ca3482b9722e9",
+      "translation": "Actualizar ParaScape"
     },
     {
       "table": "ui",

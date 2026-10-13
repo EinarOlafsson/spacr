@@ -84,7 +84,7 @@
     },
     {
       "context": "Install the latest compatible stable release from the official PyPI index.",
-      "label": "spacr._starplast.PYPI_PACKAGE#0",
+      "label": "spacr._parascape.PYPI_PACKAGE#0",
       "review_basis": "MT draft edited in AI review",
       "source": "Install the latest compatible stable release from the official PyPI index.",
       "source_sha256": "24043ad21025cbd4614682bd8f4ff20c74a910f2aae11b2cb369479090f91585",
@@ -92,7 +92,7 @@
     },
     {
       "context": "Optional explicit source for development installations.",
-      "label": "spacr._starplast.REPOSITORY#0",
+      "label": "spacr._parascape.REPOSITORY#0",
       "review_basis": "MT draft kept after AI review",
       "source": "Optional explicit source for development installations.",
       "source_sha256": "62d2579e5a409ab73664aebf2e332a6ce0bfdf50f69543911b4654fa4c68cfce",
@@ -100,7 +100,7 @@
     },
     {
       "context": "Compare the actual isolated installation with compatible stable PyPI releases.",
-      "label": "spacr._starplast.check_starplast_update#0",
+      "label": "spacr._parascape.check_parascape_update#0",
       "review_basis": "MT draft edited in AI review",
       "source": "Compare the actual isolated installation with compatible stable PyPI releases.",
       "source_sha256": "ac37e36f747dc794e3a8d52b633a03c6b0724a3b4fa5c59420f9ca7fb1e369ff",
@@ -108,7 +108,7 @@
     },
     {
       "context": "optional cancellable command runner for tests.",
-      "label": "spacr._starplast.check_starplast_update#3",
+      "label": "spacr._parascape.check_parascape_update#3",
       "review_basis": "MT draft edited in AI review",
       "source": "optional cancellable command runner for tests.",
       "source_sha256": "5a64a08b84c1aad78432184fb527796029fbdac075104569bedd14a3d73d89aa",
@@ -116,7 +116,7 @@
     },
     {
       "context": "installed/latest version strings and an ``available`` boolean.",
-      "label": "spacr._starplast.check_starplast_update#4",
+      "label": "spacr._parascape.check_parascape_update#4",
       "review_basis": "MT draft edited in AI review",
       "source": "installed/latest version strings and an ``available`` boolean.",
       "source_sha256": "b5e5669ceb44bbc906c6bb6755d9e4e3877ccc0d81464a9ebac174dff804c363",
@@ -124,7 +124,7 @@
     },
     {
       "context": "the installation or package index cannot be checked.",
-      "label": "spacr._starplast.check_starplast_update#5",
+      "label": "spacr._parascape.check_parascape_update#5",
       "review_basis": "MT draft edited in AI review",
       "source": "the installation or package index cannot be checked.",
       "source_sha256": "f735c67c1ddfaace436e814516661ec496778fe9e1727746808578f24f5e8802",
@@ -132,55 +132,55 @@
     },
     {
       "context": "Use PyPI unless a developer explicitly overrides the installation source.",
-      "label": "spacr._starplast.default_source#0",
+      "label": "spacr._parascape.default_source#0",
       "review_basis": "MT draft edited in AI review",
       "source": "Use PyPI unless a developer explicitly overrides the installation source.",
       "source_sha256": "f8ac08042343fa09872e85dad9cf8e4e9f1c004d6c40310cf04eb5c51252cd49",
       "translation": "Usa PyPI salvo que un desarrollador sustituya explícitamente la fuente de instalación."
     },
     {
-      "context": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name.",
-      "label": "spacr._starplast.default_source#1",
+      "context": "``SPACR_PARASCAPE_SOURCE`` or the unpinned PyPI package name.",
+      "label": "spacr._parascape.default_source#1",
       "review_basis": "MT draft edited in AI review",
-      "source": "``SPACR_STARPLAST_SOURCE`` or the unpinned PyPI package name.",
-      "source_sha256": "eefc7385a8be3c85e49a119b1aceac9968def78e51ee4ad2396978c14fb50283",
-      "translation": "``SPACR_STARPLAST_SOURCE`` o el nombre del paquete de PyPI sin versión fijada."
+      "source": "``SPACR_PARASCAPE_SOURCE`` or the unpinned PyPI package name.",
+      "source_sha256": "36d3db9dec8bb3cb3e632388c365bfac4f3c8eb3677d2c168b31812e9cbb7852",
+      "translation": "``SPACR_PARASCAPE_SOURCE`` o el nombre del paquete de PyPI sin versión fijada."
     },
     {
       "context": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL.",
-      "label": "spacr._starplast.install_starplast#10",
+      "label": "spacr._parascape.install_parascape#10",
       "review_basis": "MT draft edited in AI review",
       "source": "the selected source is neither a suitable local Git checkout, the PyPI package, nor an allowed official repository URL.",
       "source_sha256": "1cd328cac94b83da34716fd85839249408b78b0541b7f7113c03b1056b789890",
       "translation": "la fuente seleccionada no es una copia de trabajo local de Git adecuada, ni el paquete de PyPI, ni una URL oficial de repositorio permitida."
     },
     {
-      "context": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin.",
-      "label": "spacr._starplast.install_starplast#2",
+      "context": "parascape on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin.",
+      "label": "spacr._parascape.install_parascape#2",
       "review_basis": "MT draft edited in AI review",
-      "source": "starplast on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin.",
-      "source_sha256": "a6dd51e96b540c9586a79238e3aa62de516e2a6035a114f5a6e5c9261aef2ccb",
-      "translation": "starplast en PyPI, o una copia de trabajo local de Git o una URL de repositorio explícitas; en caso contrario, default_source. PyPI resuelve la última versión estable compatible en el momento de la instalación, sin fijar la versión."
+      "source": "parascape on PyPI, or an explicit local Git checkout or repository URL; default_source otherwise. PyPI resolves the latest compatible stable release at installation time, without a version pin.",
+      "source_sha256": "ba804868c40c314aa56be73c88caae908ab8ada0c3a5636b024d36d2515ded79",
+      "translation": "parascape en PyPI, o una copia de trabajo local de Git o una URL de repositorio explícitas; en caso contrario, default_source. PyPI resuelve la última versión estable compatible en el momento de la instalación, sin fijar la versión."
     },
     {
       "context": "Upgrade the owned environment using pip and PyPI, then verify its data.",
-      "label": "spacr._starplast.upgrade_starplast#0",
+      "label": "spacr._parascape.upgrade_parascape#0",
       "review_basis": "MT draft edited in AI review",
       "source": "Upgrade the owned environment using pip and PyPI, then verify its data.",
       "source_sha256": "ebff26c8b458079570815e35318891db3647d276ae314b6c4f128699cbf4b9b3",
       "translation": "Actualiza el entorno propio con pip y PyPI y, a continuación, verifica sus datos."
     },
     {
-      "context": "ignored; upgrades always use the PyPI Starplast package.",
-      "label": "spacr._starplast.upgrade_starplast#1",
+      "context": "ignored; upgrades always use the PyPI ParaScape package.",
+      "label": "spacr._parascape.upgrade_parascape#1",
       "review_basis": "MT draft edited in AI review",
-      "source": "ignored; upgrades always use the PyPI Starplast package.",
-      "source_sha256": "97c77d0e0cf8e8afb97d775baea9fbe0d8e2729261134fd76d2f7a49c38167e3",
-      "translation": "se ignora; las actualizaciones siempre usan el paquete Starplast de PyPI."
+      "source": "ignored; upgrades always use the PyPI ParaScape package.",
+      "source_sha256": "0689f9793c64792f0eaa5b3bfed07fdbd1698533cbc5d5fab647e812d65433c2",
+      "translation": "se ignora; las actualizaciones siempre usan el paquete ParaScape de PyPI."
     },
     {
       "context": "optional ``(step, total, text)`` callback.",
-      "label": "spacr._starplast.upgrade_starplast#3",
+      "label": "spacr._parascape.upgrade_parascape#3",
       "review_basis": "MT draft edited in AI review",
       "source": "optional ``(step, total, text)`` callback.",
       "source_sha256": "c8e11f066eaa06173ba973c531735a8a9eeca096c70ae447a172ca9ac233f1be",
@@ -188,7 +188,7 @@
     },
     {
       "context": "optional command runner for tests.",
-      "label": "spacr._starplast.upgrade_starplast#5",
+      "label": "spacr._parascape.upgrade_parascape#5",
       "review_basis": "MT draft edited in AI review",
       "source": "optional command runner for tests.",
       "source_sha256": "e3f674322e836851cad0fca4abaeda3f0ca4e1510108fd7bc75f2d46605dbf17",
@@ -196,7 +196,7 @@
     },
     {
       "context": "verified environment path.",
-      "label": "spacr._starplast.upgrade_starplast#6",
+      "label": "spacr._parascape.upgrade_parascape#6",
       "review_basis": "MT draft edited in AI review",
       "source": "verified environment path.",
       "source_sha256": "19691b329b7e74e50f4e192cb57fc51c47afd7a7f33a69212ec001efbd6f85cb",
@@ -204,7 +204,7 @@
     },
     {
       "context": "upgrade failed or was cancelled. Files and logs remain for diagnosis; an interrupted environment must be repaired before launch.",
-      "label": "spacr._starplast.upgrade_starplast#7",
+      "label": "spacr._parascape.upgrade_parascape#7",
       "review_basis": "MT draft edited in AI review",
       "source": "upgrade failed or was cancelled. Files and logs remain for diagnosis; an interrupted environment must be repaired before launch.",
       "source_sha256": "3836df398c12ee6f660411d3764bcc71a8d34b321aed0b9bdeeffd17ab03907c",

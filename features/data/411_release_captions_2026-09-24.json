@@ -3,7 +3,7 @@
   "date": "2026-09-24",
   "records": 45,
   "source_contexts": [
-    "spacr/qt/starplast.py",
+    "spacr/qt/parascape.py",
     "spacr/qt/screens/model_explanation.py"
   ],
   "runtime_lookup_passed": true,

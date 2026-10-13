@@ -15,7 +15,7 @@
   },
   {
     "file": "docs/i18n/reviewed/runtime/de/2026-09-25-runtime-debt-messages.json",
-    "original_sha256": "ef2d9853fe25559f5530cef52e3cf2393d3630e02d6f34a130522383269474e6",
+    "original_sha256": "60fa90466df751a498efdb088c985029cc3adc9ca539f7c6e6f2ae91e1558118",
     "keys": [
       "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own."
     ]
@@ -36,7 +36,7 @@
   },
   {
     "file": "docs/i18n/reviewed/runtime/es/2026-09-25-runtime-debt-messages.json",
-    "original_sha256": "b0868596d6deb96d03bddc27ab16f46647e3d0706f9ffabaf7d92abf662666c8",
+    "original_sha256": "b723b31cb1fdfc0691d1f2a578123d23862ea778c8935f4513d304dfa25244b7",
     "keys": [
       "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own."
     ]
@@ -57,7 +57,7 @@
   },
   {
     "file": "docs/i18n/reviewed/runtime/fr/2026-09-25-runtime-debt-messages.json",
-    "original_sha256": "183a5985cd431995104d8ac9977bc9202d96db62b1ee0643315cffb8d88dd434",
+    "original_sha256": "de0e0d46dfa61c7c7617315c602979fd187629a1e01e0de35df4e324e654838e",
     "keys": [
       "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own."
     ]
@@ -78,7 +78,7 @@
   },
   {
     "file": "docs/i18n/reviewed/runtime/hi/2026-09-25-runtime-debt-messages.json",
-    "original_sha256": "5cb1ce7b23b5e78aaef3fb18d02be3f0be98f4cabe2eb118659dd0851064f8ff",
+    "original_sha256": "58082fa9989f33922bd4129410dbcbb29f412208dd0b259d5eb033e09fe49548",
     "keys": [
       "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own."
     ]
@@ -99,7 +99,7 @@
   },
   {
     "file": "docs/i18n/reviewed/runtime/is/2026-09-25-runtime-debt-messages.json",
-    "original_sha256": "afee51479ef7ab6d850083dddbb79623eba8b823e71be3610d6d3718b227f59c",
+    "original_sha256": "0e73a40ab4437eb70352305a3009090601559b59d36323b79e61d1799277be20",
     "keys": [
       "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own."
     ]
@@ -120,7 +120,7 @@
   },
   {
     "file": "docs/i18n/reviewed/runtime/ko/2026-09-25-runtime-debt-messages.json",
-    "original_sha256": "e4134989ad05b15afa8eeb934a0e1f4d0d762e8c16ee2d2f3604f694d367221a",
+    "original_sha256": "9dab827e903eb804ef82c914caf2a777fb9c160ae64c1f3ff17f91cb2b492411",
     "keys": [
       "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own."
     ]
@@ -141,7 +141,7 @@
   },
   {
     "file": "docs/i18n/reviewed/runtime/pt/2026-09-25-runtime-debt-messages.json",
-    "original_sha256": "b522c34b73f637775e774fbc4e41284fe0d77b3ccd144c3f6cf3c8d6eb19db98",
+    "original_sha256": "81db4c0fd45f877c80ad2b7818a70650a5be7b718d893607fe43be105b81620d",
     "keys": [
       "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own."
     ]
@@ -162,7 +162,7 @@
   },
   {
     "file": "docs/i18n/reviewed/runtime/sv/2026-09-25-runtime-debt-messages.json",
-    "original_sha256": "40223899c021586bb0a89a055e1a043701e451a79eba8fa0ba7f7019c4c1472b",
+    "original_sha256": "2f5eec753eb09d19c9d570d4c1627cbc666a41a54057f2de17e2b17b5038efd4",
     "keys": [
       "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own."
     ]
@@ -183,7 +183,7 @@
   },
   {
     "file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-25-runtime-debt-messages.json",
-    "original_sha256": "97d83f632e5322d6d679d97f60b05e37d5623b929f0106b887678e8858e36bad",
+    "original_sha256": "c98636155516a26968a0db9b9304cf0e758d2d32404facbaeab3d6a2669dfa9b",
     "keys": [
       "Run the CPU method chosen under Detection method on the whole image and label what it finds, honouring the minimum area above. Everything the method reads is that category: the level's algorithm, the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut. With Cellpose or a backend chosen this button falls back to Otsu, because those have the Object detection button of their own."
     ]

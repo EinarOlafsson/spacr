@@ -9,11 +9,11 @@
     "artifact": 10730121853,
     "status": "Old complete report has 11 modules below floor and 71 ratchet failures; not a current-head verdict."
   },
-  "scope": "Two current Starplast modules measured with their focused installer and Qt launcher tests. No aggregate CI completion claim.",
+  "scope": "Two current ParaScape modules measured with their focused installer and Qt launcher tests. No aggregate CI completion claim.",
   "tests_before": "14 passed in 6.16s",
   "tests_final": "35 passed in 7.62s",
   "modules": {
-    "spacr/_starplast.py": {
+    "spacr/_parascape.py": {
       "before": {
         "covered_lines": 124,
         "num_statements": 137,
@@ -52,7 +52,7 @@
       ],
       "remaining_branches": []
     },
-    "spacr/qt/starplast.py": {
+    "spacr/qt/parascape.py": {
       "before": {
         "covered_lines": 133,
         "num_statements": 153,
@@ -129,11 +129,11 @@
     "Coverage baseline, exclusions, exemptions and threshold unchanged."
   ],
   "source_sha256": {
-    "spacr/_starplast.py": "e446c26233182f34abffeaa3a984c2a19d5c703597e62210ae86a8842693cb01",
-    "spacr/qt/starplast.py": "8259a968f6ab86f463adfb4de9185aa2213671180c29bdde145a1abb437aa036",
-    "tests/test_starplast_environment.py": "cf4813785fe1b7ba375ad6562968286ce6ff1337e7615b5c2d9b7a752ce7379b",
-    "tests/qt/test_starplast_launcher.py": "d17e026ae67a97135e5d5f074b27ffbd211db0785c51f195fa11425a6b309b6a"
+    "spacr/_parascape.py": "e446c26233182f34abffeaa3a984c2a19d5c703597e62210ae86a8842693cb01",
+    "spacr/qt/parascape.py": "8259a968f6ab86f463adfb4de9185aa2213671180c29bdde145a1abb437aa036",
+    "tests/test_parascape_environment.py": "cf4813785fe1b7ba375ad6562968286ce6ff1337e7615b5c2d9b7a752ce7379b",
+    "tests/qt/test_parascape_launcher.py": "d17e026ae67a97135e5d5f074b27ffbd211db0785c51f195fa11425a6b309b6a"
   },
   "raw_coverage_sha256": "265a6a65b429a53eadecb814ea41edb268ae59a044b0b89424e137759d406252",
-  "raw_coverage_path": "/mnt/firecuda2/Claude/implementation-20260922/starplast-coverage/final.json"
+  "raw_coverage_path": "/mnt/firecuda2/Claude/implementation-20260922/parascape-coverage/final.json"
 }

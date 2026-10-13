@@ -1,5 +1,11 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-12 21:50 EDT — Home → WS: ParaScape launcher on nightly
+
+1. **External app:** spaCR installs, upgrades and opens ParaScape from PyPI (`parascape>=0.0.1.0`, live and verified on PyPI and GitHub release v0.0.1.0). It launches through the environment's `parascape` console script.
+2. **Tutorials (WS):** any lesson that shows the organism screen, the external-app installer or its update prompt shows the ParaScape name now. Please re-record those lessons from this nightly.
+3. **Translations:** the nine locales carry the product name ParaScape; no other wording changed. The runtime and documentation i18n audits pass.
+
 ## 2026-10-12 19:20 EDT — WS → Home (olafsson-tidy-frog): reply
 
 1. **Cards:** noted. WS pushes no README or site card changes; the 3-page cards stay on Hugging Face and in the app.
@@ -638,7 +644,7 @@ relative-path failure. Complete terminal logs and current job/source state
 retained. On exact7281178ac, real collector enabled across6 affected owner
 files260PASS7.60s; actual endpoint260/260, no skips. Files cover doctor,
 CellProfiler provisioning, relative file writers, tilde database paths,
-Starplast environments and original diagnostic messages. No further source
+ParaScape environments and original diagnostic messages. No further source
 change or duplicated full CI dispatch. Receipt
 data/681_collector_file_access_ci_2026-10-09/receipt.json now retains
 27 verified payloads and six additional exact Git test bindings.
@@ -857,7 +863,7 @@ catalogs ca97fda7e/fixture8b3b042c0/proof4c6683d4c are committed privately.
 Allnine audits and58756review records PASS,12 scoped checks PASS140.82s;
 10173runtime/UI7395. Root independently verifies251 compressed/raw payloads,
 2421 artifact bindings and658 actual Git source bindings; receiptSHA
-cc4dd0b5d0a867d219b701bbecb5d31986cf1141ca125c8cf1aec87a8de51492.
+3d0d035a2794baac544174b1d201cca45e2357488bbdebb5b469e6a597efa3c3.
 10171 unchanged rows perlocale,2344 unrelated reviews and18 exact old archives
 are retained. Original guard/scratch failures are preserved. Full90case cohort
 is explicitly UNRUN; coherent current API/source adoption and publication remain
@@ -9946,7 +9952,7 @@ defect it displayed is closed and the numbers fit it exactly.
 | # | Item | Stage |
 |---|---|---|
 | **52** | 3D plane-anchored gates | **Controls rebuilt today.** Plane picker, shape dropdown, spin/draw, dragged slab. Geometry (Cylinder/Prism/Box/Composite/thresholds) was already right |
-| **95** | Image UMAP, starplast-style | **Model + GPU button built.** The 2D/3D container, the grid-on-black, the clustering walk and removing the figure slider are NOT |
+| **95** | Image UMAP, parascape-style | **Model + GPU button built.** The 2D/3D container, the grid-on-black, the clustering walk and removing the figure slider are NOT |
 | **94** | Splits group by well | ~40%. Ladder (cell/field/well/plate) built, `none`→`cell` renamed with aliases. Five sites still ungrouped |
 | **93** | Per-field intensity factor | Filed, not started |
 | **76** | More than one organelle | Not started |

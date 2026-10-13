@@ -1,9 +1,9 @@
 """Is the projection about what the user thinks it is about?
 
-Instruction 49, taking two ideas from starplast, which built the same picker
+Instruction 49, taking two ideas from parascape, which built the same picker
 for a different table:
 
-  * a group can be named as an input and carry almost nothing -- starplast
+  * a group can be named as an input and carry almost nothing -- parascape
     caught one at 1.1% -- and nobody notices, because a projection always
     produces a picture;
   * a projection can separate objects on WHETHER THEY WERE MEASURED rather
@@ -50,7 +50,7 @@ def _table(n=400, seed=0, infected_fraction=0.5, noise=1.0):
 # ---------------------------------------------------------------------------
 
 def test_a_group_that_carries_nothing_is_visible_as_carrying_nothing():
-    """The defect starplast caught at 1.1%: named as an input, contributing
+    """The defect parascape caught at 1.1%: named as an input, contributing
     nothing, and invisible because a projection always draws something."""
     rng = np.random.default_rng(1)
     frame = pd.DataFrame({

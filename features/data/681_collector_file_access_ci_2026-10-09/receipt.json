@@ -236,7 +236,7 @@
       "tests/test_cellprofiler_python_provision_f546.py": "4628d40b9943df727af84f1d995c88e32a906f9ad1dff7a3e1c2a9572e17381f",
       "tests/test_a_parent_directory_is_always_there_to_make.py": "fea14312a6fa0619de705c85cbaeecb30c45b3c8de4be41f485b68b432effdb7",
       "tests/test_a_tilde_path_opens_its_database.py": "bfa146fae6e6a6b3d5453f91b4c27eac0c9b59f8ad5c32bc05eb2ab828fdfa72",
-      "tests/test_starplast_environment.py": "8fadbb3a71d8cf75e4a8987a573e839938774bf58fea7453fc8b0402121f625a",
+      "tests/test_parascape_environment.py": "8fadbb3a71d8cf75e4a8987a573e839938774bf58fea7453fc8b0402121f625a",
       "tests/test_the_messages_that_name_the_real_problem.py": "bd3641ec5142f2592239fb097294f2d3724c3117aa681462ad40103638b8ff74"
     },
     "scope": "Six complete affected test files; original hosted relative-directory collector failure is retained. Exact hosted coverage measurement and full-run acceptance remain pending."

@@ -3002,7 +3002,7 @@
     },
     {
       "context": "Check PyPI off the main GUI execution path, allowing a cancelled check to open the installed app. Prepare an automatic, read-only update check.",
-      "label": "spacr.qt.starplast.StarplastUpdateCheckDialog#0",
+      "label": "spacr.qt.parascape.ParaScapeUpdateCheckDialog#0",
       "review_basis": "MT draft edited in AI review",
       "source": "Check PyPI off the GUI thread, allowing a cancelled check to open the installed app. Prepare an automatic, read-only update check.",
       "source_sha256": "17474f21efe74ce8e27cd0c152705795f1ca4e356c9c7165dfedaf9157ad0906",
@@ -3010,7 +3010,7 @@
     },
     {
       "context": "Prevent destruction of an active check thread.",
-      "label": "spacr.qt.starplast.StarplastUpdateCheckDialog.closeEvent#0",
+      "label": "spacr.qt.parascape.ParaScapeUpdateCheckDialog.closeEvent#0",
       "review_basis": "MT draft edited in AI review",
       "source": "Prevent destruction of an active check thread.",
       "source_sha256": "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
@@ -3018,7 +3018,7 @@
     },
     {
       "context": "Qt close event; ignored while the check is being cancelled.",
-      "label": "spacr.qt.starplast.StarplastUpdateCheckDialog.closeEvent#1",
+      "label": "spacr.qt.parascape.ParaScapeUpdateCheckDialog.closeEvent#1",
       "review_basis": "MT draft edited in AI review",
       "source": "Qt close event; ignored while the check is being cancelled.",
       "source_sha256": "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
@@ -3026,7 +3026,7 @@
     },
     {
       "context": "Cancel the check and keep the dialog alive until its worker exits.",
-      "label": "spacr.qt.starplast.StarplastUpdateCheckDialog.reject#0",
+      "label": "spacr.qt.parascape.ParaScapeUpdateCheckDialog.reject#0",
       "review_basis": "MT draft edited in AI review",
       "source": "Cancel the check and keep the dialog alive until its worker exits.",
       "source_sha256": "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda",
@@ -3034,7 +3034,7 @@
     },
     {
       "context": "Check for updates on every open and offer pip upgrades before launching.",
-      "label": "spacr.qt.starplast.open_starplast#0",
+      "label": "spacr.qt.parascape.open_parascape#0",
       "review_basis": "MT draft edited in AI review",
       "source": "Check for updates on every open and offer pip upgrades before launching.",
       "source_sha256": "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",

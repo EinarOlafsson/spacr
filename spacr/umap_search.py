@@ -316,7 +316,7 @@ def walk_clusters(
 ) -> List[ClusterWalkRow]:
     """Try HDBSCAN scales on one map and return them best-first.
 
-    This is the clustering half of the Starplast-style walk.  It can run for
+    This is the clustering half of the ParaScape-style walk.  It can run for
     every UMAP trial as that trial arrives, or later against the table row the
     user chose. Duplicate and out-of-range candidate sizes are skipped; if no
     size is meaningful the call is refused rather than fabricating a
