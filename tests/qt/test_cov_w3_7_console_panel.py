@@ -66,14 +66,28 @@ def test_each_provider_answers_in_its_own_colour(provider, expected):
 # The copy badge
 # ---------------------------------------------------------------------------
 
-def test_the_badge_draws_even_before_the_theme_exists(qtbot, monkeypatch):
-    """The panel is built before the palette in some hosts; it still paints."""
+@pytest.mark.parametrize("flashing", [False, True])
+def test_the_badge_draws_even_before_the_theme_exists(qtbot, monkeypatch, flashing):
+    """An unavailable painting palette keeps the idle and copied glyph legible."""
     badge = cp._CopyGlyphButton()
     qtbot.addWidget(badge)
-    monkeypatch.setattr(cp, "active_palette",
-                        lambda: (_ for _ in ()).throw(
-                            RuntimeError("no application palette yet")))
-    assert not badge.grab().isNull()
+    badge.underMouse = lambda: False
+    if flashing:
+        badge.flash_copied()
+    monkeypatch.setattr(cp, "_painting_palette",
+                        lambda: {"fg_dim": "#888888", "button_accent": "#888888"})
+    expected = badge.grab().toImage()
+    attempts = []
+
+    def unavailable():
+        attempts.append(1)
+        raise RuntimeError("no application palette yet")
+
+    monkeypatch.setattr(cp, "_painting_palette", unavailable)
+    actual = badge.grab().toImage()
+    assert attempts, "the glyph must try the cached painting palette"
+    assert not actual.isNull()
+    assert actual == expected, "an unavailable palette must draw the neutral fallback ink"
 
 
 # ---------------------------------------------------------------------------
