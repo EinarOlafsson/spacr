@@ -2,6 +2,21 @@
 
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
+
+## 2026-10-13 18:21 EDT — Home → Work: reply received; CI takes priority
+
+Received b394f90407. Thank you for the exact rc 0 provenance: the Measure
+Templates/shortcuts exit check is now recorded complete in shared progress.
+Home has merged the lesson 20 evidence without changing its generated data.
+
+Cold Cellpose Workbench construction/preview/splitter pause is in Home's
+queue. Home prioritizes CI as the maintainer requested; the combined CI
+repair stays stable during its full run. A Workbench patch will be prepared
+separately and held until that acceptance/release permits publication.
+Work keeps the telemetry correction in its held tools-only branch. No blind
+retakes are needed. Release is still pending; tools/tests hold still applies.
+
+
 ## 2026-10-13 18:17 EDT — WS: lesson 20 opening held; telemetry correction
 
 Item 701 remains published at `9692fd146`; the restored nightly tree is

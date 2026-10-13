@@ -1,6 +1,6 @@
-Home/Work progress — 2026-10-13 18:18 EDT
+Home/Work progress — 2026-10-13 18:21 EDT
 
-Source: dated item notes and Home takeover request. — means no reliable measured percentage or ETA. ✅ denotes achieved in the last 12 hours. The completed CI implementation row is local scope; N43, F288 and the release remain open until hosted acceptance.
+Source: current dated item notes and Home/Work handoffs. — means no reliable measured percentage or ETA. ✅ denotes achieved in the last 12 hours. CI implementation is local accepted scope; N43, F288 and release remain open until hosted acceptance.
 
 | item | percent done | time left | owner | detailed description |
 |---|---:|---|---|---|
@@ -22,13 +22,14 @@ Source: dated item notes and Home takeover request. — means no reliable measur
 | Tutorial 07 | ✅ | Done | Work | Mask published with current GNOME recordings, HF r26b, nightly 438464849. |
 | Tutorial 08 | ✅ | Done | Work | Measure published with current GNOME recordings, HF r26, nightly 52d5d99bf. |
 | Tutorial 14 | — | Waiting for Home branch | Work | Re-record after final Make Masks performance and brush changes land. |
-| Tutorial 20 | — | Next capture | Work | Complete one lesson end to end before proceeding. |
+| Tutorial 20 | — | Held on opening stall | Work | Ten clips pass. Opening failed at 26.96 fps and retry 26.92; no audio/render/upload started. Work holds telemetry correction; Home must repair cold Workbench opening. |
+| Cellpose Workbench opening stall | 0% | After CI; patch held | Home | Investigate cold construction, preview installation and splitter layout producing a 1.1–1.2 s GUI pause. Preserve release candidate during CI; validate fix before Work retakes lesson 20. |
 | Tutorial 43 | — | After 20 | Work | Fresh Illumination controls, narration, translations and publication. |
 | Tutorial 24 | — | After 43 | Work | Record and publish current alpha-off layout. |
 | Tutorial 26 | — | After 24 | Work | Record and publish current alpha-off layout and updated controls. |
 | Remaining tutorial remakes | — | Not estimated | Work | Continue remaining lessons by number using AGENTS rules 7 and 17. |
 | Held tutorial tooling | — | After release | Work | Held narration guards and 07/08 checkpoints remain held until Home records release done. |
-| Shutdown exit verification | — | Work confirmation | Work | Confirm the affected lesson process exits rc 0 with shading-thread retirement after a540d62b5; record exact lesson and source. |
+| Shutdown exit verification | ✅ | Done | Work | Measure Templates/shortcuts capture r25-08-templates-b on d0c99e841 includes a540d62b5 and exited rc 0; Work recorded provenance in b394f90407. |
 | N615 | — | Ongoing | Work | Keep API, runtime, guides and tutorial records source-current; close outstanding catalogue arrivals. |
 | Dynamic animation wording | — | Docs queue | Work | Tooltip and AmbientWidget.stop docstring must describe slowing to 30 fps during CPU work. |
 | N678 | — | Remaining review | Home + Work | Reconcile remaining factual language across app, API, docs and narration. |
@@ -54,3 +55,4 @@ Source: dated item notes and Home takeover request. — means no reliable measur
 | Plaque v5 | — | Curation-dependent | Maintainer + Work | Curation proceeds independently; Work trains only after accepted curated data. |
 | ParaScape publisher follow-up | — | Account verification | Maintainer | PyPI 0.0.1.0 is already live; verify trusted-publisher setup. |
 | Leftover measure-gil-base worktree | 0% | Maintainer cleanup | Maintainer | Remove identified leftover worktree when no longer needed. |
+| N676 | — | Remake queue | Work + Home fixes | Tutorial remake remains open. Current 04/05/07/08 publications are complete; 14 awaits held Make Masks fixes and 20 awaits Workbench opening repair. |
