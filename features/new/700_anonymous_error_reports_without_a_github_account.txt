@@ -1,0 +1,66 @@
+================================================================================
+ANONYMISED ERROR REPORTS WITHOUT A GITHUB ACCOUNT (ON BY DEFAULT)
+================================================================================
+
+Status:    new 2026-10-13
+Requested: maintainer, 2026-10-13: "instead of having the user need to login
+           to github to send error messages, can i create a github account for
+           spacr called spacr_first_responder that auto logs in in the
+           background and sends issues to github. this way the user would not
+           need to make an account. there would be an on by default setting
+           stating send anonymized error reports. all user metadata would have
+           to be removed, but i think spacr already does that in the current
+           setup."
+Owner:     Home (build, relay); maintainer (create the bot account and token,
+           approve the privacy wording)
+Related:   spacr/crashreport.py (existing redaction), the report-filing flow
+           (tests test_the_report_files_itself, test_a_failed_run_offers_the_
+           report_it_promised), Preferences privacy settings.
+
+--------------------------------------------------------------------------------
+DESIGN (security constraint)
+--------------------------------------------------------------------------------
+
+A GitHub token must NOT ship inside spaCR: anything in the installed package
+can be extracted, and a leaked token would let anyone open or spam issues as
+the bot (or more, depending on scope). So:
+
+- The maintainer creates the bot account (e.g. spacr-first-responder; GitHub
+  usernames cannot contain "_") and a fine-grained token limited to
+  "Issues: write" on EinarOlafsson/spacr only.
+- The token lives only in a small relay (a Hugging Face Space or a
+  Cloudflare Worker/serverless function) as a secret.
+- spaCR posts the redacted report to the relay over HTTPS; the relay
+  validates the payload (schema, size cap), rate-limits per install id and
+  globally, de-duplicates by error signature (adds a +1 comment to an
+  existing issue instead of opening a new one), then opens the issue as the
+  bot with a "user-report" label.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+1. Preferences > Privacy: "Send anonymised error reports" ON by default, with
+   a one-line explanation and a "What is sent" link that shows an example
+   report. First run shows a short notice with the toggle so the default is
+   disclosed (needed for GDPR-style consent); turning it off is one click.
+2. Redaction, building on crashreport.py: remove user names, home paths,
+   host names, IPs, e-mail addresses, project/plate/file names, settings
+   values that are paths, environment variables and tokens; keep spaCR
+   version, OS family, Python/Qt/torch versions, GPU class, module, error
+   type and a path-free traceback. Unit tests with planted personal data.
+3. A random install id (not tied to the machine) for rate limiting only.
+4. The user can still view the exact text before sending (a "Review" link)
+   and can still file manually through GitHub as today.
+5. Offline or relay errors: queue up to N reports locally and retry later;
+   never block or slow the app.
+
+--------------------------------------------------------------------------------
+ACCEPTANCE
+--------------------------------------------------------------------------------
+
+- A forced exception produces one bot-filed issue with no personal data; a
+  second identical one adds a +1 comment, not a new issue.
+- No token or secret appears anywhere in the spaCR package or repo.
+- The setting defaults to on, is disclosed on first run, and off sends
+  nothing (verified with a network-blocking test).
