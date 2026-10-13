@@ -863,15 +863,29 @@ def test_a_live_figure_is_shown_by_matplotlib_not_as_a_picture_of_itself(
 
 
 def test_restyling_a_live_figure_costs_the_gui_thread_nothing(qtbot, queue):
-    """draw_idle schedules; matplotlib coalesces to one draw per loop turn.
+    """A restyle request costs the GUI thread a small part of a draw.
 
-    The raster path paid a full render per change no matter how it was
-    debounced or threaded.
+    This 20 x 20 inch figure takes longer than
+    ``_LIVE_CANVAS_MAX_RASTER_S`` to raster, so it stays a picture rather
+    than the live canvas, and a restyle goes to
+    :meth:`FigureQueue._render_preview_async`: the GUI thread pickles a copy
+    once, the worker draws it, and requests made while it draws coalesce
+    into one pending flag. The inline preview render, which a restyle paid
+    on every change before, is measured beside it on the same machine, so
+    a loaded runner slows both alike. Measured 2026-10-13 on the
+    workstation: the worst of 40 requests 6.1-7.5 ms against 104-113 ms
+    inline (0.06-0.07 of it); traced by coverage on two cores shared with
+    two busy loops, 12-16 ms against 150-208 ms (0.06-0.11). The bound was an absolute 20 ms, which a CI
+    coverage shard missed at 21.2 ms, and the docstring said the figure was
+    on the live canvas, which a figure this slow never is.
     """
     import time
+    from pathlib import Path
 
     import numpy as np
     from matplotlib.figure import Figure
+
+    from spacr.qt.widgets import figure_queue
 
     figure = Figure(figsize=(20, 20))
     axis = figure.add_subplot(111)
@@ -880,6 +894,7 @@ def test_restyling_a_live_figure_costs_the_gui_thread_nothing(qtbot, queue):
         axis.scatter(rng.normal(size=45), rng.normal(size=45), label=f"c{index}")
     queue.add_figure(figure)
     live = queue._figures[0]
+    assert figure_queue._too_slow_for_the_live_canvas(live)
 
     worst = 0.0
     for step in range(40):
@@ -888,8 +903,16 @@ def test_restyling_a_live_figure_costs_the_gui_thread_nothing(qtbot, queue):
         start = time.perf_counter()
         queue.refresh_current_figure(preview=True)
         worst = max(worst, (time.perf_counter() - start) * 1000)
+    qtbot.waitUntil(lambda: not queue._preview_busy, timeout=30000)
 
-    assert worst < 20, f"a restyle request cost {worst:.1f} ms"
+    inline = []
+    for _attempt in range(2):
+        start = time.perf_counter()
+        assert queue._render_preview(live, Path(queue._png_paths[0])) is not None
+        inline.append((time.perf_counter() - start) * 1000)
+    assert worst < 0.25 * min(inline), (
+        f"a restyle request cost {worst:.1f} ms against "
+        f"{min(inline):.1f} ms for the inline render it replaces")
 
 
 def test_navigating_does_not_un_spill_a_figure(qtbot, queue):
