@@ -1,0 +1,5 @@
+{
+  "spacr.qt.screens.settings_model._CsvColumnField.refresh.job": "Read the columns and hand them over unless the widget is gone.",
+  "spacr.qt.screens.settings_model._run_measurement_migration.emit": "Emit unless the receiving object has been deleted meanwhile.",
+  "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.done": "Cancel and retire a job still running when the dialog ends.\n\n:param result: dialog result passed unchanged to Qt."
+}

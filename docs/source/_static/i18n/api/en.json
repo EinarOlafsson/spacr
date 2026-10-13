@@ -71501,12 +71501,26 @@
       "source_sha256": "7062991664a9649d2f7b83476c4551e0b984935b52b2599403ca74af1872f063",
       "text": "Read the listing and the description, never raising."
     },
+    "spacr.qt.screens.settings_model._CsvColumnField.refresh.job": {
+      "source_blocks_sha256": [
+        "a0fb77076d95da3db2b64d6e0ebb7cb15ec2bc5a08aa0c253711d408f1968c99"
+      ],
+      "source_sha256": "a0fb77076d95da3db2b64d6e0ebb7cb15ec2bc5a08aa0c253711d408f1968c99",
+      "text": "Read the columns and hand them over unless the widget is gone."
+    },
     "spacr.qt.screens.settings_model._TrainingFolderEdit.__init__.browse": {
       "source_blocks_sha256": [
         "2cdc21e55281b349d579117807188cd5323d6e79575c5658d14050840035865b"
       ],
       "source_sha256": "2cdc21e55281b349d579117807188cd5323d6e79575c5658d14050840035865b",
       "text": "Set a chosen directory; cancelling leaves the existing setting intact."
+    },
+    "spacr.qt.screens.settings_model._run_measurement_migration.emit": {
+      "source_blocks_sha256": [
+        "6cec4ff4edc07b8eb2cd80e1b97a8e14585da5bdff8e9d349f73ff0934b27f9a"
+      ],
+      "source_sha256": "6cec4ff4edc07b8eb2cd80e1b97a8e14585da5bdff8e9d349f73ff0934b27f9a",
+      "text": "Emit unless the receiving object has been deleted meanwhile."
     },
     "spacr.qt.screens.settings_model._sibling_label_for._named": {
       "source_blocks_sha256": [
@@ -101359,6 +101373,14 @@
       ],
       "source_sha256": "de8dee93501458e5abe14525827bfe80a53bcca551cd6356a676e07b5b23eb57",
       "text": "Closing the window is Cancel; it never leaves a thread behind.\n\n:param event: the close event; while a job is running it is ignored\n    and :meth:`reject` is called instead, otherwise it is passed on to\n    the base class."
+    },
+    "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.done": {
+      "source_blocks_sha256": [
+        "06352090c8d907f3d1d48ff0d72b8f6561f883bef74a42cfb7d9f4ce56d9f06e",
+        "d2f1f33b1012f5d6a2ecbde064e7b5b705f314d0cd4b835abe0ba5da5230aaf1"
+      ],
+      "source_sha256": "a7589316f018406f5f48fed9c6602c61b36d6633f2edc34a324a55b8e6229884",
+      "text": "Cancel and retire a job still running when the dialog ends.\n\n:param result: dialog result passed unchanged to Qt."
     },
     "spacr.qt.widgets.model_zoo_picker.BackendInstallDialog.reject": {
       "source_blocks_sha256": [

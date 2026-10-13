@@ -3431,6 +3431,13 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(language, cu
     assert {key: docs[key] for key in quit_arrivals} == quit_arrivals
     assert not quit_arrivals.keys() & zoo_arrivals.keys()
     zoo_arrivals = {**zoo_arrivals, **quit_arrivals}
+    # 2026-10-13: Closing the model zoo picker or backend installer mid-download (BackendInstallDialog.done) and worker emits that survive a deleted receiver; one named contract.
+    thread_arrivals = json.loads((ROOT / "tests/data/release_contracts"
+        / "thread_retire_api_arrivals_2026-10-13.json").read_text())
+    assert len(thread_arrivals) == 3
+    assert {key: docs[key] for key in thread_arrivals} == thread_arrivals
+    assert not thread_arrivals.keys() & zoo_arrivals.keys()
+    zoo_arrivals = {**zoo_arrivals, **thread_arrivals}
     # 2026-10-12: DnaRainWidget.changeEvent (ff1b3c1f2) claims opaque painting after a restyle; one named contract.
     dna_rain_arrivals = json.loads((ROOT / "tests/data"
         / "release_contracts" / "dna_rain_change_event_api_arrival_2026-10-12.json").read_text())
