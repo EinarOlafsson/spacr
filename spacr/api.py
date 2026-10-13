@@ -52,8 +52,10 @@ class MaskConfig:
         an object at ``None`` when it should not be segmented. At least one is
         required.
     cell_diameter, nucleus_diameter, pathogen_diameter:
-        Expected object diameters in pixels. ``None`` lets spaCR estimate the
-        diameter from representative fields.
+        Expected object diameters in pixels. ``None`` uses the
+        magnification default (``2*magnification+80`` for cells,
+        ``0.75*magnification+45`` for nuclei, ``magnification`` for
+        pathogens); ``0`` or ``"auto"`` lets Cellpose estimate it.
     channels:
         Intensity channels retained in the merged field arrays.
     magnification:

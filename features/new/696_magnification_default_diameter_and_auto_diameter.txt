@@ -65,3 +65,61 @@ ACCEPTANCE
   call; both survive save/load and export/import.
 - No suffix blocks typing; the unit is still visible.
 - Tests cover the GUI field, settings files, CLI and the preview/run parity.
+
+--------------------------------------------------------------------------------
+2026-10-13 - BUILT (Home, worktree feat-696-auto-diameter; not pushed, ships
+after the 1.5.1.5 release)
+--------------------------------------------------------------------------------
+
+One rule, in spacr/object_settings_table.py (light, so the GUI shares it):
+_diameter_setting stores a diameter as None (blank), "auto" (0, 0.0, "0",
+"auto" in any case) or a positive number, and refuses anything else;
+_resolved_diameter turns it into what a run uses: the number, "auto", or for
+blank the magnification default. The formula lives in
+_diameter_from_magnification and spacr.utils._get_diam returns it.
+Blank and auto never mean the same thing: blank is the magnification default,
+auto is Cellpose estimating the size.
+
+1. Default from magnification on every path. V1's Cellpose-SAM eval (2-D and
+   z/t), the Cellpose-DINO/StarDist/InstanSeg/Omnipose route, the Cellpose 3
+   route, the v2 pipeline and the robustness report all segment a blank
+   diameter at _get_diam. 20x: 120/60/20; 40x: 160/75/40.
+2. 0 and auto: stored as "auto"; Cellpose 3 gets 0 (its size model
+   estimates), Cellpose-SAM gets None (it has no size model, native scale).
+   Accepted by set_default_settings_preprocess_generate_masks, the settings
+   panel (CANONICAL_READERS), the grid, settings files and --set on the CLI
+   (resolve_settings/coerce_value), and validation (_check_object_diameters;
+   negative or non-numeric text is an error).
+3. No suffix: the Live preview and Timelapse preview boxes are a
+   _DiameterSpinBox that reads "auto" at 0 and takes "auto"/"Auto"/0 typed;
+   the unit is in the label tr("Diameter (px)") and the tooltip. The Mask
+   grid labels the row "Diameter (px)", shows a blank cell/nucleus/pathogen
+   diameter as the magnification default (greyed, italic), follows the
+   magnification field through the binding, and refuses bad text with a tr()
+   sentence under the table.
+4. Preview = run: the preview boxes open at _resolved_diameter (reseeded on
+   an object switch), hand 0 to the backend routes as "auto", and propagate
+   back "auto", the number, or blank when the default was not touched.
+   tests/qt/test_the_preview_uses_the_model_the_run_will_use.py pins it for
+   blank/auto/0/75 on cell, nucleus and pathogen.
+5. Journal: manifest.json gets "diameters", e.g. "120 px (magnification 20x
+   default)" or "auto (Cellpose estimated 57.3 px)"; the Cellpose 3 backend
+   worker now returns its size-model estimates (estimated_diameters) and the
+   median over batches is recorded. The dry-run plan names the same text.
+   The settings export keeps the canonical value (blank or "auto") so a
+   magnification change still moves the default; the used diameter is in
+   the manifest rather than an extra key in the settings CSV, which Import
+   would report as unreadable.
+
+Generated: settings_flow.rst/settings_flow_index, i18n_catalogs/en.py,
+api/en.json + api_source_history.json via their tools. No new public
+callable (inventory unchanged; Run.diameters is init=False).
+
+FOR WS: changed English to translate in nine locales: the cell/nucleus/
+pathogen_diameter, magnification and robustness_diameter_factors tooltips,
+DIAMETER_TOOLTIP, "Diameter (px)", the grid's refusal sentence and its
+diameter tooltip line, the MaskConfig, Run and follow_the_form docstrings.
+Until then tests/test_documentation_i18n.py and test_runtime_i18n_syntax.py
+report stale reviewed runtime sources for those keys. The Mask Live settings
+and object grid look changed slightly (label, greyed defaults): re-record
+lessons that show them.

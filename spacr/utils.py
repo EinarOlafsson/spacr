@@ -3262,6 +3262,11 @@ def _get_diam(mag, obj):
 
     """Return an object type's expected diameter at a magnification.
 
+    The default every Cellpose route segments with when the object's
+    diameter is left blank (item 696), Cellpose-SAM included. The formula
+    lives in :func:`spacr.object_settings_table._diameter_from_magnification`
+    so the settings grid can show it without importing this module.
+
     :param mag: the objective magnification.
     :param obj: the object type.
     :returns: the diameter in pixels.
@@ -3270,21 +3275,9 @@ def _get_diam(mag, obj):
         ``UnboundLocalError``, which names an implementation detail rather
         than the setting the user got wrong.
     """
-    if obj == 'cell':
-        diameter = 2 * mag + 80
-    elif obj == 'cell_large':
-        diameter = 2 * mag + 120
-    elif obj == 'nucleus':
-        diameter = 0.75 * mag + 45
-    elif obj == 'pathogen':
-        diameter = mag
-    else:
-        raise ValueError(
-            f"_get_diam: unsupported object type '{obj}'. "
-            f"Expected one of: cell, cell_large, nucleus, pathogen."
-        )
+    from .object_settings_table import _diameter_from_magnification
 
-    return int(diameter)
+    return _diameter_from_magnification(mag, obj)
 
 def _get_object_settings(object_type, settings):
     """Assemble one object type's segmentation settings.

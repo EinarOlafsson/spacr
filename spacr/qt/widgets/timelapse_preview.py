@@ -81,7 +81,9 @@ from .. import path_probe
 from ..job_runner import JobRunner
 
 from .live_preview import (
+    DIAMETER_TOOLTIP,
     _boundary_mask,
+    _DiameterSpinBox,
     _model_the_run_would_use,
     _offer_the_run_model,
     _select_channel,
@@ -454,7 +456,7 @@ def segment_frame(image: np.ndarray, params: Dict[str, Any]) -> np.ndarray:
         backend, masks_of = route
         diameter = float(params.get("diameter", 30.0))
         settings = {
-            "cell_diameter": diameter or None,
+            "cell_diameter": diameter or "auto",
             "cell_flow_threshold": float(params.get("flow_threshold", 0.4)),
             "cell_cellprob_threshold": float(params.get("cellprob", 0.0)),
         }
@@ -1879,12 +1881,10 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self._channel.setRange(0, 8)
         self._channel.setToolTip(
             "(int) Image channel index segmented for the tracked object.")
-        self._diameter = QDoubleSpinBox(self)
-        self._diameter.setRange(0, 400)
+        self._diameter = _DiameterSpinBox(self)
         self._diameter.setValue(30.0)
-        self._diameter.setSuffix(" px")
-        self._diameter.setToolTip(
-            "(float, px) Expected object diameter. Ignored by Cellpose-SAM.")
+        self._diameter.setToolTip(DIAMETER_TOOLTIP)
+        self._diameter_default_seeded = None
         self._flow = QDoubleSpinBox(self)
         self._flow.setRange(-1, 3)
         self._flow.setSingleStep(0.05)
@@ -1955,7 +1955,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         seg_form.addRow("Model", self._model_box)
         seg_form.addRow("Tracked object", self._object_box)
         seg_form.addRow("Channel", self._channel)
-        seg_form.addRow("Diameter", self._diameter)
+        seg_form.addRow(tr("Diameter (px)"), self._diameter)
         seg_form.addRow("Flow threshold", self._flow)
         seg_form.addRow("Cell probability", self._prob)
         seg_form.addRow("Frames previewed", self._max_frames)
@@ -2540,7 +2540,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
                 self._remove_transient.isChecked()),
             "timelapse_frame_limits": [0, int(self._max_frames.value())],
             f"{obj}_channel": int(self._channel.value()),
-            f"{obj}_diameter": float(self._diameter.value()),
+            f"{obj}_diameter": self._diameter_to_propagate(obj),
             "cell_flow_threshold": float(self._flow.value()),
             "cell_cellprob_threshold": float(self._prob.value()),
             "normalize": bool(self._normalise.isChecked()),
@@ -2581,14 +2581,46 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
             ch = settings.get(f"{obj}_channel")
             if ch is not None:
                 self._channel.setValue(int(ch))
-            diam = settings.get(f"{obj}_diameter")
-            if diam:
-                self._diameter.setValue(float(diam))
+            self._seed_the_diameter(settings, obj)
             wanted, _key, here = _model_the_run_would_use(
                 self._settings, obj)
             _offer_the_run_model(self._model_box, wanted, here)
         except Exception:
             LOG.debug("apply_settings failed", exc_info=True)
+
+    def _seed_the_diameter(self, settings: dict, obj: str) -> None:
+        """Show the diameter the run will segment ``obj`` with (item 696).
+
+        The object's own number, "auto" for 0 or "auto", and for a blank
+        diameter the magnification default.
+
+        :param settings: the module's settings.
+        :param obj: the tracked object.
+        """
+        from ...object_settings_table import _AUTO_DIAMETER, _resolved_diameter
+
+        self._diameter_default_seeded = None
+        resolved = _resolved_diameter(settings.get(f"{obj}_diameter"),
+                                      settings.get("magnification"), obj)
+        if resolved is None:
+            return
+        self._diameter.setValue(
+            0.0 if resolved == _AUTO_DIAMETER else float(resolved))
+        if settings.get(f"{obj}_diameter") in (None, ""):
+            self._diameter_default_seeded = (obj, float(self._diameter.value()))
+
+    def _diameter_to_propagate(self, obj: str):
+        """The box's diameter as the setting stores it: 0 is "auto", and the
+        magnification default it opened at goes back as blank.
+
+        :param obj: the tracked object.
+        """
+        value = float(self._diameter.value())
+        if value <= 0:
+            return "auto"
+        if self._diameter_default_seeded == (obj, value):
+            return None
+        return value
 
     def current_params(self) -> dict:
         """Snapshot for tests + external callers."""
