@@ -115,6 +115,11 @@ CLICK_SLOP_PX = 3
 #: Preferences key prefix for the remembered pane sizes.
 _EXTENTS_PREFIX = "layout/panes"
 
+#: How long a held handle rests before the sizes are written, in ms.
+#: Writing rewrites the whole preferences file, 5-7 ms, which every move of
+#: a drag paid; letting go writes at once.
+_EXTENTS_SAVE_MS = 300
+
 
 def _alive(widget) -> bool:
     """Whether ``widget`` still has its C++ half."""
@@ -488,6 +493,7 @@ class _PaneHandle(QSplitterHandle):
         """Remember where a press began, to tell a click from a drag."""
         self._pressed_at = event.position().toPoint()
         self._dragged = False
+        self.splitter()._held = True
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event) -> None:                 # noqa: N802
@@ -506,6 +512,8 @@ class _PaneHandle(QSplitterHandle):
         dragged = (self._pressed_at is not None and self._dragged
                    and event.button() == Qt.LeftButton)
         self._pressed_at = None
+        self.splitter()._held = False
+        self.splitter()._flush_extents()
         pane = self.edge_pane() if clicked else None
         if pane is not None:
             self.splitter().toggle_pane(pane.name, by_user=True)
@@ -585,8 +593,14 @@ class CollapsibleSplitter(QSplitter):
         self._stored = get_pane_extents(self._persist_key)
         self._laid_out = False
         self._rebalance_queued = False
+        self._held = False
+        self._extents_timer = QTimer(self)
+        self._extents_timer.setSingleShot(True)
+        self._extents_timer.setInterval(_EXTENTS_SAVE_MS)
+        self._extents_timer.timeout.connect(self._save_extents)
         self.setHandleWidth(GRIP_PX)
         self.splitterMoved.connect(self._on_moved)
+        self.installEventFilter(self)
 
     def createHandle(self):                                  # noqa: N802
         """Every handle is a :class:`_PaneHandle`."""
@@ -925,7 +939,9 @@ class CollapsibleSplitter(QSplitter):
         :returns: False, so the event goes on as usual.
         """
         kind = event.type()
-        if kind in (QEvent.ShowToParent, QEvent.HideToParent):
+        if kind == QEvent.Hide and watched is self:
+            self._flush_extents()
+        elif kind in (QEvent.ShowToParent, QEvent.HideToParent):
             pane = self._pane_of(watched)
             if pane is not None:
                 if (kind == QEvent.ShowToParent and pane.focus
@@ -1151,7 +1167,8 @@ class CollapsibleSplitter(QSplitter):
 
         Never rebalances. A drag is the user placing the handle, and moving
         anything they did not move while they hold it is the fight item 471
-        rules out.
+        rules out. While a handle is held the sizes are written once it is
+        let go or rests, not on every move.
         """
         sizes = self.sizes()
         for i, size in enumerate(sizes):
@@ -1170,14 +1187,27 @@ class CollapsibleSplitter(QSplitter):
                 continue
             if not pane.is_collapsed() and size > 0:
                 pane.extent = size
-        self._save_extents()
+        if self._held:
+            self._extents_timer.start()
+        else:
+            self._save_extents()
 
     def extents(self) -> dict:
         """``{pane name: size to open at}`` for every registered pane."""
         return {p.name: p.extent for p in self._panes if p.extent > 0}
 
+    def _flush_extents(self) -> None:
+        """Write the dragged sizes now when a write is waiting.
+
+        Called when a handle is let go and when the splitter is hidden, so a
+        window closed in the middle of a drag keeps the sizes.
+        """
+        if self._extents_timer.isActive():
+            self._save_extents()
+
     def _save_extents(self) -> None:
         """Store the dragged sizes under this splitter's key."""
+        self._extents_timer.stop()
         if self._persist_key:
             set_pane_extents(self._persist_key, self.extents())
 

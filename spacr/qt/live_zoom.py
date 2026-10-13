@@ -492,6 +492,12 @@ COLUMN_TEXT_STEP = 0.10
 #: How long the wheel is still before the size is written down, in ms.
 _COLUMN_SAVE_MS = 400
 
+#: How long the wheel rests before the columns take its size, in ms. Each
+#: new size restyles every widget in a column, 130-180 ms on Mask Generation
+#: at 2560x1440 offscreen, so a turn of the wheel is one restyle, not one a
+#: notch.
+_COLUMN_SETTLE_MS = 120
+
 _COLUMN_FILTER_ATTRIBUTE = "_spacr_column_text_filter"
 
 #: The event kinds the column filter looks at, looked up once: the filter
@@ -596,6 +602,10 @@ class ColumnTextScale(QObject):
         self._restyle_timer.setSingleShot(True)
         self._restyle_timer.setInterval(0)
         self._restyle_timer.timeout.connect(self.restyle_all)
+        self._settle_timer = QTimer(self)
+        self._settle_timer.setSingleShot(True)
+        self._settle_timer.setInterval(_COLUMN_SETTLE_MS)
+        self._settle_timer.timeout.connect(self.restyle_all)
         self._save_timer = QTimer(self)
         self._save_timer.setSingleShot(True)
         self._save_timer.setInterval(_COLUMN_SAVE_MS)
@@ -628,6 +638,10 @@ class ColumnTextScale(QObject):
         :param remember: store it, once the wheel is still.
         :returns: the size applied.
         """
+        return self._take(scale, remember, self._restyle_timer)
+
+    def _take(self, scale: float, remember: bool, restyle: QTimer) -> float:
+        """Hold ``scale`` within its bounds; ``restyle`` applies it."""
         from .preferences import (RUNTIME_TEXT_SCALE_MAX,
                                   RUNTIME_TEXT_SCALE_MIN)
 
@@ -635,7 +649,7 @@ class ColumnTextScale(QObject):
                           min(RUNTIME_TEXT_SCALE_MAX, float(scale))), 4)
         if scale != self._scale:
             self._scale = scale
-            self._restyle_timer.start()
+            restyle.start()
         if remember:
             self._save_timer.start()
         return scale
@@ -734,6 +748,7 @@ class ColumnTextScale(QObject):
     def restyle_all(self) -> int:
         """Restyle every column; returns how many sheets were replaced."""
         self._restyle_timer.stop()
+        self._settle_timer.stop()
         return sum(1 for root in self.roots() if self.restyle(root))
 
     def root_of(self, widget):
@@ -822,7 +837,8 @@ class ColumnTextScale(QObject):
         delta = event.angleDelta().y() or event.pixelDelta().y()
         event.accept()
         if delta:
-            self.set_scale(self._scale + COLUMN_TEXT_STEP * delta / _NOTCH)
+            self._take(self._scale + COLUMN_TEXT_STEP * delta / _NOTCH,
+                       True, self._settle_timer)
         return True
 
     def _keyed(self, watched, event, kind) -> bool:
