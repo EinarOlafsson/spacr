@@ -41,7 +41,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ..hidpi import scaled_for
+from ..hidpi import device_ratio, scaled_for
 from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import active_palette
@@ -605,6 +605,105 @@ FIGURE_RESIZE_DEBOUNCE_MS = 220
 #: strip either upscaled a small picture or threw away a large one.
 THUMB_SIZE = QSize(140, 90)
 
+#: Display rasters decoded on the thread that rendered them, by PNG path, as
+#: ``(image, thumbnail, thumbnail ratio)``; :func:`_decode_display_png` fills
+#: it and :meth:`FigureQueue.add_figure` takes from it. Only the newest
+#: :data:`_DECODED_KEEP` are kept, so a raster nobody adopts is not held.
+_DECODED: "OrderedDict[str, tuple]" = OrderedDict()
+_DECODED_LOCK = threading.Lock()
+_DECODED_KEEP = 3
+
+#: The device pixel ratio the gallery strip last drew thumbnails at, as the
+#: GUI thread last read it, for :func:`_decode_display_png`.
+_THUMB_RATIO = [0.0]
+
+
+class _Ratio:
+    """A stand-in paint device that answers one device pixel ratio."""
+
+    def __init__(self, ratio: float) -> None:
+        self._ratio = float(ratio)
+
+    def devicePixelRatioF(self) -> float:
+        """The ratio this stands for."""
+        return self._ratio
+
+
+def _as_pixmap_image(image: QImage) -> QImage:
+    """``image`` in the format a raster ``QPixmap`` of it holds.
+
+    ``QPixmap`` keeps an ARGB32 picture with no transparent pixel as RGB32
+    and any other ARGB32 picture premultiplied; converting here, off the GUI
+    thread, leaves ``QPixmap.fromImage`` nothing to convert. Other formats
+    are returned as they are and converted by ``fromImage`` as before.
+
+    :param image: a decoded picture.
+    """
+    if image.format() != QImage.Format_ARGB32:
+        return image
+    try:
+        import numpy as np
+
+        row = image.bytesPerLine()
+        pixels = np.frombuffer(image.constBits(), dtype=np.uint8,
+                               count=row * image.height())
+        pixels = pixels.reshape(image.height(), row)[:, :image.width() * 4]
+        alpha = pixels[:, 3::4] if sys.byteorder == "little" else pixels[:, 0::4]
+        opaque = bool((alpha == 255).all())
+    except Exception:                                        # noqa: BLE001
+        return image
+    return image.convertToFormat(QImage.Format_RGB32 if opaque
+                                 else QImage.Format_ARGB32_Premultiplied)
+
+
+def _decode_display_png(png_path: str) -> bool:
+    """Decode a display raster for the gallery, off the GUI thread.
+
+    THE GALLERY DECODED EVERY ARRIVING FIGURE ON THE GUI THREAD. On lesson
+    08's Measure run :meth:`FigureQueue.add_figure` held the GUI thread
+    98-269 ms per figure (23-33 ms with nothing else running), loading the
+    PNG (up to 4034 x 3591 px) and scaling it to the strip thumbnail while
+    the run's worker went on drawing. The bridge calls this on the worker
+    right after :func:`render_figure_to_png`; the GUI thread then only wraps
+    the result. The picture and thumbnail are those the GUI thread would
+    have made from the same file: the same decode, the conversion
+    ``QPixmap`` makes (:func:`_as_pixmap_image`), and the same smooth scale
+    at the ratio the strip last drew at.
+
+    :param png_path: the display raster just written.
+    :returns: True when the decoded picture is waiting for the gallery.
+    """
+    try:
+        image = QImage(str(png_path))
+        if image.isNull():
+            return False
+        image = _as_pixmap_image(image)
+        ratio = float(_THUMB_RATIO[0] or 0.0)
+        thumb = (scaled_for(image, _Ratio(ratio), THUMB_SIZE)
+                 if ratio > 0.0 else None)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not decode %s off the GUI thread", png_path,
+                  exc_info=True)
+        return False
+    with _DECODED_LOCK:
+        _DECODED[str(png_path)] = (image, thumb, ratio)
+        _DECODED.move_to_end(str(png_path))
+        while len(_DECODED) > _DECODED_KEEP:
+            _DECODED.popitem(last=False)
+    return True
+
+
+def _take_decoded(png_path) -> Optional[tuple]:
+    """The picture :func:`_decode_display_png` made of ``png_path``, once.
+
+    :param png_path: the raster's path when it was decoded.
+    :returns: ``(image, thumbnail, ratio)`` or ``None``.
+    """
+    if not png_path:
+        return None
+    with _DECODED_LOCK:
+        return _DECODED.pop(str(png_path), None)
+
 
 class _ClearFiguresLabel(QLabel):
     """Provide a low-chrome destructive control for clearing figures.
@@ -764,7 +863,11 @@ class FigureQueue(QWidget):
         self._ram_bytes: Dict[int, int] = {}
         self._tempdir: Optional[Path] = None
         self._current = -1
-        self._jobs = JobRunner(self, app_key="figures")
+        #: The gallery's own renders (vector-page refinements, re-renders
+        #: for a new size): registered, so shutdown waits for them, but not
+        #: runs the user started. As user-visible runs each one built Home a
+        #: run banner on the GUI thread, 124 ms on a figure's arrival.
+        self._jobs = JobRunner(self, app_key="figures", user_visible=False)
         #: index -> the in-flight render's token (an int), or ``"done"`` /
         #: ``"failed"`` once settled. Absent means "may be refined". See
         #: :meth:`_request_pdf_refinement`.
@@ -812,6 +915,7 @@ class FigureQueue(QWidget):
         self._list.setObjectName("FiguresList")
         self._list.setMinimumWidth(80)
         self._list.setIconSize(THUMB_SIZE)
+        _THUMB_RATIO[0] = device_ratio(self._list)
         self._list.setContextMenuPolicy(Qt.CustomContextMenu)
         self._list.customContextMenuRequested.connect(self._list_context_menu)
         self._list.setSpacing(4)
@@ -1161,18 +1265,21 @@ class FigureQueue(QWidget):
 
         png_path = self._ensure_tempdir() / f"fig_{idx:05d}.png"
         pixmap = None
+        decoded = _take_decoded(prerendered_png)
         if prerendered_png and Path(prerendered_png).is_file():
             try:
                 shutil.move(prerendered_png, str(png_path))
                 src_pdf = _sibling_pdf(prerendered_png)
                 if src_pdf.is_file():
                     shutil.move(str(src_pdf), str(_sibling_pdf(png_path)))
-                pixmap = QPixmap(str(png_path))
+                pixmap = (QPixmap.fromImage(decoded[0]) if decoded is not None
+                          else QPixmap(str(png_path)))
                 if pixmap.isNull():
                     pixmap = None
             except Exception:
                 pixmap = None
         if pixmap is None:
+            decoded = None
             pixmap = self._render_figure(fig, png_path)
         self._png_paths[idx] = str(png_path)
         if pixmap is not None:
@@ -1181,7 +1288,7 @@ class FigureQueue(QWidget):
         item = QListWidgetItem(f"#{idx + 1}")
         item.setTextAlignment(Qt.AlignCenter)
         if pixmap is not None and not pixmap.isNull():
-            item.setIcon(self._thumb_icon(pixmap))
+            item.setIcon(self._thumb_icon(pixmap, decoded))
         self._list.addItem(item)
 
         if self._following_the_tail(idx):
@@ -1230,6 +1337,7 @@ class FigureQueue(QWidget):
         first one. Deleting the orphan is what keeps the pairing honest.
         """
         target = Path(self._png_paths[idx])
+        decoded = _take_decoded(prerendered_png)
         try:
             shutil.move(prerendered_png, str(target))
             src_pdf = _sibling_pdf(prerendered_png)
@@ -1241,7 +1349,8 @@ class FigureQueue(QWidget):
                     dst_pdf.unlink()
                 except OSError:
                     LOG.debug("could not drop stale vector page %s", dst_pdf)
-            pixmap = QPixmap(str(target))
+            pixmap = (QPixmap.fromImage(decoded[0]) if decoded is not None
+                      else QPixmap(str(target)))
             if pixmap.isNull():
                 return
             self._pdf_state.pop(idx, None)
@@ -1249,7 +1358,7 @@ class FigureQueue(QWidget):
             pixmap = self._display_pixmap(idx, pixmap)
             item = self._list.item(idx)
             if item is not None:
-                item.setIcon(self._thumb_icon(pixmap))
+                item.setIcon(self._thumb_icon(pixmap, decoded))
             if self._current == idx:
                 self._view.set_pixmap(pixmap)
         except Exception as exc:
@@ -1871,14 +1980,26 @@ class FigureQueue(QWidget):
         self._teardown_canvas()
         self._stack.setCurrentIndex(0)
 
-    def _thumb_icon(self, pixmap) -> QIcon:
+    def _thumb_icon(self, pixmap, decoded: Optional[tuple] = None) -> QIcon:
         """``pixmap`` as a strip thumbnail for the screen the list is on.
 
         Rendered at the list's own icon size in real device pixels, so a
         HiDPI panel shows the figure rather than a doubled-up 140 px render
         of it. All six places that put a picture in the strip come here, so
         the strip cannot drift from :data:`THUMB_SIZE`.
+
+        :param pixmap: the figure's full picture.
+        :param decoded: what :func:`_decode_display_png` made of the same
+            file, whose thumbnail is used when it was scaled at the ratio the
+            list has now.
         """
+        ratio = device_ratio(self._list)
+        _THUMB_RATIO[0] = ratio
+        if decoded is not None:
+            thumb, scaled_ratio = decoded[1], decoded[2]
+            if thumb is not None and not thumb.isNull() \
+                    and scaled_ratio == ratio:
+                return QIcon(QPixmap.fromImage(thumb))
         return QIcon(scaled_for(pixmap, self._list, THUMB_SIZE))
 
     def _preview_target_px(self) -> float:

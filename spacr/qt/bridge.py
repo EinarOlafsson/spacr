@@ -1465,8 +1465,10 @@ class PipelineWorker(QObject):
                 """Emit each new figure once, rendering it HERE on the worker thread.
 
                 Agg's savefig touches no Qt, so the expensive part happens off the GUI
-                thread and the GUI only does a file move and a pixmap load -- which is
-                what stops it hanging while figures stream in.
+                thread, and the PNG is decoded here too
+                (:func:`spacr.qt.widgets.figure_queue._decode_display_png`): the GUI
+                only moves a file and wraps a picture, which is what stops it hanging
+                while figures stream in.
 
                 Figures marked ``_spacr_live_update`` are re-emitted in place instead,
                 which is how the training monitor refreshes without filling the gallery
@@ -1484,13 +1486,15 @@ class PipelineWorker(QObject):
                         png_path = ""
                         try:
                             import tempfile
-                            from .widgets.figure_queue import render_figure_to_png
+                            from .widgets.figure_queue import (
+                                _decode_display_png, render_figure_to_png)
                             fig_counter[0] += 1
                             tmp = os.path.join(
                                 tempfile.gettempdir(),
                                 f"spacr_fig_{os.getpid()}_{fig_counter[0]}.png")
                             if render_figure_to_png(fig, tmp):
                                 png_path = tmp
+                                _decode_display_png(tmp)
                         except Exception:
                             png_path = ""
                         worker.figure_ready.emit(fig, png_path)
@@ -1513,13 +1517,15 @@ class PipelineWorker(QObject):
                 png_path = ""
                 try:
                     import tempfile
-                    from .widgets.figure_queue import render_figure_to_png
+                    from .widgets.figure_queue import (
+                        _decode_display_png, render_figure_to_png)
                     fig_counter[0] += 1
                     tmp = os.path.join(
                         tempfile.gettempdir(),
                         f"spacr_fig_{os.getpid()}_{fig_counter[0]}.png")
                     if render_figure_to_png(fig, tmp):
                         png_path = tmp
+                        _decode_display_png(tmp)
                 except Exception:
                     png_path = ""
                 worker.figure_ready.emit(fig, png_path)

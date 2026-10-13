@@ -12223,16 +12223,25 @@ class _AnimationResourcePolicy(QObject):
         """Whether decorative GPU rendering must step aside right now."""
         return self.enabled and (self.cpu_busy or self.gpu_busy)
 
-    def _kinds(self):
-        """Resource kinds of the user-visible jobs running now."""
+    @staticmethod
+    def _visible_handles() -> list:
+        """The user-visible jobs running now."""
         try:
             from ..bridge import registry
 
             handles = registry().active()
         except Exception:
-            return set()
-        visible = [handle for handle in handles
-                   if getattr(handle, "user_visible", True)]
+            return []
+        return [handle for handle in handles
+                if getattr(handle, "user_visible", True)]
+
+    def _kinds(self, visible=None):
+        """Resource kinds of the user-visible jobs running now.
+
+        :param visible: those jobs, when the caller has them already.
+        """
+        if visible is None:
+            visible = self._visible_handles()
         if not visible:
             return set()
         gpu_present = _analysis_gpu_present()
@@ -12241,13 +12250,25 @@ class _AnimationResourcePolicy(QObject):
                                   for handle in visible) if kind}
 
     def _recompute(self, *_args) -> None:
-        """Recount running work and apply any change."""
-        kinds = self._kinds()
+        """Recount running work and apply any change.
+
+        A change that leaves the user-visible jobs as they were -- a
+        housekeeping job starting or ending, such as the figure gallery
+        refining the figure on show -- changes nothing here and is not
+        acted on. Walking every widget for fractals to hold on each one
+        took 115 ms of the GUI thread when a figure arrived during lesson
+        08's Measure run.
+        """
+        visible = self._visible_handles()
+        seen = frozenset(id(handle) for handle in visible)
+        unchanged = seen == self.__dict__.get("_seen_jobs")
+        self._seen_jobs = seen
+        kinds = self._kinds(visible)
         cpu, gpu = "cpu" in kinds, "gpu" in kinds
         if (cpu, gpu) != (self.cpu_busy, self.gpu_busy):
             self.cpu_busy, self.gpu_busy = cpu, gpu
             self._apply()
-        elif self.blocks_gpu():
+        elif self.blocks_gpu() and not unchanged:
             self._hold_fractals()
 
     def _apply(self) -> None:
