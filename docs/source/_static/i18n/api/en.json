@@ -45147,11 +45147,11 @@
     "spacr.qt.bridge.PipelineWorker.run._capture_show": {
       "source_blocks_sha256": [
         "c5f43d96b76ccc9dd909afd260b40a1f1a4aaf4cf6d84b4829e4b55cb0b6c330",
-        "cf6904c87569a07cfcf88b5be415cf5de4578fc16c4dc4e30c877f49ffc6b3a1",
+        "4b6c201c4898e1ce5d85d7570d250e93161fe3e325ad07c58628e77042fab747",
         "43cb2b34f08fa40dfdbc787c0d514f1d36395405126e60005213939290aeed95"
       ],
-      "source_sha256": "bdaefec8190318050e0512713baf02b4c6995e0f62037890022bae1e3b8a49a4",
-      "text": "Emit each new figure once, rendering it HERE on the worker thread.\n\nAgg's savefig touches no Qt, so the expensive part happens off the GUI\nthread and the GUI only does a file move and a pixmap load -- which is\nwhat stops it hanging while figures stream in.\n\nFigures marked ``_spacr_live_update`` are re-emitted in place instead,\nwhich is how the training monitor refreshes without filling the gallery\nwith one snapshot per epoch."
+      "source_sha256": "e7809c848ac9a981ba89b79726f815856a97291ee687244c8d5d1e2c89d7251e",
+      "text": "Emit each new figure once, rendering it HERE on the worker thread.\n\nAgg's savefig touches no Qt, so the expensive part happens off the GUI\nthread, and the PNG is decoded here too\n(:func:`spacr.qt.widgets.figure_queue._decode_display_png`): the GUI\nonly moves a file and wraps a picture, which is what stops it hanging\nwhile figures stream in.\n\nFigures marked ``_spacr_live_update`` are re-emitted in place instead,\nwhich is how the training monitor refreshes without filling the gallery\nwith one snapshot per epoch."
     },
     "spacr.qt.bridge.PipelineWorker.run._forward_output": {
       "source_blocks_sha256": [
@@ -77662,10 +77662,11 @@
     "spacr.qt.widgets.ambient.AmbientWidget.stop": {
       "source_blocks_sha256": [
         "1a031a47f24a40563e68b745a3fa56009f1b0aa6fc88e118a9bb4d4959e677eb",
-        "a17991ea93f26015010e0026bd656409f4fd592a56ff0bdfbc68fbfd278efe06"
+        "a17991ea93f26015010e0026bd656409f4fd592a56ff0bdfbc68fbfd278efe06",
+        "d0c9bc3895ebbae95c2ef4b915cd9d5e9d45fbb88469836959837bfe78d9363a"
       ],
-      "source_sha256": "a7b7a58936f03f2ab59079897c95ec59e5b1afa0d13602a9c5810d1b093bb3d2",
-      "text": "Stop ticking and retire the shading thread. Costs exactly nothing\nwhile stopped — no timer, no thread, and no frame held in memory.\n\nDropping the published frame matters because these screens stay\nbuilt: a dozen module screens the user has visited would otherwise\neach keep a slot warm behind a tab nobody is on, which is 2 MiB apiece\nfor the aurora. The next :meth:`start` shades a replacement before it\nstarts the thread, so there is nothing to show for it."
+      "source_sha256": "928ca9d2cf8efc1e9acf7fabb2a9612a48d3c646b54f04b8692e0b1285e31159",
+      "text": "Stop ticking and retire the shading thread. Costs exactly nothing\nwhile stopped — no timer, no thread, and no frame held in memory.\n\nDropping the published frame matters because these screens stay\nbuilt: a dozen module screens the user has visited would otherwise\neach keep a slot warm behind a tab nobody is on, which is 2 MiB apiece\nfor the aurora. The next :meth:`start` shades a replacement before it\nstarts the thread, so there is nothing to show for it.\n\nThe one exception is a backdrop that stops while it is still on\nscreen -- a CPU-heavy run pausing the animation\n(:func:`_animation_paused_for_work`), reduced motion, or the\nanimation switched off. Its frame on screen is kept as the still\n(:meth:`_paint_still`), because every console line and figure the\nwindow paints over it asks it for a whole frame again, and shading\nthat frame on the GUI thread against the run's worker took 250-350 ms\non lesson 08's Measure run. Hidden, it keeps nothing."
     },
     "spacr.qt.widgets.ambient.AmbientWidget.theme": {
       "source_blocks_sha256": [

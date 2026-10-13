@@ -52,6 +52,23 @@
       "source_sha256": "6e1d32dcb81a471128b10915489f27bd29493686a6a7d6dd18d3200f0a5d9715",
       "text": "Start animating, and follow the window this widget belongs to.\n\n:param event: the Qt show event."
     },
+    "a7b7a58936f03f2ab59079897c95ec59e5b1afa0d13602a9c5810d1b093bb3d2": {
+      "source_blocks_sha256": [
+        "1a031a47f24a40563e68b745a3fa56009f1b0aa6fc88e118a9bb4d4959e677eb",
+        "a17991ea93f26015010e0026bd656409f4fd592a56ff0bdfbc68fbfd278efe06"
+      ],
+      "source_sha256": "a7b7a58936f03f2ab59079897c95ec59e5b1afa0d13602a9c5810d1b093bb3d2",
+      "text": "Stop ticking and retire the shading thread. Costs exactly nothing\nwhile stopped — no timer, no thread, and no frame held in memory.\n\nDropping the published frame matters because these screens stay\nbuilt: a dozen module screens the user has visited would otherwise\neach keep a slot warm behind a tab nobody is on, which is 2 MiB apiece\nfor the aurora. The next :meth:`start` shades a replacement before it\nstarts the thread, so there is nothing to show for it."
+    },
+    "bdaefec8190318050e0512713baf02b4c6995e0f62037890022bae1e3b8a49a4": {
+      "source_blocks_sha256": [
+        "c5f43d96b76ccc9dd909afd260b40a1f1a4aaf4cf6d84b4829e4b55cb0b6c330",
+        "cf6904c87569a07cfcf88b5be415cf5de4578fc16c4dc4e30c877f49ffc6b3a1",
+        "43cb2b34f08fa40dfdbc787c0d514f1d36395405126e60005213939290aeed95"
+      ],
+      "source_sha256": "bdaefec8190318050e0512713baf02b4c6995e0f62037890022bae1e3b8a49a4",
+      "text": "Emit each new figure once, rendering it HERE on the worker thread.\n\nAgg's savefig touches no Qt, so the expensive part happens off the GUI\nthread and the GUI only does a file move and a pixmap load -- which is\nwhat stops it hanging while figures stream in.\n\nFigures marked ``_spacr_live_update`` are re-emitted in place instead,\nwhich is how the training monitor refreshes without filling the gallery\nwith one snapshot per epoch."
+    },
     "c60be06622ffe4c46fa6bdbafd5ebb235ba81be8a7249e68758361f50acf2850": {
       "source_blocks_sha256": [
         "ba25f1ff629127d08cd82c347c5d7edce74e34a4ea1b2599ff7bd59598744ba8",
