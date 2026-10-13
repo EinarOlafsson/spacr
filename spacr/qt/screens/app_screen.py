@@ -2333,7 +2333,9 @@ class AppScreen(QWidget):
             window = self.window()
             shared = getattr(window, "window_backdrop", None)
             if callable(shared) and shared() is not None:
+                self._uses_window_backdrop = True
                 self._clear_page_surfaces()
+                self.update()
                 return
             wanted = (get_ambient_theme(), get_ambient_palette())
             if wanted == self._ambient_applied:
