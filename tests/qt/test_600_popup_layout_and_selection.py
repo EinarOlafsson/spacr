@@ -85,9 +85,9 @@ def test_the_maintainers_button_layout(qtbot, qt_theme_applied, monkeypatch,
 
     Bottom row, left: Open folder, Organize for Measure, Load test data,
     Uncertainty. Editor action row: Save mask, Prev, Next (item 247, 2026-10-01).
-    Bottom row, right, under the console: Clear all objects, Discard, Keep,
-    Skip, Blind, ROIs, Upload data -- Keep and Discard no longer on a row of
-    their own.
+    Bottom row, right, under the console: Hide judged fields, First
+    unreviewed, Clear all objects, Discard, Keep, Skip, Blind, ROIs,
+    Upload data -- Keep and Discard no longer on a row of their own.
 
     Reserve the row's actual preferred width, including wider captions:
     a smaller window deliberately wraps the left-hand navigation strip.
@@ -111,9 +111,10 @@ def test_the_maintainers_button_layout(qtbot, qt_theme_applied, monkeypatch,
         assert screen._tool_row_layout.indexOf(button) >= 0
     # With alpha features shown, the alpha SAM2 seeds button (556, 451c67deb),
     # the virtual-stain apply control (18d43544f) and the alpha vvvv export
-    # pair (N685, 03a8cc8d6) sit before Upload data; First unreviewed (N685)
-    # leads the row.
-    assert widgets(curate) == [screen._btn_first_unreviewed,
+    # pair (N685, 03a8cc8d6) sit before Upload data. Hide judged fields (N701)
+    # leads the row beside First unreviewed (N685).
+    assert widgets(curate) == [screen._btn_hide_judged,
+                               screen._btn_first_unreviewed,
                                screen._btn_clear, screen._btn_discard,
                                screen._btn_keep, screen._btn_skip,
                                screen._btn_blind,
