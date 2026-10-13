@@ -18844,10 +18844,12 @@
         "10d60f9890a49a731fca8f4cdb02bab859863aac138af76ff4cba1468455fcd8",
         "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
         "52d33d48889afa9defeb0b08c4842593e8d117deb6398c9305bd1dc9c5b9bcd7",
-        "5bf8b2e629fcf990f4f8ab77ca916446037e5df0994b37f65fe62f7b0963de67"
+        "5bf8b2e629fcf990f4f8ab77ca916446037e5df0994b37f65fe62f7b0963de67",
+        "44df9019b5f23bd7c3b5cef304ad7a37dd097317564db6141072e235557963ab",
+        "f8e67164688a83f341c0cf77518305adfd5a6112a07e99cc0a7b5859c7b75cd3"
       ],
-      "source_sha256": "562e1dc09ac09d15663a7270e942e42388d7df4d21bdb7a9c86f1ddfc6b142f6",
-      "text": "Uma sessão limitada de trabalho de curadoria em uma pasta.\n\n:ivar layout: O que foi encontrado e onde.\n:ivar items: os campos para oferecer esta sessão sem revisão, ordem e corte para ``limit``.\n:ivar status: todas as linhas de status lidas, incluindo linhas sobre hastes que não estão nesta pasta.\n:ivar order: A ordem que foi pedida.\n:ivar effective_order: o pedido realmente usado, que difere de ``order`` quando ``prob``, ``easy`` ou ``uncertain`` caiu de volta para ``value`` por falta de pontuações.\n:ivar limit: a tampa que foi aplicada, ou ``None``.\n:ivar summary: contagens sobre toda a pasta, não sobre esta sessão.\n:ivar notices: avisos para o curador antes do primeiro campo - uma ordem ``prob``,  ``easy`` ou ``uncertain`` sem pontuações, ou com campos que as pontuações não nomeiam, e um registro de currículo que é o arquivo da ferramenta externa ao lado da pasta, para o qual cada gravação é gravada. Impresso quando a lista de trabalho é construída e mostrada pelo editor com ela, para que uma ordem alterada ou uma gravação fora da pasta aberta seja relatada.",
+      "source_sha256": "f8b3e3cbe9107856730d16dc24af73ca9b30480d4a19a3429322097102a03dc1",
+      "text": "Uma sessão limitada de trabalho de curadoria em uma pasta.\n\n:ivar layout: O que foi encontrado e onde.\n:ivar items: os campos para oferecer esta sessão sem revisão, ordem e corte para ``limit``.\n:ivar status: todas as linhas de status lidas, incluindo linhas sobre hastes que não estão nesta pasta.\n:ivar order: A ordem que foi pedida.\n:ivar effective_order: o pedido realmente usado, que difere de ``order`` quando ``prob``, ``easy`` ou ``uncertain`` caiu de volta para ``value`` por falta de pontuações.\n:ivar limit: a tampa que foi aplicada, ou ``None``.\n:ivar summary: contagens sobre toda a pasta, não sobre esta sessão.\n:ivar notices: avisos para o curador antes do primeiro campo - uma ordem ``prob``,  ``easy`` ou ``uncertain`` sem pontuações, ou com campos que as pontuações não nomeiam, e um registro de currículo que é o arquivo da ferramenta externa ao lado da pasta, para o qual cada gravação é gravada. Impresso quando a lista de trabalho é construída e mostrada pelo editor com ela, para que uma ordem alterada ou uma gravação fora da pasta aberta seja relatada.\n:ivar exclude_verdicts: indica se os campos com uma decisão de “Manter” ou “Descartar” foram excluídos desta sessão; quando esse valor é verdadeiro, o editor inicia com o controle \"Hide judged fields\" (Ocultar campos avaliados) ativado.\n:ivar excluded_by_verdict: número de campos que, de outra forma, continuariam pendentes, mas foram excluídos porque têm uma decisão registrada. É zero, a menos que ``exclude_verdicts`` seja verdadeiro.",
       "translation_source_blocks_sha256": [
         "6de6562e33da3a5a6c9405e681328eedc1bb5863a7942f0e81a09949730773d7",
         "d7a6fbccff58184ffb0d14afa9bb42d8a8ec6c3f9e691edffb95876fc18e2903",
@@ -18857,7 +18859,9 @@
         "10d60f9890a49a731fca8f4cdb02bab859863aac138af76ff4cba1468455fcd8",
         "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
         "52d33d48889afa9defeb0b08c4842593e8d117deb6398c9305bd1dc9c5b9bcd7",
-        "f152ed4195d10d8a6269bb843be1435d7d2a9a30ae349d26dc78d313e68133ba"
+        "f152ed4195d10d8a6269bb843be1435d7d2a9a30ae349d26dc78d313e68133ba",
+        "44df9019b5f23bd7c3b5cef304ad7a37dd097317564db6141072e235557963ab",
+        "f8e67164688a83f341c0cf77518305adfd5a6112a07e99cc0a7b5859c7b75cd3"
       ]
     },
     "spacr.curation_queue.CurationQueue.all_items": {
@@ -19095,13 +19099,14 @@
         "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
         "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
         "54ffa1d4352b9cbbbf9ecf0947f15ba1772c131fa5006ce85867e696cfe49bd1",
+        "d1bab61c89e908c9ed74cb1695b623f843f78494ba2286c7847c9f2ada292280",
         "502228ee1665d0c9a5f570549ea7b0976e0e63a18874864e305e70bd5b28340d",
         "8f8619826d34f9c5382980339591d4fb4723096fd3c8648d434c07fe0468cc64",
         "dd06d217c0a848fb1104bebf103d8947f50c4e70bccf85482e74decff398a3ff",
         "d3f8e8e2ef6e22fed100bec035e600c05ed61562197fb1731038c10b761e37d9"
       ],
-      "source_sha256": "6040f6e345510a316be7cb2979328f9294415458493d0294c882eb2b517a6a82",
-      "text": "Abra uma pasta como uma sessão de curadoria limitada.\n\nEm ordem: detecte o layout, leia o registro do currículo, largue tudo o que já foi revisado, ordene o que resta e só então aplique o limite então ``--limit 20`` significa os primeiros vinte campos da lista pendente ordenada, não os primeiros 20 encontrados.\n\nAs probabilidades são lidas apenas para as ordens que as usam, então ``name`` e ``value`` não lêem nenhum arquivo de pontuação; ``uncertain`` lê ``curate_uncertainty.csv`` em vez disso. Para ``prob`` e ``easy`` um arquivo de pontuação ausente é relatado: ele cai de volta para ``value`` com um aviso nomeando ambos os lugares que olhou; um arquivo de pontuações que deixa alguns campos de espera sem pontuação diz quantos; e de onde as pontuações vieram é impresso. Esses avisos, e aquele que diz que o progresso está sendo gravado de volta ao registro da ferramenta externa ao lado da pasta, são mantidos na lista de trabalho como :attr:`CurationQueue.notices` para o editor mostrar.\n\n:param folder: a pasta da fila.\n:param order: um de :data:`ORDERS`;  :data:`DEFAULT_ORDER` por padrão.\n:param limit: quantos campos esta sessão oferece, ou ``None`` para todos.\n:param probs: probabilidades de usar em vez de ler ``curate_scores.csv``.\n:param counts: Contagens de rascunho para usar em vez de ler os rascunhos.\n:param announce: onde os avisos vão; padrões para :func:`print`.\n:param include_reviewed: Ofereça campos revisados também. Desativado por padrão; isso é o que \"resume\" significa.\n:param min_objects: passou para :func:`value_key`.\n:param min_diameter: passou para :func:`value_key`.\n:param cache_counts: se ``easy`` pode escrever seu cache de contagem.\n:returns: o :class:`CurationQueue`.\n:raises LayoutError: quando a pasta não é um layout inequívoco.\n:raises StatusFileError: quando o arquivo de status não pode ser lido.\n:raises ValueError: quando ``order`` não é um de  :data:`ORDERS`, ou ``limit`` é negativo.",
+      "source_sha256": "a7b2a7ca1a9cd2d740535b45bdaed08caff7cd6d31d5ee6c161a6e6109efb6d4",
+      "text": "Abra uma pasta como uma sessão de curadoria limitada.\n\nEm ordem: detecte o layout, leia o registro do currículo, largue tudo o que já foi revisado, ordene o que resta e só então aplique o limite então ``--limit 20`` significa os primeiros vinte campos da lista pendente ordenada, não os primeiros 20 encontrados.\n\nAs probabilidades são lidas apenas para as ordens que as usam, então ``name`` e ``value`` não lêem nenhum arquivo de pontuação; ``uncertain`` lê ``curate_uncertainty.csv`` em vez disso. Para ``prob`` e ``easy`` um arquivo de pontuação ausente é relatado: ele cai de volta para ``value`` com um aviso nomeando ambos os lugares que olhou; um arquivo de pontuações que deixa alguns campos de espera sem pontuação diz quantos; e de onde as pontuações vieram é impresso. Esses avisos, e aquele que diz que o progresso está sendo gravado de volta ao registro da ferramenta externa ao lado da pasta, são mantidos na lista de trabalho como :attr:`CurationQueue.notices` para o editor mostrar.\n\n:param folder: a pasta da fila.\n:param order: um de :data:`ORDERS`;  :data:`DEFAULT_ORDER` por padrão.\n:param limit: quantos campos esta sessão oferece, ou ``None`` para todos.\n:param probs: probabilidades de usar em vez de ler ``curate_scores.csv``.\n:param counts: Contagens de rascunho para usar em vez de ler os rascunhos.\n:param announce: onde os avisos vão; padrões para :func:`print`.\n:param include_reviewed: Ofereça campos revisados também. Desativado por padrão; isso é o que \"resume\" significa.\n:param min_objects: passou para :func:`value_key`.\n:param min_diameter: passou para :func:`value_key`.\n:param cache_counts: se ``easy`` pode escrever seu cache de contagem.\n:param exclude_verdicts: excluir também todos os campos com uma decisão de “Manter” ou “Descartar” em ``csv/keep_discard.csv`` (lido tanto na pasta da fila quanto na pasta aberta pelo editor, que são diferentes na estrutura ``sibling``), além das linhas com done e skip. As decisões permanecem no arquivo; o número de campos excluídos está em :attr:`CurationQueue.excluded_by_verdict`.\n:returns: o :class:`CurationQueue`.\n:raises LayoutError: quando a pasta não é um layout inequívoco.\n:raises StatusFileError: quando o arquivo de status não pode ser lido.\n:raises ValueError: quando ``order`` não é um de  :data:`ORDERS`, ou ``limit`` é negativo.",
       "translation_source_blocks_sha256": [
         "58704094b56d37a66694a6c39540ed35a2848b1266cb234ce5fe0869a7bf7887",
         "887fe6ff2f78b9ff24bcd5bf75e2b1d57b97e30241f3cd3b0a723e5eacf10960",
@@ -19116,6 +19121,7 @@
         "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
         "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
         "54ffa1d4352b9cbbbf9ecf0947f15ba1772c131fa5006ce85867e696cfe49bd1",
+        "dea88ad53316300495cd7280f87e486748b8b55da39c9ac3535d7b5ff3029b5c",
         "502228ee1665d0c9a5f570549ea7b0976e0e63a18874864e305e70bd5b28340d",
         "8f8619826d34f9c5382980339591d4fb4723096fd3c8648d434c07fe0468cc64",
         "dd06d217c0a848fb1104bebf103d8947f50c4e70bccf85482e74decff398a3ff",
@@ -88316,6 +88322,138 @@
         "90e1ef51ed51f1127c0a7526fb8b561d3a2a13917257a10816f121ee9b87b0e1"
       ]
     },
+    "spacr.qt.parascape": {
+      "source_blocks_sha256": [
+        "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4"
+      ],
+      "source_sha256": "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4",
+      "text": "Instalar o ParaScape separadamente e depois iniciar e monitorizar o seu processo de ambiente de trabalho.",
+      "translation_source_blocks_sha256": [
+        "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeInstallDialog": {
+      "source_blocks_sha256": [
+        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
+        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
+        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
+        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
+        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
+      ],
+      "source_sha256": "48dc09ee572bea724b60f544538511af8ff8e2333a51ec031e5a6be2631657c5",
+      "text": "Explicar a aplicação alfa e o tamanho da transferência antes da instalação no seu próprio ambiente.\n\n:param parent: página do organismo à qual pertence.\n:param root: diretório raiz opcional das aplicações externas.\n:param job: substituto opcional do instalador para testes.\nCriar os controlos de consentimento e progresso; abrir o diálogo não instala nada.",
+      "translation_source_blocks_sha256": [
+        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
+        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
+        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
+        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
+        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeInstallDialog.closeEvent": {
+      "source_blocks_sha256": [
+        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
+        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "e66937bb1d1ebfe1c084eb179ac2f8a797143dcaa41f20f0693da972811f15c2",
+      "text": "Manter o diálogo aberto até a thread do instalador terminar.\n\n:param event: evento de fecho do Qt; ignorado enquanto o cancelamento estiver pendente.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
+        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeInstallDialog.reject": {
+      "source_blocks_sha256": [
+        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
+      ],
+      "source_sha256": "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38",
+      "text": "Cancelar os subprocessos ativos e adiar o fecho até o processamento em segundo plano terminar.",
+      "translation_source_blocks_sha256": [
+        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeInstallDialog.start": {
+      "source_blocks_sha256": [
+        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
+      ],
+      "source_sha256": "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400",
+      "text": "Iniciar a instalação após o clique explícito no botão, mantendo o Qt responsivo.",
+      "translation_source_blocks_sha256": [
+        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog": {
+      "source_blocks_sha256": [
+        "17474f21efe74ce8e27cd0c152705795f1ca4e356c9c7165dfedaf9157ad0906"
+      ],
+      "source_sha256": "0d336be016fad1f5419d9e7c885c5427d155c2a036a29e967cd11780c8da4ba5",
+      "text": "Verifica o PyPI fora da thread da GUI, permitindo que uma verificação cancelada abra o app instalado. Prepara uma verificação de atualização automática e somente leitura.",
+      "translation_source_blocks_sha256": [
+        "450cc032373b2a63cb949d6a6e788a5aca71fe48d5bfd4fe5cfdd52d226d5d71"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.__init__.check": {
+      "source_blocks_sha256": [
+        "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a"
+      ],
+      "source_sha256": "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a",
+      "text": "Guarda a comparação até chegar o sinal finished do trabalhador.",
+      "translation_source_blocks_sha256": [
+        "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.closeEvent": {
+      "source_blocks_sha256": [
+        "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
+        "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "5fee03e6931b695099309777f5b01ba03fd9be5c01c08f2fa46135b47da0b9be",
+      "text": "Impede a destruição de uma thread de verificação ativa.\n\n:param event: evento de fechamento do Qt; ignorado enquanto a verificação está sendo cancelada.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
+        "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.reject": {
+      "source_blocks_sha256": [
+        "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda"
+      ],
+      "source_sha256": "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda",
+      "text": "Cancela a verificação e mantém o diálogo vivo até que seu worker termine.",
+      "translation_source_blocks_sha256": [
+        "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda"
+      ]
+    },
+    "spacr.qt.parascape.open_parascape": {
+      "source_blocks_sha256": [
+        "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
+        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
+        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
+        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
+      ],
+      "source_sha256": "a181c665df9e5f0ef365a0e6222c9c83442ae146811bd5c009020bb2d62743df",
+      "text": "Verifica se há atualizações a cada abertura e oferece atualizações via pip antes de iniciar.\n\n:param parent: página do organismo que solicita o arranque.\n:param root: pasta opcional das aplicações externas.\n:returns: processo filho, ou None se o arranque for cancelado ou falhar.",
+      "translation_source_blocks_sha256": [
+        "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
+        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
+        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
+        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
+      ]
+    },
+    "spacr.qt.parascape.open_parascape.check": {
+      "source_blocks_sha256": [
+        "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28"
+      ],
+      "source_sha256": "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28",
+      "text": "Recolhe o processo filho desanexado e mostra falhas sem fechar o ParaScape ao sair do spaCR.",
+      "translation_source_blocks_sha256": [
+        "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28"
+      ]
+    },
     "spacr.qt.path_probe": {
       "source_blocks_sha256": [
         "669a38da76908fd22ccd0b0841f77108116f5ff07b40aaeeeaed58bdcf584fb5",
@@ -118556,138 +118694,6 @@
       "text": "Executa o vigia e, na saída, resume o que estiver pendente.",
       "translation_source_blocks_sha256": [
         "abcbc5bd9305ad77f63e4d737da75d57f01f8f75209876132dea6fceec277b4c"
-      ]
-    },
-    "spacr.qt.parascape": {
-      "source_blocks_sha256": [
-        "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4"
-      ],
-      "source_sha256": "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4",
-      "text": "Instalar o ParaScape separadamente e depois iniciar e monitorizar o seu processo de ambiente de trabalho.",
-      "translation_source_blocks_sha256": [
-        "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeInstallDialog": {
-      "source_blocks_sha256": [
-        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
-        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
-        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
-        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
-        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
-      ],
-      "source_sha256": "48dc09ee572bea724b60f544538511af8ff8e2333a51ec031e5a6be2631657c5",
-      "text": "Explicar a aplicação alfa e o tamanho da transferência antes da instalação no seu próprio ambiente.\n\n:param parent: página do organismo à qual pertence.\n:param root: diretório raiz opcional das aplicações externas.\n:param job: substituto opcional do instalador para testes.\nCriar os controlos de consentimento e progresso; abrir o diálogo não instala nada.",
-      "translation_source_blocks_sha256": [
-        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
-        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
-        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
-        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
-        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeInstallDialog.closeEvent": {
-      "source_blocks_sha256": [
-        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
-        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ],
-      "source_sha256": "e66937bb1d1ebfe1c084eb179ac2f8a797143dcaa41f20f0693da972811f15c2",
-      "text": "Manter o diálogo aberto até a thread do instalador terminar.\n\n:param event: evento de fecho do Qt; ignorado enquanto o cancelamento estiver pendente.\n:returns: None.",
-      "translation_source_blocks_sha256": [
-        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
-        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeInstallDialog.reject": {
-      "source_blocks_sha256": [
-        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
-      ],
-      "source_sha256": "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38",
-      "text": "Cancelar os subprocessos ativos e adiar o fecho até o processamento em segundo plano terminar.",
-      "translation_source_blocks_sha256": [
-        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeInstallDialog.start": {
-      "source_blocks_sha256": [
-        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
-      ],
-      "source_sha256": "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400",
-      "text": "Iniciar a instalação após o clique explícito no botão, mantendo o Qt responsivo.",
-      "translation_source_blocks_sha256": [
-        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeUpdateCheckDialog": {
-      "source_blocks_sha256": [
-        "17474f21efe74ce8e27cd0c152705795f1ca4e356c9c7165dfedaf9157ad0906"
-      ],
-      "source_sha256": "0d336be016fad1f5419d9e7c885c5427d155c2a036a29e967cd11780c8da4ba5",
-      "text": "Verifica o PyPI fora da thread da GUI, permitindo que uma verificação cancelada abra o app instalado. Prepara uma verificação de atualização automática e somente leitura.",
-      "translation_source_blocks_sha256": [
-        "450cc032373b2a63cb949d6a6e788a5aca71fe48d5bfd4fe5cfdd52d226d5d71"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.__init__.check": {
-      "source_blocks_sha256": [
-        "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a"
-      ],
-      "source_sha256": "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a",
-      "text": "Guarda a comparação até chegar o sinal finished do trabalhador.",
-      "translation_source_blocks_sha256": [
-        "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.closeEvent": {
-      "source_blocks_sha256": [
-        "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
-        "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ],
-      "source_sha256": "5fee03e6931b695099309777f5b01ba03fd9be5c01c08f2fa46135b47da0b9be",
-      "text": "Impede a destruição de uma thread de verificação ativa.\n\n:param event: evento de fechamento do Qt; ignorado enquanto a verificação está sendo cancelada.\n:returns: None.",
-      "translation_source_blocks_sha256": [
-        "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
-        "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.reject": {
-      "source_blocks_sha256": [
-        "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda"
-      ],
-      "source_sha256": "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda",
-      "text": "Cancela a verificação e mantém o diálogo vivo até que seu worker termine.",
-      "translation_source_blocks_sha256": [
-        "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda"
-      ]
-    },
-    "spacr.qt.parascape.open_parascape": {
-      "source_blocks_sha256": [
-        "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
-        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
-        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
-        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
-      ],
-      "source_sha256": "a181c665df9e5f0ef365a0e6222c9c83442ae146811bd5c009020bb2d62743df",
-      "text": "Verifica se há atualizações a cada abertura e oferece atualizações via pip antes de iniciar.\n\n:param parent: página do organismo que solicita o arranque.\n:param root: pasta opcional das aplicações externas.\n:returns: processo filho, ou None se o arranque for cancelado ou falhar.",
-      "translation_source_blocks_sha256": [
-        "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
-        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
-        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
-        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
-      ]
-    },
-    "spacr.qt.parascape.open_parascape.check": {
-      "source_blocks_sha256": [
-        "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28"
-      ],
-      "source_sha256": "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28",
-      "text": "Recolhe o processo filho desanexado e mostra falhas sem fechar o ParaScape ao sair do spaCR.",
-      "translation_source_blocks_sha256": [
-        "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28"
       ]
     },
     "spacr.qt.startup_benchmark": {

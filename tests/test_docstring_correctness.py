@@ -2093,6 +2093,50 @@ def _validated_prior_plaque_callables(callables):
             if item.symbol == symbol else item for item in callables]
 
 
+def _validated_prior_701_callables(callables):
+    """Check the three optional queue names before replaying unchanged pins."""
+    import json
+    fixture = json.loads((pathlib.Path(__file__).resolve().parent
+        / "data/release_contracts"
+        / "701_make_masks_existing_api_changes_2026-10-13.json").read_text())
+    assert fixture["schema"] == 1
+    assert fixture["kind"] == "existing_callable_optional_parameter_changes"
+    assert fixture["item"] == 701
+    additions = {
+        "spacr.curation_queue.build_queue": {"exclude_verdicts"},
+        "spacr.curation_queue.CurationQueue": {
+            "exclude_verdicts", "excluded_by_verdict"},
+    }
+    assert fixture["changes"].keys() == additions.keys()
+    by_symbol = {item.symbol: item for item in callables}
+    for symbol, names in additions.items():
+        change = fixture["changes"][symbol]
+        assert set(change["added_optional_parameters"]) == names
+        item = by_symbol[symbol]
+        actual = {
+            key: sorted(value) if isinstance(value, frozenset) else value
+            for key, value in vars(item).items() if key != "docstring"
+        }
+        assert actual == change["after"], symbol
+        assert not names & item.required_parameters
+        documented = (set(IVAR_FIELD.findall(item.docstring))
+                      if item.category in GENERATED_CONSTRUCTOR_CATEGORIES
+                      else _documented_parameter_names(item.docstring))
+        assert names <= documented, symbol
+        prior = replace(item, parameters=item.parameters - names,
+                        accepted_documented_parameters=(
+                            item.accepted_documented_parameters - names))
+        prior_row = {
+            key: sorted(value) if isinstance(value, frozenset) else value
+            for key, value in vars(prior).items() if key != "docstring"
+        }
+        assert prior_row == change["before"], symbol
+    return [replace(item, parameters=item.parameters - additions[item.symbol],
+                    accepted_documented_parameters=(
+                        item.accepted_documented_parameters - additions[item.symbol]))
+            if item.symbol in additions else item for item in callables]
+
+
 def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     """Freeze the whole boundary and every source-owned parameter name.
 
@@ -2107,6 +2151,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
             _validated_prior_radius_callables(
                 _validated_prior_worker_callables(
                     list(_public_callables()), replay_dialog_signature=True))))
+    callables = _validated_prior_701_callables(callables)
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")
@@ -3032,6 +3077,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-10-12 Preferences Apply: 19,923 - 19,921 = 2, the optional
     # keyword in_slices= on apply_preferences_to_app and
     # apply_stylesheet_per_window; no new callable or required parameter.
+    # Item 701 validates its three optional queue names separately, then
+    # replays the prior rows above; no callable or required parameter arrived.
     assert sum(len(item.parameters) for item in callables) == 19923
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.

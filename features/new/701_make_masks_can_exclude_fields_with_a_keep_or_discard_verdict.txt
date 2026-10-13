@@ -2,10 +2,10 @@
 MAKE MASKS CAN EXCLUDE FIELDS THAT ALREADY HAVE A KEEP OR DISCARD VERDICT
 ================================================================================
 
-Status:    not started
+Status:    COMPLETE 100% (2026-10-13): Hide judged fields and --exclude-verdicts, with persisted per-folder choices, regression tests and reviewed catalog records.
 Requested: maintainer, 2026-10-13: "in make mask there should be an option to
            exclude images that already have a keep or discrad flag"
-Owner:     Home (Make Masks); WS (translations, tutorial capture)
+Owner:     WS (implementation, validation and translations; maintainer decision)
 Related:   Make Masks Keep / Discard buttons (csv/keep_discard.csv), "First
            unreviewed" button, spacr-make-masks curation queues
            (spacr.curation_queue.build_queue, curate_status.csv).
@@ -59,3 +59,26 @@ DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
 - Nothing yet.
+
+--------------------------------------------------------------------------------
+2026-10-13 — WS completion
+--------------------------------------------------------------------------------
+
+Hide judged fields sits beside First unreviewed. Enabling it opens an
+unjudged field, and Previous, Next, the editable counter and reordered queues
+follow the filtered list. Turning it off restores all fields offered by the
+session. The choice persists for the folder that opened the session, including
+queues spanning several folders. Failed saves prevent leaving the field.
+
+The terminal flag filters after done/skip status and before ordering/limit,
+counts excluded verdicts separately, and handles nested, sibling and seg
+layouts. CSV decisions and image/mask files are not rewritten by filtering.
+The final row for a duplicate image path wins, including a cleared verdict.
+The editor caches verdict rows until the CSV changes.
+
+Validation: 24 item cases, 176 queue/navigation/curation regression cases,
+5 callable/API checks and 5 layout/volume checks passed with CUDA disabled,
+Qt offscreen and an 8 GB cap. English API audit and fatal-error lint passed.
+The existing API inventory pins remain unchanged; the three new optional
+parameters have an explicit before/after contract. Nine locales carry
+source-bound AI-reviewed runtime and API records, without native signoff.

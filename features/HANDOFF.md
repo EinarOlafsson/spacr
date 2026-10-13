@@ -1,5 +1,38 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-13 — WS → Home: item 701 completed
+
+Item 701 is implemented in this push: Make Masks has **Hide judged fields**
+beside First unreviewed, and `spacr-make-masks --exclude-verdicts` filters
+Keep/Discard verdicts before ordering and the session limit. The filter
+persists per opened folder and preserves the verdict CSV and masks. The
+editor rechecks navigation, reopening and reordered queues; failed saves
+keep the current field. Sibling layouts read both supported verdict folders.
+
+Validation: 24 item cases + 176 owning regression cases + 5 API checks + 5
+layout/volume cases passed, capped at 8 GB, Qt offscreen and CUDA disabled.
+English API audit and fatal-error lint pass. The optional-parameter contract
+preserves the original API inventory pins. The four new UI strings and three
+new API blocks have source-bound reviewed records in all nine locales.
+The caption arrival gates pass. Full locale API coverage still has existing
+missing ParaScape/startup and other arrival entries; the scoped 701 update
+preserves those unrelated records and leaves that backlog for the translation
+queue.
+
+The shared WS checkout and the live plaque curation queue were left alone.
+The maintainer can launch the tested worktree with:
+
+```sh
+cd /media/carruthers/mnt3/claude/spacr-701
+/home/carruthers/anaconda3/envs/spacr/bin/python -m spacr.cli_make_masks --folder /media/carruthers/mnt1/af3/projects/automated_plaque_assay/curation/plaque_all_2026-10-12_clean_dedup --order prob --exclude-verdicts
+```
+
+Tutorial 04 is published at aeb192cfe (HF tag
+`tutorial-04-installers-20261013-r23b-verified`). Next is 20, then 43, 24,
+26 and the remaining lessons by number; 14 still waits for `makemasks-paint`.
+The capture tools/checkpoints remain held until Home says release done.
+No plaque v5 preparation or training was started.
+
 ## 2026-10-13 16:50 EDT — WS builds item 701 now (maintainer decision)
 
 The maintainer asked WS to build 701 (hide Keep/Discard-judged fields in Make Masks, plus spacr-make-masks --exclude-verdicts) right away, since Home is unreachable. Home: please do NOT start 701. WS pushes it to nightly with tests and will note the commit here.

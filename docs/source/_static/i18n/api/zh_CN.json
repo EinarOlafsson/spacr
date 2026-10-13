@@ -18845,10 +18845,12 @@
         "10d60f9890a49a731fca8f4cdb02bab859863aac138af76ff4cba1468455fcd8",
         "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
         "52d33d48889afa9defeb0b08c4842593e8d117deb6398c9305bd1dc9c5b9bcd7",
-        "5bf8b2e629fcf990f4f8ab77ca916446037e5df0994b37f65fe62f7b0963de67"
+        "5bf8b2e629fcf990f4f8ab77ca916446037e5df0994b37f65fe62f7b0963de67",
+        "44df9019b5f23bd7c3b5cef304ad7a37dd097317564db6141072e235557963ab",
+        "f8e67164688a83f341c0cf77518305adfd5a6112a07e99cc0a7b5859c7b75cd3"
       ],
-      "source_sha256": "562e1dc09ac09d15663a7270e942e42388d7df4d21bdb7a9c86f1ddfc6b142f6",
-      "text": "一个有限的治疗会议在一个文件夹上工作。\n\n:ivar layout: 找到了什么,以及在哪里。\n:ivar items: 该会议提供的字段 — 未审查,订单,并将其切成 ``limit``。\n:ivar status: 阅读每个状态行,包括关于此文件夹中不存在的字符的行。\n:ivar order: 请求的命令。\n:ivar effective_order: 实际使用的订单,与 ``order`` 不同,当 ``prob``、 ``easy`` 或 ``uncertain`` 落后于 ``value`` 需要分数。\n:ivar limit: 所应用的字符串,或 ``None``。\n:ivar summary: 计算整个文件夹,而不是这个会议。\n:ivar notices: 第一个字段前的警告 - ``prob``, ``easy`` 或 ``uncertain`` 命令没有分数,或与字段的分数不命名,以及一个重新记录,这是外部工具的文件旁边的文件夹,每个保存后写到。",
+      "source_sha256": "f8b3e3cbe9107856730d16dc24af73ca9b30480d4a19a3429322097102a03dc1",
+      "text": "一个有限的治疗会议在一个文件夹上工作。\n\n:ivar layout: 找到了什么,以及在哪里。\n:ivar items: 该会议提供的字段 — 未审查,订单,并将其切成 ``limit``。\n:ivar status: 阅读每个状态行,包括关于此文件夹中不存在的字符的行。\n:ivar order: 请求的命令。\n:ivar effective_order: 实际使用的订单,与 ``order`` 不同,当 ``prob``、 ``easy`` 或 ``uncertain`` 落后于 ``value`` 需要分数。\n:ivar limit: 所应用的字符串,或 ``None``。\n:ivar summary: 计算整个文件夹,而不是这个会议。\n:ivar notices: 第一个字段前的警告 - ``prob``, ``easy`` 或 ``uncertain`` 命令没有分数,或与字段的分数不命名,以及一个重新记录,这是外部工具的文件旁边的文件夹,每个保存后写到。\n:ivar exclude_verdicts: 表示本次会话是否已排除判定为“保留”或“放弃”的视野；若此值为真，编辑器启动时会开启 \"Hide judged fields\" (隐藏已判定的视野) 开关。\n:ivar excluded_by_verdict: 因已有判定而被排除、否则仍应待处理的视野数量。除非 ``exclude_verdicts`` 为真，否则为零。",
       "translation_source_blocks_sha256": [
         "6de6562e33da3a5a6c9405e681328eedc1bb5863a7942f0e81a09949730773d7",
         "d7a6fbccff58184ffb0d14afa9bb42d8a8ec6c3f9e691edffb95876fc18e2903",
@@ -18858,7 +18860,9 @@
         "10d60f9890a49a731fca8f4cdb02bab859863aac138af76ff4cba1468455fcd8",
         "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
         "52d33d48889afa9defeb0b08c4842593e8d117deb6398c9305bd1dc9c5b9bcd7",
-        "f152ed4195d10d8a6269bb843be1435d7d2a9a30ae349d26dc78d313e68133ba"
+        "f152ed4195d10d8a6269bb843be1435d7d2a9a30ae349d26dc78d313e68133ba",
+        "44df9019b5f23bd7c3b5cef304ad7a37dd097317564db6141072e235557963ab",
+        "f8e67164688a83f341c0cf77518305adfd5a6112a07e99cc0a7b5859c7b75cd3"
       ]
     },
     "spacr.curation_queue.CurationQueue.all_items": {
@@ -19096,13 +19100,14 @@
         "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
         "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
         "54ffa1d4352b9cbbbf9ecf0947f15ba1772c131fa5006ce85867e696cfe49bd1",
+        "d1bab61c89e908c9ed74cb1695b623f843f78494ba2286c7847c9f2ada292280",
         "502228ee1665d0c9a5f570549ea7b0976e0e63a18874864e305e70bd5b28340d",
         "8f8619826d34f9c5382980339591d4fb4723096fd3c8648d434c07fe0468cc64",
         "dd06d217c0a848fb1104bebf103d8947f50c4e70bccf85482e74decff398a3ff",
         "d3f8e8e2ef6e22fed100bec035e600c05ed61562197fb1731038c10b761e37d9"
       ],
-      "source_sha256": "6040f6e345510a316be7cb2979328f9294415458493d0294c882eb2b517a6a82",
-      "text": "打开一个文件夹作为一个有限的治疗会议。\n\n顺序:检测布局,阅读回复记录,下载已审查的所有内容,订购剩下的内容,然后仅适用限制 - 因此 ``--limit 20`` 意味着订购的等待列表的前二十个字段,而不是第一个二十个发现的字段。\n\n概率仅为使用它们的订单进行阅读,因此 ``name`` 和 ``value`` 没有任何分数文件进行阅读; ``uncertain`` 取代 ``curate_uncertainty.csv``。 对于 ``prob`` 和 ``easy`` 的缺席分数文件是报告的:它落后于 ``value`` 与一个通知命名它看到了两个位置; 留下某些等待字段未排序的分数文件说明了多少; 从哪里出来的,就被印刷了。 这些警告,以及说进展正在被写回外部工具的记录旁边的文件夹,在工作列表中保持为 :attr:`CurationQueue.notices` 编辑器显示。\n\n:param folder: 队列文件夹。\n:param order: :data:`ORDERS`; :data:`DEFAULT_ORDER` 默认情况下。\n:param limit: 这个会议提供多少个字段,或 ``None`` 为所有。\n:param probs: 使用的概率,而不是阅读 ``curate_scores.csv``。\n:param counts: 建议使用草案,而不是阅读草案。\n:param announce: 通知去哪里;默认到 :func:`print`。\n:param include_reviewed: 按默认方式关闭;这就是 \"resume\" 的意思。\n:param min_objects: 转到 :func:`value_key`。\n:param min_diameter: 转到 :func:`value_key`。\n:param cache_counts: 是否 ``easy`` 可以编写其计算缓存。\n:returns: 是:class:`CurationQueue`。\n:raises LayoutError: 当文件夹不是一个毫无疑问的布局时。\n:raises StatusFileError: 当状态文件无法阅读时。\n:raises ValueError: 如果 ``order`` 不是 :data:`ORDERS` 的,或者 ``limit`` 是负的。",
+      "source_sha256": "a7b2a7ca1a9cd2d740535b45bdaed08caff7cd6d31d5ee6c161a6e6109efb6d4",
+      "text": "打开一个文件夹作为一个有限的治疗会议。\n\n顺序:检测布局,阅读回复记录,下载已审查的所有内容,订购剩下的内容,然后仅适用限制 - 因此 ``--limit 20`` 意味着订购的等待列表的前二十个字段,而不是第一个二十个发现的字段。\n\n概率仅为使用它们的订单进行阅读,因此 ``name`` 和 ``value`` 没有任何分数文件进行阅读; ``uncertain`` 取代 ``curate_uncertainty.csv``。 对于 ``prob`` 和 ``easy`` 的缺席分数文件是报告的:它落后于 ``value`` 与一个通知命名它看到了两个位置; 留下某些等待字段未排序的分数文件说明了多少; 从哪里出来的,就被印刷了。 这些警告,以及说进展正在被写回外部工具的记录旁边的文件夹,在工作列表中保持为 :attr:`CurationQueue.notices` 编辑器显示。\n\n:param folder: 队列文件夹。\n:param order: :data:`ORDERS`; :data:`DEFAULT_ORDER` 默认情况下。\n:param limit: 这个会议提供多少个字段,或 ``None`` 为所有。\n:param probs: 使用的概率,而不是阅读 ``curate_scores.csv``。\n:param counts: 建议使用草案,而不是阅读草案。\n:param announce: 通知去哪里;默认到 :func:`print`。\n:param include_reviewed: 按默认方式关闭;这就是 \"resume\" 的意思。\n:param min_objects: 转到 :func:`value_key`。\n:param min_diameter: 转到 :func:`value_key`。\n:param cache_counts: 是否 ``easy`` 可以编写其计算缓存。\n:param exclude_verdicts: 除 done 和 skip 行对应的视野外，还排除 ``csv/keep_discard.csv`` 中判定为“保留”或“放弃”的所有视野（同时从队列文件夹和编辑器打开的文件夹读取该文件；在 ``sibling`` 布局中，这两个文件夹不同）。判定仍保留在文件中；排除的视野数量见 :attr:`CurationQueue.excluded_by_verdict`。\n:returns: 是:class:`CurationQueue`。\n:raises LayoutError: 当文件夹不是一个毫无疑问的布局时。\n:raises StatusFileError: 当状态文件无法阅读时。\n:raises ValueError: 如果 ``order`` 不是 :data:`ORDERS` 的,或者 ``limit`` 是负的。",
       "translation_source_blocks_sha256": [
         "58704094b56d37a66694a6c39540ed35a2848b1266cb234ce5fe0869a7bf7887",
         "887fe6ff2f78b9ff24bcd5bf75e2b1d57b97e30241f3cd3b0a723e5eacf10960",
@@ -19117,6 +19122,7 @@
         "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
         "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
         "54ffa1d4352b9cbbbf9ecf0947f15ba1772c131fa5006ce85867e696cfe49bd1",
+        "dea88ad53316300495cd7280f87e486748b8b55da39c9ac3535d7b5ff3029b5c",
         "502228ee1665d0c9a5f570549ea7b0976e0e63a18874864e305e70bd5b28340d",
         "8f8619826d34f9c5382980339591d4fb4723096fd3c8648d434c07fe0468cc64",
         "dd06d217c0a848fb1104bebf103d8947f50c4e70bccf85482e74decff398a3ff",
@@ -88317,6 +88323,138 @@
         "90e1ef51ed51f1127c0a7526fb8b561d3a2a13917257a10816f121ee9b87b0e1"
       ]
     },
+    "spacr.qt.parascape": {
+      "source_blocks_sha256": [
+        "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4"
+      ],
+      "source_sha256": "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4",
+      "text": "单独安装 ParaScape，然后启动并监测其桌面进程。",
+      "translation_source_blocks_sha256": [
+        "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeInstallDialog": {
+      "source_blocks_sha256": [
+        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
+        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
+        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
+        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
+        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
+      ],
+      "source_sha256": "48dc09ee572bea724b60f544538511af8ff8e2333a51ec031e5a6be2631657c5",
+      "text": "在独立环境中安装前，说明此 alpha 应用及下载大小。\n\n:param parent: 所属的生物体页面。\n:param root: 可选的外部应用根目录。\n:param job: 用于测试的可选安装程序替代实现。\n创建确认和进度控件；打开对话框不会安装任何内容。",
+      "translation_source_blocks_sha256": [
+        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
+        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
+        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
+        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
+        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeInstallDialog.closeEvent": {
+      "source_blocks_sha256": [
+        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
+        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "e66937bb1d1ebfe1c084eb179ac2f8a797143dcaa41f20f0693da972811f15c2",
+      "text": "保持对话框存续，直到其安装线程停止。\n\n:param event: Qt 关闭事件；等待取消完成期间忽略此事件。\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
+        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeInstallDialog.reject": {
+      "source_blocks_sha256": [
+        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
+      ],
+      "source_sha256": "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38",
+      "text": "取消活动子进程，并在工作线程结束后再关闭。",
+      "translation_source_blocks_sha256": [
+        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeInstallDialog.start": {
+      "source_blocks_sha256": [
+        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
+      ],
+      "source_sha256": "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400",
+      "text": "在明确点击按钮后开始安装，并保持 Qt 响应。",
+      "translation_source_blocks_sha256": [
+        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog": {
+      "source_blocks_sha256": [
+        "17474f21efe74ce8e27cd0c152705795f1ca4e356c9c7165dfedaf9157ad0906"
+      ],
+      "source_sha256": "0d336be016fad1f5419d9e7c885c5427d155c2a036a29e967cd11780c8da4ba5",
+      "text": "在 GUI 线程之外检查 PyPI，允许在取消检查后打开已安装的应用。准备一次自动的只读更新检查。",
+      "translation_source_blocks_sha256": [
+        "450cc032373b2a63cb949d6a6e788a5aca71fe48d5bfd4fe5cfdd52d226d5d71"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.__init__.check": {
+      "source_blocks_sha256": [
+        "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a"
+      ],
+      "source_sha256": "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a",
+      "text": "保存比较结果，直到工作器的 finished 信号到达。",
+      "translation_source_blocks_sha256": [
+        "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.closeEvent": {
+      "source_blocks_sha256": [
+        "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
+        "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "5fee03e6931b695099309777f5b01ba03fd9be5c01c08f2fa46135b47da0b9be",
+      "text": "防止销毁正在进行的检查线程。\n\n:param event: Qt 关闭事件；在检查正被取消时会被忽略。\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
+        "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.reject": {
+      "source_blocks_sha256": [
+        "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda"
+      ],
+      "source_sha256": "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda",
+      "text": "取消检查，并使对话框保持存活直到其工作线程退出。",
+      "translation_source_blocks_sha256": [
+        "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda"
+      ]
+    },
+    "spacr.qt.parascape.open_parascape": {
+      "source_blocks_sha256": [
+        "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
+        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
+        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
+        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
+      ],
+      "source_sha256": "a181c665df9e5f0ef365a0e6222c9c83442ae146811bd5c009020bb2d62743df",
+      "text": "每次打开时检查更新，并在启动前提供 pip 升级。\n\n:param parent: 请求启动的生物体页面。\n:param root: 可选的外部应用文件夹。\n:returns: 子进程；若取消或启动失败则为 None。",
+      "translation_source_blocks_sha256": [
+        "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
+        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
+        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
+        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
+      ]
+    },
+    "spacr.qt.parascape.open_parascape.check": {
+      "source_blocks_sha256": [
+        "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28"
+      ],
+      "source_sha256": "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28",
+      "text": "回收分离的子进程并显示失败信息，且不会在 spaCR 退出时关闭 ParaScape。",
+      "translation_source_blocks_sha256": [
+        "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28"
+      ]
+    },
     "spacr.qt.path_probe": {
       "source_blocks_sha256": [
         "669a38da76908fd22ccd0b0841f77108116f5ff07b40aaeeeaed58bdcf584fb5",
@@ -118557,138 +118695,6 @@
       "text": "运行监视器，并在退出时汇总所有待处理的内容。",
       "translation_source_blocks_sha256": [
         "abcbc5bd9305ad77f63e4d737da75d57f01f8f75209876132dea6fceec277b4c"
-      ]
-    },
-    "spacr.qt.parascape": {
-      "source_blocks_sha256": [
-        "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4"
-      ],
-      "source_sha256": "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4",
-      "text": "单独安装 ParaScape，然后启动并监测其桌面进程。",
-      "translation_source_blocks_sha256": [
-        "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeInstallDialog": {
-      "source_blocks_sha256": [
-        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
-        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
-        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
-        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
-        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
-      ],
-      "source_sha256": "48dc09ee572bea724b60f544538511af8ff8e2333a51ec031e5a6be2631657c5",
-      "text": "在独立环境中安装前，说明此 alpha 应用及下载大小。\n\n:param parent: 所属的生物体页面。\n:param root: 可选的外部应用根目录。\n:param job: 用于测试的可选安装程序替代实现。\n创建确认和进度控件；打开对话框不会安装任何内容。",
-      "translation_source_blocks_sha256": [
-        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
-        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
-        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
-        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
-        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeInstallDialog.closeEvent": {
-      "source_blocks_sha256": [
-        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
-        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ],
-      "source_sha256": "e66937bb1d1ebfe1c084eb179ac2f8a797143dcaa41f20f0693da972811f15c2",
-      "text": "保持对话框存续，直到其安装线程停止。\n\n:param event: Qt 关闭事件；等待取消完成期间忽略此事件。\n:returns: None.",
-      "translation_source_blocks_sha256": [
-        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
-        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeInstallDialog.reject": {
-      "source_blocks_sha256": [
-        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
-      ],
-      "source_sha256": "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38",
-      "text": "取消活动子进程，并在工作线程结束后再关闭。",
-      "translation_source_blocks_sha256": [
-        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeInstallDialog.start": {
-      "source_blocks_sha256": [
-        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
-      ],
-      "source_sha256": "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400",
-      "text": "在明确点击按钮后开始安装，并保持 Qt 响应。",
-      "translation_source_blocks_sha256": [
-        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeUpdateCheckDialog": {
-      "source_blocks_sha256": [
-        "17474f21efe74ce8e27cd0c152705795f1ca4e356c9c7165dfedaf9157ad0906"
-      ],
-      "source_sha256": "0d336be016fad1f5419d9e7c885c5427d155c2a036a29e967cd11780c8da4ba5",
-      "text": "在 GUI 线程之外检查 PyPI，允许在取消检查后打开已安装的应用。准备一次自动的只读更新检查。",
-      "translation_source_blocks_sha256": [
-        "450cc032373b2a63cb949d6a6e788a5aca71fe48d5bfd4fe5cfdd52d226d5d71"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.__init__.check": {
-      "source_blocks_sha256": [
-        "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a"
-      ],
-      "source_sha256": "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a",
-      "text": "保存比较结果，直到工作器的 finished 信号到达。",
-      "translation_source_blocks_sha256": [
-        "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.closeEvent": {
-      "source_blocks_sha256": [
-        "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
-        "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ],
-      "source_sha256": "5fee03e6931b695099309777f5b01ba03fd9be5c01c08f2fa46135b47da0b9be",
-      "text": "防止销毁正在进行的检查线程。\n\n:param event: Qt 关闭事件；在检查正被取消时会被忽略。\n:returns: None.",
-      "translation_source_blocks_sha256": [
-        "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
-        "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.reject": {
-      "source_blocks_sha256": [
-        "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda"
-      ],
-      "source_sha256": "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda",
-      "text": "取消检查，并使对话框保持存活直到其工作线程退出。",
-      "translation_source_blocks_sha256": [
-        "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda"
-      ]
-    },
-    "spacr.qt.parascape.open_parascape": {
-      "source_blocks_sha256": [
-        "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
-        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
-        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
-        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
-      ],
-      "source_sha256": "a181c665df9e5f0ef365a0e6222c9c83442ae146811bd5c009020bb2d62743df",
-      "text": "每次打开时检查更新，并在启动前提供 pip 升级。\n\n:param parent: 请求启动的生物体页面。\n:param root: 可选的外部应用文件夹。\n:returns: 子进程；若取消或启动失败则为 None。",
-      "translation_source_blocks_sha256": [
-        "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
-        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
-        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
-        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
-      ]
-    },
-    "spacr.qt.parascape.open_parascape.check": {
-      "source_blocks_sha256": [
-        "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28"
-      ],
-      "source_sha256": "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28",
-      "text": "回收分离的子进程并显示失败信息，且不会在 spaCR 退出时关闭 ParaScape。",
-      "translation_source_blocks_sha256": [
-        "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28"
       ]
     },
     "spacr.qt.startup_benchmark": {

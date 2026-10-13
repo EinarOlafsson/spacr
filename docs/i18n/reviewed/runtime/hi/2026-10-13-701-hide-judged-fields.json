@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_scope": "Codex AI technical review; manually authored from the English and checked against the Item 701 behavior and catalog gates; no native-speaker or human signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Hide judged fields",
+      "source": "Hide judged fields",
+      "source_sha256": "ad671439720e0dea15f20b69ae0e9ff2dacf64f25bf55d6da0f7ca930faeec19",
+      "translation": "निर्णय किए गए फ़ील्ड छिपाएँ"
+    },
+    {
+      "table": "ui",
+      "key": "Skip fields already marked Keep or Discard when moving with Previous and Next. Their verdicts stay in csv/keep_discard.csv.",
+      "source": "Skip fields already marked Keep or Discard when moving with Previous and Next. Their verdicts stay in csv/keep_discard.csv.",
+      "source_sha256": "b84b7d4ba3fc96ccec613f55bba74b2f66ca3e682e777be7cc32ccf086fef6e2",
+      "translation": "पिछला और अगला से आगे-पीछे जाते समय उन फ़ील्ड को छोड़ें जिन्हें पहले ही रखें या त्यागें चिह्नित किया गया है। उनके निर्णय csv/keep_discard.csv में बने रहते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Every field in this queue has Keep or Discard.",
+      "source": "Every field in this queue has Keep or Discard.",
+      "source_sha256": "47766c03a14c2f082f31da3fbe730080005021ab3cfbd24ea329986bcfcbd1e1",
+      "translation": "इस कतार के हर फ़ील्ड को रखें या त्यागें चिह्नित किया गया है।"
+    },
+    {
+      "table": "ui",
+      "key": "no unjudged fields are left in this queue",
+      "source": "no unjudged fields are left in this queue",
+      "source_sha256": "8fa16eaf77673d247bdcb47b4e18303ee78cc058411089b7f5df509d6f2448d5",
+      "translation": "इस कतार में निर्णय किए बिना कोई फ़ील्ड नहीं बचा है"
+    }
+  ]
+}

@@ -18844,10 +18844,12 @@
         "10d60f9890a49a731fca8f4cdb02bab859863aac138af76ff4cba1468455fcd8",
         "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
         "52d33d48889afa9defeb0b08c4842593e8d117deb6398c9305bd1dc9c5b9bcd7",
-        "5bf8b2e629fcf990f4f8ab77ca916446037e5df0994b37f65fe62f7b0963de67"
+        "5bf8b2e629fcf990f4f8ab77ca916446037e5df0994b37f65fe62f7b0963de67",
+        "44df9019b5f23bd7c3b5cef304ad7a37dd097317564db6141072e235557963ab",
+        "f8e67164688a83f341c0cf77518305adfd5a6112a07e99cc0a7b5859c7b75cd3"
       ],
-      "source_sha256": "562e1dc09ac09d15663a7270e942e42388d7df4d21bdb7a9c86f1ddfc6b142f6",
-      "text": "En begränsad session av kurationsarbete över en katalog.\n\n:ivar layout: vad som hittades, och var.\n:ivar items: Fälten för att erbjuda denna session – ogranskad, beställd och klippt till ``limit``.\n:ivar status: varje statusrad läst, inklusive rader om stammar som inte finns i den här katalogen.\n:ivar order: den beställning som man bad om.\n:ivar effective_order: Den faktiska beställningen, som skiljer sig från ``order`` när ``prob``, ``easy`` eller ``uncertain`` föll tillbaka till ``value`` för brist på poäng.\n:ivar limit: det påsatt locket eller ``None``.\n:ivar summary: räknas över hela korgen, inte över den här sessionen.\n:ivar notices: varningar för curatorn före det första fältet -- en ``prob``, ``easy`` eller ``uncertain`` ordning utan poäng, eller med fälten namnger inte poängen, och en CV-post som är det externa verktygets fil bredvid korgen, som varje spara sedan skriver till. Tryckt när arbetslistan är byggd och visas av editorn med den, så att en ändrad beställning eller en spara utanför den öppnade mappen rapporteras.",
+      "source_sha256": "f8b3e3cbe9107856730d16dc24af73ca9b30480d4a19a3429322097102a03dc1",
+      "text": "En begränsad session av kurationsarbete över en katalog.\n\n:ivar layout: vad som hittades, och var.\n:ivar items: Fälten för att erbjuda denna session – ogranskad, beställd och klippt till ``limit``.\n:ivar status: varje statusrad läst, inklusive rader om stammar som inte finns i den här katalogen.\n:ivar order: den beställning som man bad om.\n:ivar effective_order: Den faktiska beställningen, som skiljer sig från ``order`` när ``prob``, ``easy`` eller ``uncertain`` föll tillbaka till ``value`` för brist på poäng.\n:ivar limit: det påsatt locket eller ``None``.\n:ivar summary: räknas över hela korgen, inte över den här sessionen.\n:ivar notices: varningar för curatorn före det första fältet -- en ``prob``, ``easy`` eller ``uncertain`` ordning utan poäng, eller med fälten namnger inte poängen, och en CV-post som är det externa verktygets fil bredvid korgen, som varje spara sedan skriver till. Tryckt när arbetslistan är byggd och visas av editorn med den, så att en ändrad beställning eller en spara utanför den öppnade mappen rapporteras.\n:ivar exclude_verdicts: om bildfält med bedömningen ”Behåll” eller ”Kassera” har uteslutits från den här sessionen; när värdet är sant startar redigeraren med reglaget \"Hide judged fields\" (Dölj bedömda bildfält) aktiverat.\n:ivar excluded_by_verdict: antal bildfält som annars fortfarande skulle vara väntande men som uteslutits eftersom de har en bedömning. Noll om inte ``exclude_verdicts`` är sant.",
       "translation_source_blocks_sha256": [
         "6de6562e33da3a5a6c9405e681328eedc1bb5863a7942f0e81a09949730773d7",
         "d7a6fbccff58184ffb0d14afa9bb42d8a8ec6c3f9e691edffb95876fc18e2903",
@@ -18857,7 +18859,9 @@
         "10d60f9890a49a731fca8f4cdb02bab859863aac138af76ff4cba1468455fcd8",
         "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
         "52d33d48889afa9defeb0b08c4842593e8d117deb6398c9305bd1dc9c5b9bcd7",
-        "f152ed4195d10d8a6269bb843be1435d7d2a9a30ae349d26dc78d313e68133ba"
+        "f152ed4195d10d8a6269bb843be1435d7d2a9a30ae349d26dc78d313e68133ba",
+        "44df9019b5f23bd7c3b5cef304ad7a37dd097317564db6141072e235557963ab",
+        "f8e67164688a83f341c0cf77518305adfd5a6112a07e99cc0a7b5859c7b75cd3"
       ]
     },
     "spacr.curation_queue.CurationQueue.all_items": {
@@ -19095,13 +19099,14 @@
         "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
         "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
         "54ffa1d4352b9cbbbf9ecf0947f15ba1772c131fa5006ce85867e696cfe49bd1",
+        "d1bab61c89e908c9ed74cb1695b623f843f78494ba2286c7847c9f2ada292280",
         "502228ee1665d0c9a5f570549ea7b0976e0e63a18874864e305e70bd5b28340d",
         "8f8619826d34f9c5382980339591d4fb4723096fd3c8648d434c07fe0468cc64",
         "dd06d217c0a848fb1104bebf103d8947f50c4e70bccf85482e74decff398a3ff",
         "d3f8e8e2ef6e22fed100bec035e600c05ed61562197fb1731038c10b761e37d9"
       ],
-      "source_sha256": "6040f6e345510a316be7cb2979328f9294415458493d0294c882eb2b517a6a82",
-      "text": "Öppna en katalog som en begränsad kuration.\n\nFör att: detektera layouten, läs meritförteckningen, släpp allt som redan granskats, beställ det som finns kvar, och först därefter tillämpa gränsen – så ``--limit 20`` betyder de första tjugo fälten i den beställda listan, inte de första 20 hittades.\n\nSannolikheterna läses endast för de order som använder dem, så ``name`` och ``value`` läser ingen poängfil alls; ``uncertain`` läser ``curate_uncertainty.csv`` istället. För ``prob`` och ``easy`` rapporteras en saknad poängfil: den faller tillbaka till ``value`` med ett meddelande som namnger båda platserna den såg ut; en poängfil som lämnar några väntande fält outmärkt anger hur många; och var poängen kom från skrivs ut. Dessa varningar, och den som säger framsteg skrivs tillbaka till det externa verktygets post bredvid korgen, hålls på arbetslistan som :attr:`CurationQueue.notices` för editorn att visa.\n\n:param folder: kömappen.\n:param order: en av :data:`ORDERS`; :data:`DEFAULT_ORDER` som standard.\n:param limit: hur många fält denna session erbjuder, eller ``None`` för alla.\n:param probs: Sannolikhet att använda i stället för att läsa ``curate_scores.csv``.\n:param counts: utkast räknas som att använda istället för att läsa utkasten.\n:param announce: där meddelandena går; standardvärdet är :func:`print`.\n:param include_reviewed: erbjuda recenserade fält också. Avstängt som standard; detta är vad \"resume\" betyder.\n:param min_objects: övergick till :func:`value_key`.\n:param min_diameter: övergick till :func:`value_key`.\n:param cache_counts: Om ``easy`` kan skriva sin räkna cache.\n:returns: och :class:`CurationQueue`.\n:raises LayoutError: när mappen inte är en entydig layout.\n:raises StatusFileError: när statusfilen inte kan läsas.\n:raises ValueError: när ``order`` inte är en av :data:`ORDERS` eller ``limit`` är negativ.",
+      "source_sha256": "a7b2a7ca1a9cd2d740535b45bdaed08caff7cd6d31d5ee6c161a6e6109efb6d4",
+      "text": "Öppna en katalog som en begränsad kuration.\n\nFör att: detektera layouten, läs meritförteckningen, släpp allt som redan granskats, beställ det som finns kvar, och först därefter tillämpa gränsen – så ``--limit 20`` betyder de första tjugo fälten i den beställda listan, inte de första 20 hittades.\n\nSannolikheterna läses endast för de order som använder dem, så ``name`` och ``value`` läser ingen poängfil alls; ``uncertain`` läser ``curate_uncertainty.csv`` istället. För ``prob`` och ``easy`` rapporteras en saknad poängfil: den faller tillbaka till ``value`` med ett meddelande som namnger båda platserna den såg ut; en poängfil som lämnar några väntande fält outmärkt anger hur många; och var poängen kom från skrivs ut. Dessa varningar, och den som säger framsteg skrivs tillbaka till det externa verktygets post bredvid korgen, hålls på arbetslistan som :attr:`CurationQueue.notices` för editorn att visa.\n\n:param folder: kömappen.\n:param order: en av :data:`ORDERS`; :data:`DEFAULT_ORDER` som standard.\n:param limit: hur många fält denna session erbjuder, eller ``None`` för alla.\n:param probs: Sannolikhet att använda i stället för att läsa ``curate_scores.csv``.\n:param counts: utkast räknas som att använda istället för att läsa utkasten.\n:param announce: där meddelandena går; standardvärdet är :func:`print`.\n:param include_reviewed: erbjuda recenserade fält också. Avstängt som standard; detta är vad \"resume\" betyder.\n:param min_objects: övergick till :func:`value_key`.\n:param min_diameter: övergick till :func:`value_key`.\n:param cache_counts: Om ``easy`` kan skriva sin räkna cache.\n:param exclude_verdicts: uteslut även alla bildfält med bedömningen ”Behåll” eller ”Kassera” i ``csv/keep_discard.csv`` (läses både från köns mapp och från mappen som redigeraren öppnar, vilka är olika i strukturen ``sibling``), utöver raderna med done och skip. Bedömningarna finns kvar i filen; antalet uteslutna bildfält anges i :attr:`CurationQueue.excluded_by_verdict`.\n:returns: och :class:`CurationQueue`.\n:raises LayoutError: när mappen inte är en entydig layout.\n:raises StatusFileError: när statusfilen inte kan läsas.\n:raises ValueError: när ``order`` inte är en av :data:`ORDERS` eller ``limit`` är negativ.",
       "translation_source_blocks_sha256": [
         "58704094b56d37a66694a6c39540ed35a2848b1266cb234ce5fe0869a7bf7887",
         "887fe6ff2f78b9ff24bcd5bf75e2b1d57b97e30241f3cd3b0a723e5eacf10960",
@@ -19116,6 +19121,7 @@
         "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
         "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
         "54ffa1d4352b9cbbbf9ecf0947f15ba1772c131fa5006ce85867e696cfe49bd1",
+        "dea88ad53316300495cd7280f87e486748b8b55da39c9ac3535d7b5ff3029b5c",
         "502228ee1665d0c9a5f570549ea7b0976e0e63a18874864e305e70bd5b28340d",
         "8f8619826d34f9c5382980339591d4fb4723096fd3c8648d434c07fe0468cc64",
         "dd06d217c0a848fb1104bebf103d8947f50c4e70bccf85482e74decff398a3ff",
@@ -88316,6 +88322,138 @@
         "90e1ef51ed51f1127c0a7526fb8b561d3a2a13917257a10816f121ee9b87b0e1"
       ]
     },
+    "spacr.qt.parascape": {
+      "source_blocks_sha256": [
+        "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4"
+      ],
+      "source_sha256": "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4",
+      "text": "Installera ParaScape separat och starta och övervaka sedan dess skrivbordsprocess.",
+      "translation_source_blocks_sha256": [
+        "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeInstallDialog": {
+      "source_blocks_sha256": [
+        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
+        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
+        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
+        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
+        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
+      ],
+      "source_sha256": "48dc09ee572bea724b60f544538511af8ff8e2333a51ec031e5a6be2631657c5",
+      "text": "Förklara alfaprogrammet och nedladdningsstorleken före installationen i dess egen miljö.\n\n:param parent: organismsidan som äger dialogen.\n:param root: valfri rotmapp för externa program.\n:param job: valfri ersättning för installeraren vid tester.\nSkapa kontrollerna för samtycke och förlopp; ingenting installeras när dialogen öppnas.",
+      "translation_source_blocks_sha256": [
+        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
+        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
+        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
+        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
+        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeInstallDialog.closeEvent": {
+      "source_blocks_sha256": [
+        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
+        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "e66937bb1d1ebfe1c084eb179ac2f8a797143dcaa41f20f0693da972811f15c2",
+      "text": "Håll dialogen öppen tills dess installationstråd har stannat.\n\n:param event: Qt-stängningshändelse; ignoreras medan avbrottet väntar på att slutföras.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
+        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeInstallDialog.reject": {
+      "source_blocks_sha256": [
+        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
+      ],
+      "source_sha256": "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38",
+      "text": "Avbryt aktiva underprocesser och skjut upp stängningen tills bakgrundsarbetet har avslutats.",
+      "translation_source_blocks_sha256": [
+        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeInstallDialog.start": {
+      "source_blocks_sha256": [
+        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
+      ],
+      "source_sha256": "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400",
+      "text": "Starta installationen efter det uttryckliga knapptrycket och låt Qt fortsätta svara.",
+      "translation_source_blocks_sha256": [
+        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog": {
+      "source_blocks_sha256": [
+        "17474f21efe74ce8e27cd0c152705795f1ca4e356c9c7165dfedaf9157ad0906"
+      ],
+      "source_sha256": "0d336be016fad1f5419d9e7c885c5427d155c2a036a29e967cd11780c8da4ba5",
+      "text": "Kontrollera PyPI utanför GUI-tråden, så att en avbruten kontroll kan öppna den installerade appen. Förbered en automatisk, skrivskyddad uppdateringskontroll.",
+      "translation_source_blocks_sha256": [
+        "450cc032373b2a63cb949d6a6e788a5aca71fe48d5bfd4fe5cfdd52d226d5d71"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.__init__.check": {
+      "source_blocks_sha256": [
+        "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a"
+      ],
+      "source_sha256": "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a",
+      "text": "Sparar jämförelsen tills arbetarens finished-signal anländer.",
+      "translation_source_blocks_sha256": [
+        "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.closeEvent": {
+      "source_blocks_sha256": [
+        "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
+        "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "5fee03e6931b695099309777f5b01ba03fd9be5c01c08f2fa46135b47da0b9be",
+      "text": "Förhindra att en aktiv kontrolltråd förstörs.\n\n:param event: Qt-stängningshändelse; ignoreras medan kontrollen avbryts.\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
+        "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.reject": {
+      "source_blocks_sha256": [
+        "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda"
+      ],
+      "source_sha256": "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda",
+      "text": "Avbryt kontrollen och håll dialogen vid liv tills dess arbetare avslutas.",
+      "translation_source_blocks_sha256": [
+        "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda"
+      ]
+    },
+    "spacr.qt.parascape.open_parascape": {
+      "source_blocks_sha256": [
+        "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
+        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
+        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
+        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
+      ],
+      "source_sha256": "a181c665df9e5f0ef365a0e6222c9c83442ae146811bd5c009020bb2d62743df",
+      "text": "Sök efter uppdateringar vid varje öppning och erbjud pip-uppgraderingar före start.\n\n:param parent: organismsidan som begär starten.\n:param root: valfri mapp för externa program.\n:returns: barnprocess, eller None om starten avbröts eller misslyckades.",
+      "translation_source_blocks_sha256": [
+        "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
+        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
+        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
+        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
+      ]
+    },
+    "spacr.qt.parascape.open_parascape.check": {
+      "source_blocks_sha256": [
+        "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28"
+      ],
+      "source_sha256": "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28",
+      "text": "Tar hand om den frikopplade barnprocessen och visar fel utan att stänga ParaScape när spaCR avslutas.",
+      "translation_source_blocks_sha256": [
+        "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28"
+      ]
+    },
     "spacr.qt.path_probe": {
       "source_blocks_sha256": [
         "669a38da76908fd22ccd0b0841f77108116f5ff07b40aaeeeaed58bdcf584fb5",
@@ -118556,138 +118694,6 @@
       "text": "Kör vakten och sammanfattar det som återstår på vägen ut.",
       "translation_source_blocks_sha256": [
         "abcbc5bd9305ad77f63e4d737da75d57f01f8f75209876132dea6fceec277b4c"
-      ]
-    },
-    "spacr.qt.parascape": {
-      "source_blocks_sha256": [
-        "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4"
-      ],
-      "source_sha256": "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4",
-      "text": "Installera ParaScape separat och starta och övervaka sedan dess skrivbordsprocess.",
-      "translation_source_blocks_sha256": [
-        "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeInstallDialog": {
-      "source_blocks_sha256": [
-        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
-        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
-        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
-        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
-        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
-      ],
-      "source_sha256": "48dc09ee572bea724b60f544538511af8ff8e2333a51ec031e5a6be2631657c5",
-      "text": "Förklara alfaprogrammet och nedladdningsstorleken före installationen i dess egen miljö.\n\n:param parent: organismsidan som äger dialogen.\n:param root: valfri rotmapp för externa program.\n:param job: valfri ersättning för installeraren vid tester.\nSkapa kontrollerna för samtycke och förlopp; ingenting installeras när dialogen öppnas.",
-      "translation_source_blocks_sha256": [
-        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
-        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
-        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
-        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
-        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeInstallDialog.closeEvent": {
-      "source_blocks_sha256": [
-        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
-        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ],
-      "source_sha256": "e66937bb1d1ebfe1c084eb179ac2f8a797143dcaa41f20f0693da972811f15c2",
-      "text": "Håll dialogen öppen tills dess installationstråd har stannat.\n\n:param event: Qt-stängningshändelse; ignoreras medan avbrottet väntar på att slutföras.\n:returns: None.",
-      "translation_source_blocks_sha256": [
-        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
-        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeInstallDialog.reject": {
-      "source_blocks_sha256": [
-        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
-      ],
-      "source_sha256": "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38",
-      "text": "Avbryt aktiva underprocesser och skjut upp stängningen tills bakgrundsarbetet har avslutats.",
-      "translation_source_blocks_sha256": [
-        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeInstallDialog.start": {
-      "source_blocks_sha256": [
-        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
-      ],
-      "source_sha256": "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400",
-      "text": "Starta installationen efter det uttryckliga knapptrycket och låt Qt fortsätta svara.",
-      "translation_source_blocks_sha256": [
-        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeUpdateCheckDialog": {
-      "source_blocks_sha256": [
-        "17474f21efe74ce8e27cd0c152705795f1ca4e356c9c7165dfedaf9157ad0906"
-      ],
-      "source_sha256": "0d336be016fad1f5419d9e7c885c5427d155c2a036a29e967cd11780c8da4ba5",
-      "text": "Kontrollera PyPI utanför GUI-tråden, så att en avbruten kontroll kan öppna den installerade appen. Förbered en automatisk, skrivskyddad uppdateringskontroll.",
-      "translation_source_blocks_sha256": [
-        "450cc032373b2a63cb949d6a6e788a5aca71fe48d5bfd4fe5cfdd52d226d5d71"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.__init__.check": {
-      "source_blocks_sha256": [
-        "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a"
-      ],
-      "source_sha256": "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a",
-      "text": "Sparar jämförelsen tills arbetarens finished-signal anländer.",
-      "translation_source_blocks_sha256": [
-        "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.closeEvent": {
-      "source_blocks_sha256": [
-        "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
-        "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ],
-      "source_sha256": "5fee03e6931b695099309777f5b01ba03fd9be5c01c08f2fa46135b47da0b9be",
-      "text": "Förhindra att en aktiv kontrolltråd förstörs.\n\n:param event: Qt-stängningshändelse; ignoreras medan kontrollen avbryts.\n:returns: None.",
-      "translation_source_blocks_sha256": [
-        "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
-        "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.reject": {
-      "source_blocks_sha256": [
-        "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda"
-      ],
-      "source_sha256": "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda",
-      "text": "Avbryt kontrollen och håll dialogen vid liv tills dess arbetare avslutas.",
-      "translation_source_blocks_sha256": [
-        "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda"
-      ]
-    },
-    "spacr.qt.parascape.open_parascape": {
-      "source_blocks_sha256": [
-        "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
-        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
-        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
-        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
-      ],
-      "source_sha256": "a181c665df9e5f0ef365a0e6222c9c83442ae146811bd5c009020bb2d62743df",
-      "text": "Sök efter uppdateringar vid varje öppning och erbjud pip-uppgraderingar före start.\n\n:param parent: organismsidan som begär starten.\n:param root: valfri mapp för externa program.\n:returns: barnprocess, eller None om starten avbröts eller misslyckades.",
-      "translation_source_blocks_sha256": [
-        "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
-        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
-        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
-        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
-      ]
-    },
-    "spacr.qt.parascape.open_parascape.check": {
-      "source_blocks_sha256": [
-        "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28"
-      ],
-      "source_sha256": "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28",
-      "text": "Tar hand om den frikopplade barnprocessen och visar fel utan att stänga ParaScape när spaCR avslutas.",
-      "translation_source_blocks_sha256": [
-        "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28"
       ]
     },
     "spacr.qt.startup_benchmark": {

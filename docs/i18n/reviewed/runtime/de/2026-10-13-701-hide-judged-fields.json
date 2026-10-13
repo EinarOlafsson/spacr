@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_scope": "Codex AI technical review; manually authored from the English and checked against the Item 701 behavior and catalog gates; no native-speaker or human signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Hide judged fields",
+      "source": "Hide judged fields",
+      "source_sha256": "ad671439720e0dea15f20b69ae0e9ff2dacf64f25bf55d6da0f7ca930faeec19",
+      "translation": "Bewertete Felder ausblenden"
+    },
+    {
+      "table": "ui",
+      "key": "Skip fields already marked Keep or Discard when moving with Previous and Next. Their verdicts stay in csv/keep_discard.csv.",
+      "source": "Skip fields already marked Keep or Discard when moving with Previous and Next. Their verdicts stay in csv/keep_discard.csv.",
+      "source_sha256": "b84b7d4ba3fc96ccec613f55bba74b2f66ca3e682e777be7cc32ccf086fef6e2",
+      "translation": "Beim Navigieren mit Zurück und Weiter Felder überspringen, die bereits mit Behalten oder Verwerfen markiert sind. Ihre Entscheidungen bleiben in csv/keep_discard.csv gespeichert."
+    },
+    {
+      "table": "ui",
+      "key": "Every field in this queue has Keep or Discard.",
+      "source": "Every field in this queue has Keep or Discard.",
+      "source_sha256": "47766c03a14c2f082f31da3fbe730080005021ab3cfbd24ea329986bcfcbd1e1",
+      "translation": "Jedes Feld in dieser Warteschlange ist mit Behalten oder Verwerfen markiert."
+    },
+    {
+      "table": "ui",
+      "key": "no unjudged fields are left in this queue",
+      "source": "no unjudged fields are left in this queue",
+      "source_sha256": "8fa16eaf77673d247bdcb47b4e18303ee78cc058411089b7f5df509d6f2448d5",
+      "translation": "in dieser Warteschlange sind keine unbewerteten Felder mehr vorhanden"
+    }
+  ]
+}

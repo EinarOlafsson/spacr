@@ -149,6 +149,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="print the session and the fields it would offer, in order, "
              "and exit. Needs no display, and works for every layout.")
     parser.add_argument(
+        "--exclude-verdicts", action="store_true",
+        help="also leave out fields that already have a Keep or Discard "
+             "verdict in <folder>/csv/keep_discard.csv, not only the done "
+             "and skip rows. The verdicts stay in the file. The editor "
+             "starts with its Hide judged fields switch on.")
+    parser.add_argument(
         "--compute-uncertainty", action="store_true",
         help="compute uncertainty for the selected pending fields, save their "
              "ranking and exit without opening Qt (alpha; CPU by default).")
@@ -286,17 +292,25 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return EXIT_USAGE
 
     try:
-        queue = build_queue(folder, order=args.order, limit=args.limit)
+        queue = build_queue(folder, order=args.order, limit=args.limit,
+                            exclude_verdicts=args.exclude_verdicts)
     except CurationQueueError as exc:
         print(str(exc), file=sys.stderr)
         return EXIT_USAGE
 
     print(queue.describe())
+    if queue.exclude_verdicts:
+        print(f"{queue.excluded_by_verdict} excluded by Keep/Discard verdict")
 
     if not queue.items:
-        print(f"nothing to open: every field in {queue.folder} already has a "
-              f"state in {queue.layout.status_path}. Delete a row from that "
-              f"file to offer its field again.")
+        if queue.excluded_by_verdict:
+            print(f"nothing to open: no pending fields without a Keep/Discard "
+                  f"verdict remain in {queue.folder}. Omit --exclude-verdicts "
+                  f"to include judged fields that have no done/skip state.")
+        else:
+            print(f"nothing to open: every field in {queue.folder} already has a "
+                  f"state in {queue.layout.status_path}. Delete a row from that "
+                  f"file to offer its field again.")
         return EXIT_OK
 
     if args.dry_run:

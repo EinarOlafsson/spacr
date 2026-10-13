@@ -417,6 +417,11 @@ class CurationQueue:
         to. Printed when the queue is built and shown by the editor with it,
         so that a changed ordering or a save outside the opened folder is
         reported.
+    :ivar exclude_verdicts: whether fields with a Keep or Discard verdict were
+        dropped from this session; the editor starts with its "Hide judged
+        fields" switch on when this is true.
+    :ivar excluded_by_verdict: number of otherwise waiting fields dropped
+        because they have a verdict. Zero unless ``exclude_verdicts`` is true.
     """
 
     layout: QueueLayout
@@ -427,6 +432,8 @@ class CurationQueue:
     limit: Optional[int]
     summary: QueueSummary
     notices: Tuple[str, ...] = ()
+    exclude_verdicts: bool = False
+    excluded_by_verdict: int = 0
 
     @property
     def folder(self) -> Path:
@@ -1362,13 +1369,52 @@ def order_items(items: Iterable[QueueItem], order: str = DEFAULT_ORDER,
                                                       min_diameter))
 
 
+_VERDICT_WORDS = frozenset({"true", "1", "yes", "keep",
+                           "false", "0", "no", "discard"})
+
+
+def _judged_stems(layout: QueueLayout) -> frozenset:
+    """Stems with a Keep or Discard verdict in ``csv/keep_discard.csv``.
+
+    The editor writes the file under the folder it has open, so both the
+    queue folder and its images folder are read (they differ in the
+    ``sibling`` layout). Rows are keyed by image path; a ``_seg.npy`` bundle
+    path is reduced to its field stem. A missing or unreadable file means no
+    verdicts.
+
+    :param layout: the detected layout.
+    :returns: the stems that were judged.
+    """
+    folders = {Path(layout.folder)}
+    if layout.images_dir is not None:
+        folders.add(Path(layout.images_dir))
+    judged = set()
+    for folder in sorted(folders):
+        try:
+            with open(folder / "csv" / "keep_discard.csv", "r",
+                      encoding="utf-8", newline="") as handle:
+                rows = {(row.get("image path") or "").strip(): row
+                        for row in csv.DictReader(handle)}
+        except (OSError, csv.Error, UnicodeDecodeError):
+            continue
+        for key, row in rows.items():
+            verdict = str(row.get("keep") or "").strip().lower()
+            if not key or verdict not in _VERDICT_WORDS:
+                continue
+            name = Path(key).name
+            judged.add(name[:-len(SEG_SUFFIX)] if name.endswith(SEG_SUFFIX)
+                       else Path(name).stem)
+    return frozenset(judged)
+
+
 def build_queue(folder: PathLike, order: str = DEFAULT_ORDER,
                 limit: Optional[int] = None, probs=None, counts=None,
                 announce: Optional[Callable[[str], None]] = None,
                 include_reviewed: bool = False,
                 min_objects: int = MIN_OBJECTS_FOR_VALUE,
                 min_diameter: float = MIN_DIAMETER_FOR_VALUE,
-                cache_counts: bool = True) -> CurationQueue:
+                cache_counts: bool = True,
+                exclude_verdicts: bool = False) -> CurationQueue:
     """Open a folder as a bounded curation session.
 
     In order: detect the layout, read the resume record, drop everything
@@ -1399,6 +1445,12 @@ def build_queue(folder: PathLike, order: str = DEFAULT_ORDER,
     :param min_objects: passed to :func:`value_key`.
     :param min_diameter: passed to :func:`value_key`.
     :param cache_counts: whether ``easy`` may write its count cache.
+    :param exclude_verdicts: also drop every field with a Keep or Discard
+        verdict in ``csv/keep_discard.csv`` (read from the queue folder and
+        from the folder the editor opens, which differ in the ``sibling``
+        layout), in addition to the done and skip rows. The verdicts stay in
+        the file; the number dropped is
+        :attr:`CurationQueue.excluded_by_verdict`.
     :returns: the :class:`CurationQueue`.
     :raises LayoutError: when the folder is not one unambiguous layout.
     :raises StatusFileError: when the status file cannot be read.
@@ -1426,6 +1478,12 @@ def build_queue(folder: PathLike, order: str = DEFAULT_ORDER,
 
     waiting = (list(layout.items) if include_reviewed
                else pending_items(layout.items, status))
+    excluded = 0
+    if exclude_verdicts:
+        judged = _judged_stems(layout)
+        kept = [item for item in waiting if item.stem not in judged]
+        excluded = len(waiting) - len(kept)
+        waiting = kept
 
     probabilities: Optional[Mapping[str, float]] = None
     source: Optional[Path] = None
@@ -1493,4 +1551,6 @@ def build_queue(folder: PathLike, order: str = DEFAULT_ORDER,
 
     return CurationQueue(layout=layout, items=tuple(ordered), status=status,
                          order=order, effective_order=effective, limit=limit,
-                         summary=summary, notices=tuple(notices))
+                         summary=summary, notices=tuple(notices),
+                         exclude_verdicts=exclude_verdicts,
+                         excluded_by_verdict=excluded)

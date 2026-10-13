@@ -9675,6 +9675,8 @@ class MakeMasksScreen(QWidget):
     _comparison_delivered = Signal(object)
     _uncertainty_delivered = Signal(object)
 
+    _hide_judged = False
+
     def __init__(self, parent: Optional[QWidget] = None):
         """Build the editor, its canvas and its tool panel.
 
@@ -9682,8 +9684,10 @@ class MakeMasksScreen(QWidget):
         """
         super().__init__(parent)
         self._folder: str = ""
+        self._hide_judged_folder: str = ""
         self._image_files: List[str] = []
         self._field_folders: Optional[List[str]] = None
+        self._verdict_cache: dict = {}
         #: The terminal-built session this screen is working through, or
         #: ``None`` when the folder was opened from the file dialog. Set by
         #: :meth:`open_queue`; what makes a save reach
@@ -9809,7 +9813,10 @@ class MakeMasksScreen(QWidget):
         self._queue = None
         self._session_notice = ""
         self._masks_dir, self._folder = sibling, folder
+        self._hide_judged_folder = folder
         self._image_files, self._field_folders, self._current_index = [source.name], None, 0
+        self._verdict_cache.clear()
+        self._restore_hide_judged()
         self._src_label.setText(str(source))
         self._enter_volume(session)
         return self._mask_stage
@@ -9954,6 +9961,11 @@ class MakeMasksScreen(QWidget):
         if not self._open_folder(folder, files=files, masks_dir=masks_dir):
             return False
         self._queue = queue
+        if (getattr(queue, "exclude_verdicts", False)
+                and not self._btn_hide_judged.isChecked()):
+            self._btn_hide_judged.setChecked(True)
+        elif self._hide_judged:
+            self._on_hide_judged_toggled(True)
         self._sync_button_states()
         notices = tuple(getattr(queue, "notices", ()) or ())
         self._src_label.setText(
@@ -10232,6 +10244,18 @@ class MakeMasksScreen(QWidget):
         self._btn_first_unreviewed.clicked.connect(self._on_first_unreviewed)
         curate_row.insertWidget(curate_row.indexOf(self._btn_clear),
                                 self._btn_first_unreviewed)
+
+        self._btn_hide_judged = QPushButton(tr("Hide judged fields"))
+        self._btn_hide_judged.setObjectName("MakeMasksHideJudged")
+        self._btn_hide_judged.setCheckable(True)
+        self._btn_hide_judged.setCursor(Qt.PointingHandCursor)
+        self._btn_hide_judged.setToolTip(tr(
+            "Skip fields already marked Keep or Discard when moving with "
+            "Previous and Next. Their verdicts stay in csv/keep_discard.csv."))
+        self._btn_hide_judged.toggled.connect(self._on_hide_judged_toggled)
+        curate_row.insertWidget(
+            curate_row.indexOf(self._btn_first_unreviewed),
+            self._btn_hide_judged)
 
         self._btn_discard = QPushButton(tr("Discard"))
         self._btn_discard.setIcon(iconset.icon("trash"))
@@ -12194,6 +12218,8 @@ class MakeMasksScreen(QWidget):
         :param judged: the basename of the field the verdict was about.
         :returns: whether the screen moved to another field.
         """
+        from ..i18n import tr
+
         said = "kept" if keep else "discarded — nothing was deleted"
         was = self._current_index
         self._on_next()
@@ -12202,12 +12228,18 @@ class MakeMasksScreen(QWidget):
             now = self._blind_label(os.path.join(
                 self._folder or "", self._image_files[self._current_index]))
             self._status_label.setText(f"{judged} {said}  —  now on {now}")
+        elif (self._hide_judged and self._image_files
+              and not self._visible_indices()):
+            self._status_label.setText(
+                f"{judged} {said}  —  " + tr(
+                    "no unjudged fields are left in this queue"))
         elif (self._image_files
                 and self._current_index >= len(self._image_files) - 1):
             self._status_label.setText(
                 f"{judged} {said}  —  that was the last field in this folder")
         else:
             self._status_label.setText(f"{judged} {said}")
+        self._sync_queue_tally()
         return moved
 
     def _show_curation_verdict(self, verdict):
@@ -14262,6 +14294,11 @@ class MakeMasksScreen(QWidget):
             return
         total = len(self._image_files or [])
         current = (min(self._current_index, total - 1) + 1) if total else 0
+        if total and self._hide_judged:
+            shown = self._visible_indices()
+            total = len(shown)
+            current = (shown.index(self._current_index) + 1
+                       if self._current_index in shown else 0)
         index_edit.setText(str(current))
         index_edit.setEnabled(total > 0)
         self._tally_total.setText(f"/{total}")
@@ -14276,7 +14313,8 @@ class MakeMasksScreen(QWidget):
         """
         from ..i18n import tr
 
-        total = len(self._image_files or [])
+        shown = self._visible_indices()
+        total = len(shown)
         text = self._tally_index.text().strip()
         try:
             wanted = int(text)
@@ -14288,7 +14326,126 @@ class MakeMasksScreen(QWidget):
                 "Type a number from 1 to {total} to open that image.",
                 total=total) if total else tr("There are no images in the queue."))
             return False
-        return self._go_to_index(wanted - 1)
+        return self._go_to_index(shown[wanted - 1])
+
+    def _judged_flags(self) -> list:
+        """Whether each open field has a Keep or Discard verdict.
+
+        Cached rows are refreshed when the verdict file changes, so earlier
+        sessions and newly saved decisions both count. Sibling sessions also
+        read the queue root, matching the terminal filter.
+
+        :returns: one bool per open field, in queue order.
+        """
+        cache = getattr(self, "_verdict_cache", {})
+        self._verdict_cache = cache
+        folders = {folder or "" for folder, _name in self._field_pairs()}
+        queue = getattr(self, "_queue", None)
+        root = str(queue.folder) if queue is not None else None
+        if root is not None:
+            folders.add(root)
+        rows_by_folder = {}
+        for folder in folders:
+            try:
+                stat = os.stat(engine.curation_csv_path(folder))
+                stamp = (stat.st_mtime_ns, stat.st_ctime_ns, stat.st_size,
+                         stat.st_ino)
+            except OSError:
+                stamp = None
+            if folder not in cache or cache[folder][0] != stamp:
+                cache[folder] = (stamp, engine.read_curation(folder))
+            rows_by_folder[folder] = cache[folder][1]
+        queue_stems = {
+            engine.field_stem(os.path.basename(path))
+            for rows in rows_by_folder.values() if queue is not None
+            for path, row in rows.items()
+            if engine._row_verdict(row) is not None
+        }
+        flags = []
+        for folder, name in self._field_pairs():
+            row = rows_by_folder[folder or ""].get(
+                os.path.join(folder or "", name))
+            flags.append(engine._row_verdict(row) is not None
+                         or engine.field_stem(name) in queue_stems)
+        return flags
+
+    def _visible_indices(self) -> list:
+        """Zero-based indices of the fields Previous, Next and the counter use.
+
+        :returns: every index, or only the unjudged ones while Hide judged
+            fields is on.
+        """
+        count = len(self._image_files or [])
+        if not self._hide_judged:
+            return list(range(count))
+        flags = self._judged_flags()
+        return [i for i in range(count) if not flags[i]]
+
+    def _step_target(self, step: int):
+        """The field Previous (-1) or Next (+1) would open, or None.
+
+        :param step: -1 or +1.
+        :returns: the index, or None at the end of the queue; while Hide
+            judged fields is on, judged fields are passed over.
+        """
+        if not self._image_files:
+            return None
+        flags = self._judged_flags() if self._hide_judged else None
+        index = self._current_index + step
+        while 0 <= index < len(self._image_files):
+            if flags is None or not flags[index]:
+                return index
+            index += step
+        return None
+
+    def _hide_judged_key(self) -> str:
+        """The settings key that remembers the switch for the open folder."""
+        folder = self._hide_judged_folder or self._folder
+        return "make_masks/hide_judged/" + os.path.abspath(folder or "")
+
+    def _on_hide_judged_toggled(self, enabled: bool) -> None:
+        """Apply and remember the Hide judged fields switch for this folder.
+
+        :param enabled: whether judged fields are now skipped.
+        """
+        from ..i18n import tr
+        from ..prefs import _s
+
+        key = self._hide_judged_key()
+        self._hide_judged = bool(enabled)
+        shown = self._visible_indices()
+        if enabled and shown and self._current_index not in shown:
+            target = next((i for i in shown if i > self._current_index), shown[0])
+            if (not self._go_to_index(target)
+                    and self._current_index not in self._visible_indices()):
+                self._hide_judged = False
+                enabled = False
+                blocked = self._btn_hide_judged.blockSignals(True)
+                self._btn_hide_judged.setChecked(False)
+                self._btn_hide_judged.blockSignals(blocked)
+        if self._folder:
+            try:
+                _s().setValue(key, bool(enabled))
+            except Exception:
+                LOG.debug("could not remember Hide judged fields",
+                          exc_info=True)
+        self._sync_queue_tally()
+        if enabled and self._image_files and not self._visible_indices():
+            self._status_label.setText(tr(
+                "Every field in this queue has Keep or Discard."))
+
+    def _restore_hide_judged(self) -> None:
+        """Set the switch from what was remembered for the folder just opened."""
+        from ..prefs import _s
+
+        try:
+            on = bool(_s().value(self._hide_judged_key(), False, type=bool))
+        except Exception:
+            on = False
+        blocked = self._btn_hide_judged.blockSignals(True)
+        self._btn_hide_judged.setChecked(on)
+        self._btn_hide_judged.blockSignals(blocked)
+        self._hide_judged = on
 
     def _go_to_index(self, index: int) -> bool:
         """Open the field at zero-based ``index``, leaving this one properly.
@@ -18222,10 +18379,13 @@ class MakeMasksScreen(QWidget):
         self._session_notice = ""
         self._masks_dir = masks_dir
         self._folder = folder
+        self._hide_judged_folder = folder
         self._image_files = files
         self._field_folders = (list(field_folders)
                                if field_folders is not None else None)
+        self._verdict_cache.clear()
         self._current_index = 0
+        self._restore_hide_judged()
         self._src_label.setText(f"{folder}  —  {len(files)} images")
         self._load_current()
         self._sync_button_states()
@@ -18248,6 +18408,12 @@ class MakeMasksScreen(QWidget):
                         self._folder = folder
                         break
             return
+        if self._hide_judged:
+            shown = self._visible_indices()
+            if shown and self._current_index not in shown:
+                self._current_index = next(
+                    (i for i in shown if i > self._current_index), shown[0])
+                self._sync_queue_tally()
         if self._field_folders:
             self._folder = self._field_folders[self._current_index]
         self._primary_selector.clear_field()
@@ -18681,9 +18847,10 @@ class MakeMasksScreen(QWidget):
         if not self._save_mask_if_needed() or not self._save_boxes_if_needed():
             return
         self.finish_recrop()
-        if not self._image_files or self._current_index <= 0:
+        target = self._step_target(-1)
+        if target is None:
             return
-        self._current_index -= 1
+        self._current_index = target
         self._load_current()
 
     def _on_next(self):
@@ -18698,9 +18865,10 @@ class MakeMasksScreen(QWidget):
             return
         if self.finish_recrop():
             return
-        if not self._image_files or self._current_index >= len(self._image_files) - 1:
+        target = self._step_target(1)
+        if target is None:
             return
-        self._current_index += 1
+        self._current_index = target
         self._load_current()
 
     def _save_would_change_nothing(self) -> bool:
@@ -19082,6 +19250,7 @@ class MakeMasksScreen(QWidget):
         has_files = bool(self._image_files)
         editable = has_files and not self._loading
         for b in (self._btn_prev, self._btn_next, self._btn_save,
+                   self._btn_hide_judged,
                    self._box_class_combo, self._btn_add_box_class, self._btn_export_yolo,
                    self._btn_save_boxes,
                    self._btn_discard, self._btn_keep,

@@ -18844,10 +18844,12 @@
         "10d60f9890a49a731fca8f4cdb02bab859863aac138af76ff4cba1468455fcd8",
         "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
         "52d33d48889afa9defeb0b08c4842593e8d117deb6398c9305bd1dc9c5b9bcd7",
-        "5bf8b2e629fcf990f4f8ab77ca916446037e5df0994b37f65fe62f7b0963de67"
+        "5bf8b2e629fcf990f4f8ab77ca916446037e5df0994b37f65fe62f7b0963de67",
+        "44df9019b5f23bd7c3b5cef304ad7a37dd097317564db6141072e235557963ab",
+        "f8e67164688a83f341c0cf77518305adfd5a6112a07e99cc0a7b5859c7b75cd3"
       ],
-      "source_sha256": "562e1dc09ac09d15663a7270e942e42388d7df4d21bdb7a9c86f1ddfc6b142f6",
-      "text": "एक सीमित उपचार सत्र एक फ़ोल्डर पर काम करता है।\n\n:ivar layout: क्या पाया गया, और कहां।\n:ivar items: इस सत्र की पेशकश करने के लिए फ़ील्ड - अनदेखा, ऑर्डर, और ``limit`` के लिए कटौती।\n:ivar status: प्रत्येक स्थिति पंक्ति पढ़ें, जिसमें इस फ़ोल्डर में नहीं हैं कि धाराओं के बारे में पंक्तियां शामिल हैं।\n:ivar order: जिस आदेश की मांग की गई थी।\n:ivar effective_order: आदेश वास्तव में उपयोग किया गया है, जो ``order`` से अलग है जब ``prob``, ``easy`` या ``uncertain`` स्कोर की इच्छा के लिए ``value`` पर वापस गिर गया।\n:ivar limit: जिस कवर को लागू किया गया था, या ``None``।\n:ivar summary: पूरे फ़ोल्डर पर गिनती करें, इस सत्र के दौरान नहीं।\n:ivar notices: पहले फ़ील्ड से पहले क्यूरेटर के लिए चेतावनी - कोई स्कोर के साथ एक ``prob``, ``easy`` या ``uncertain`` आदेश, या फ़ीडों के साथ स्कोर्स नाम नहीं है, और एक पुनरावृत्ति रिकॉर्ड जो फ़ोल्डर के बगल में बाहरी टूल फ़ाइल है, जिसके लिए प्रत्येक सहेज फिर लिखता है।",
+      "source_sha256": "f8b3e3cbe9107856730d16dc24af73ca9b30480d4a19a3429322097102a03dc1",
+      "text": "एक सीमित उपचार सत्र एक फ़ोल्डर पर काम करता है।\n\n:ivar layout: क्या पाया गया, और कहां।\n:ivar items: इस सत्र की पेशकश करने के लिए फ़ील्ड - अनदेखा, ऑर्डर, और ``limit`` के लिए कटौती।\n:ivar status: प्रत्येक स्थिति पंक्ति पढ़ें, जिसमें इस फ़ोल्डर में नहीं हैं कि धाराओं के बारे में पंक्तियां शामिल हैं।\n:ivar order: जिस आदेश की मांग की गई थी।\n:ivar effective_order: आदेश वास्तव में उपयोग किया गया है, जो ``order`` से अलग है जब ``prob``, ``easy`` या ``uncertain`` स्कोर की इच्छा के लिए ``value`` पर वापस गिर गया।\n:ivar limit: जिस कवर को लागू किया गया था, या ``None``।\n:ivar summary: पूरे फ़ोल्डर पर गिनती करें, इस सत्र के दौरान नहीं।\n:ivar notices: पहले फ़ील्ड से पहले क्यूरेटर के लिए चेतावनी - कोई स्कोर के साथ एक ``prob``, ``easy`` या ``uncertain`` आदेश, या फ़ीडों के साथ स्कोर्स नाम नहीं है, और एक पुनरावृत्ति रिकॉर्ड जो फ़ोल्डर के बगल में बाहरी टूल फ़ाइल है, जिसके लिए प्रत्येक सहेज फिर लिखता है।\n:ivar exclude_verdicts: यह बताता है कि «रखें» या «त्यागें» का निर्णय वाले फ़ील्ड इस सत्र से बाहर किए गए थे या नहीं; यदि यह मान सत्य है, तो संपादक \"Hide judged fields\" (निर्णय किए गए फ़ील्ड छिपाएँ) स्विच चालू रखकर शुरू होता है।\n:ivar excluded_by_verdict: उन फ़ील्डों की संख्या जो अन्यथा प्रतीक्षारत रहते, लेकिन निर्णय दर्ज होने के कारण बाहर किए गए। यदि ``exclude_verdicts`` सत्य नहीं है, तो यह संख्या शून्य होती है।",
       "translation_source_blocks_sha256": [
         "6de6562e33da3a5a6c9405e681328eedc1bb5863a7942f0e81a09949730773d7",
         "d7a6fbccff58184ffb0d14afa9bb42d8a8ec6c3f9e691edffb95876fc18e2903",
@@ -18857,7 +18859,9 @@
         "10d60f9890a49a731fca8f4cdb02bab859863aac138af76ff4cba1468455fcd8",
         "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
         "52d33d48889afa9defeb0b08c4842593e8d117deb6398c9305bd1dc9c5b9bcd7",
-        "f152ed4195d10d8a6269bb843be1435d7d2a9a30ae349d26dc78d313e68133ba"
+        "f152ed4195d10d8a6269bb843be1435d7d2a9a30ae349d26dc78d313e68133ba",
+        "44df9019b5f23bd7c3b5cef304ad7a37dd097317564db6141072e235557963ab",
+        "f8e67164688a83f341c0cf77518305adfd5a6112a07e99cc0a7b5859c7b75cd3"
       ]
     },
     "spacr.curation_queue.CurationQueue.all_items": {
@@ -19095,13 +19099,14 @@
         "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
         "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
         "54ffa1d4352b9cbbbf9ecf0947f15ba1772c131fa5006ce85867e696cfe49bd1",
+        "d1bab61c89e908c9ed74cb1695b623f843f78494ba2286c7847c9f2ada292280",
         "502228ee1665d0c9a5f570549ea7b0976e0e63a18874864e305e70bd5b28340d",
         "8f8619826d34f9c5382980339591d4fb4723096fd3c8648d434c07fe0468cc64",
         "dd06d217c0a848fb1104bebf103d8947f50c4e70bccf85482e74decff398a3ff",
         "d3f8e8e2ef6e22fed100bec035e600c05ed61562197fb1731038c10b761e37d9"
       ],
-      "source_sha256": "6040f6e345510a316be7cb2979328f9294415458493d0294c882eb2b517a6a82",
-      "text": "एक फ़ोल्डर को एक सीमित चिकित्सीय सत्र के रूप में खोलें।\n\nक्रम में: लेआउट का पता लगाएं, पुनरावृत्ति रिकॉर्ड पढ़ें, पहले से ही समीक्षा की गई सभी चीजों को फेंक दें, जो कुछ छोड़ दिया गया है उसे आदेश दें, और केवल फिर सीमा लागू करें - इसलिए ``--limit 20`` ऑर्डर किए गए लंबे समय तक सूची के पहले बीस फ़ील्ड का मतलब है, पहली बीस खोजे गए नहीं।\n\nसंभावनाएं केवल उन आदेशों के लिए पढ़ी जाती हैं जो उनका उपयोग करते हैं, इसलिए ``name`` और ``value`` कोई स्कोर फ़ाइल बिल्कुल नहीं पढ़ता है; ``uncertain`` इसके बजाय ``curate_uncertainty.csv`` पढ़ जाता है. ``prob`` और``easy`` के लिए एक अनुपस्थित स्कोर्स फ़ाइलें रिपोर्ट की जाती हैं: यह दोनों स्थानों को नामित एक नोट के साथ ``value`` में वापस गिरती है; एक स्कोरि फ़ाई जो कुछ प्रतीक्षा फ़ील्डों को अनगिनत छोड़ देती है वह कितना कहती है. और जहां स्कोरी आती है, यह प्रिंट की जाती है. ये चेतावनी, और जो कहता है कि प्रगति को फ़ोल्डर के बगल में बाहरी टूल के रिकॉर्ड में लिखित किया जा रहा है, कार्य सूची में :attr:`CurationQueue.notices` के रूप में रखा जाता है।\n\n:param folder: कतार फ़ोल्डर।\n:param order: एक :data:`ORDERS`; :data:`DEFAULT_ORDER` डिफ़ॉल्ट रूप से।\n:param limit: इस सत्र में कितने फ़ील्ड प्रदान किए जाते हैं, या सभी के लिए ``None``।\n:param probs: संभावनाओं का उपयोग करने के बजाय पढ़ने ``curate_scores.csv``।\n:param counts: डिजाइनों को पढ़ने के बजाय उपयोग करने के लिए गिनती।\n:param announce: जहां नोट्स जाते हैं; डिफ़ॉल्ट :func:`print` के लिए।\n:param include_reviewed: डिफ़ॉल्ट रूप से बंद करें; यही \"resume\" का मतलब है।\n:param min_objects: इसे :func:`value_key` में स्थानांतरित किया गया है।\n:param min_diameter: इसे :func:`value_key` में स्थानांतरित किया गया है।\n:param cache_counts: क्या ``easy`` अपनी गिनती कैश लिख सकता है।\n:returns: :class:`CurationQueue` के बारे में।\n:raises LayoutError: जब फ़ोल्डर एक असंगत लेआउट नहीं है।\n:raises StatusFileError: जब स्थिति फ़ाइल को पढ़ा नहीं जा सकता है।\n:raises ValueError: जब ``order`` :data:`ORDERS` में से एक नहीं है, या ``limit`` नकारात्मक है।",
+      "source_sha256": "a7b2a7ca1a9cd2d740535b45bdaed08caff7cd6d31d5ee6c161a6e6109efb6d4",
+      "text": "एक फ़ोल्डर को एक सीमित चिकित्सीय सत्र के रूप में खोलें।\n\nक्रम में: लेआउट का पता लगाएं, पुनरावृत्ति रिकॉर्ड पढ़ें, पहले से ही समीक्षा की गई सभी चीजों को फेंक दें, जो कुछ छोड़ दिया गया है उसे आदेश दें, और केवल फिर सीमा लागू करें - इसलिए ``--limit 20`` ऑर्डर किए गए लंबे समय तक सूची के पहले बीस फ़ील्ड का मतलब है, पहली बीस खोजे गए नहीं।\n\nसंभावनाएं केवल उन आदेशों के लिए पढ़ी जाती हैं जो उनका उपयोग करते हैं, इसलिए ``name`` और ``value`` कोई स्कोर फ़ाइल बिल्कुल नहीं पढ़ता है; ``uncertain`` इसके बजाय ``curate_uncertainty.csv`` पढ़ जाता है. ``prob`` और``easy`` के लिए एक अनुपस्थित स्कोर्स फ़ाइलें रिपोर्ट की जाती हैं: यह दोनों स्थानों को नामित एक नोट के साथ ``value`` में वापस गिरती है; एक स्कोरि फ़ाई जो कुछ प्रतीक्षा फ़ील्डों को अनगिनत छोड़ देती है वह कितना कहती है. और जहां स्कोरी आती है, यह प्रिंट की जाती है. ये चेतावनी, और जो कहता है कि प्रगति को फ़ोल्डर के बगल में बाहरी टूल के रिकॉर्ड में लिखित किया जा रहा है, कार्य सूची में :attr:`CurationQueue.notices` के रूप में रखा जाता है।\n\n:param folder: कतार फ़ोल्डर।\n:param order: एक :data:`ORDERS`; :data:`DEFAULT_ORDER` डिफ़ॉल्ट रूप से।\n:param limit: इस सत्र में कितने फ़ील्ड प्रदान किए जाते हैं, या सभी के लिए ``None``।\n:param probs: संभावनाओं का उपयोग करने के बजाय पढ़ने ``curate_scores.csv``।\n:param counts: डिजाइनों को पढ़ने के बजाय उपयोग करने के लिए गिनती।\n:param announce: जहां नोट्स जाते हैं; डिफ़ॉल्ट :func:`print` के लिए।\n:param include_reviewed: डिफ़ॉल्ट रूप से बंद करें; यही \"resume\" का मतलब है।\n:param min_objects: इसे :func:`value_key` में स्थानांतरित किया गया है।\n:param min_diameter: इसे :func:`value_key` में स्थानांतरित किया गया है।\n:param cache_counts: क्या ``easy`` अपनी गिनती कैश लिख सकता है।\n:param exclude_verdicts: done और skip वाली पंक्तियों के अलावा, उन सभी फ़ील्डों को भी बाहर करें जिनके लिए ``csv/keep_discard.csv`` में «रखें» या «त्यागें» का निर्णय दर्ज है (इसे कतार वाले फ़ोल्डर और संपादक द्वारा खोले जाने वाले फ़ोल्डर, दोनों से पढ़ा जाता है; ``sibling`` संरचना में ये अलग-अलग फ़ोल्डर होते हैं)। निर्णय फ़ाइल में बने रहते हैं; बाहर किए गए फ़ील्डों की संख्या :attr:`CurationQueue.excluded_by_verdict` में होती है।\n:returns: :class:`CurationQueue` के बारे में।\n:raises LayoutError: जब फ़ोल्डर एक असंगत लेआउट नहीं है।\n:raises StatusFileError: जब स्थिति फ़ाइल को पढ़ा नहीं जा सकता है।\n:raises ValueError: जब ``order`` :data:`ORDERS` में से एक नहीं है, या ``limit`` नकारात्मक है।",
       "translation_source_blocks_sha256": [
         "58704094b56d37a66694a6c39540ed35a2848b1266cb234ce5fe0869a7bf7887",
         "887fe6ff2f78b9ff24bcd5bf75e2b1d57b97e30241f3cd3b0a723e5eacf10960",
@@ -19116,6 +19121,7 @@
         "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
         "3e035e3876a4c565e351a5578c04273993904733fed50746e1b99d7a661ffcf2",
         "54ffa1d4352b9cbbbf9ecf0947f15ba1772c131fa5006ce85867e696cfe49bd1",
+        "dea88ad53316300495cd7280f87e486748b8b55da39c9ac3535d7b5ff3029b5c",
         "502228ee1665d0c9a5f570549ea7b0976e0e63a18874864e305e70bd5b28340d",
         "8f8619826d34f9c5382980339591d4fb4723096fd3c8648d434c07fe0468cc64",
         "dd06d217c0a848fb1104bebf103d8947f50c4e70bccf85482e74decff398a3ff",
@@ -88316,6 +88322,138 @@
         "90e1ef51ed51f1127c0a7526fb8b561d3a2a13917257a10816f121ee9b87b0e1"
       ]
     },
+    "spacr.qt.parascape": {
+      "source_blocks_sha256": [
+        "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4"
+      ],
+      "source_sha256": "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4",
+      "text": "ParaScape को अलग स्थापित करें, फिर उसकी डेस्कटॉप प्रक्रिया शुरू करें और निगरानी करें।",
+      "translation_source_blocks_sha256": [
+        "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeInstallDialog": {
+      "source_blocks_sha256": [
+        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
+        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
+        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
+        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
+        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
+      ],
+      "source_sha256": "48dc09ee572bea724b60f544538511af8ff8e2333a51ec031e5a6be2631657c5",
+      "text": "अपने अलग परिवेश में स्थापना से पहले अल्फ़ा अनुप्रयोग और डाउनलोड के आकार को समझाएँ।\n\n:param parent: वह जीव-पृष्ठ जिसके अंतर्गत यह संवाद आता है।\n:param root: बाहरी अनुप्रयोगों की वैकल्पिक मूल निर्देशिका।\n:param job: परीक्षणों के लिए इंस्टॉलर का वैकल्पिक प्रतिस्थापन।\nसहमति और प्रगति नियंत्रण बनाएँ; संवाद खोलने से कुछ भी स्थापित नहीं होता।",
+      "translation_source_blocks_sha256": [
+        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
+        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
+        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
+        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
+        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeInstallDialog.closeEvent": {
+      "source_blocks_sha256": [
+        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
+        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "e66937bb1d1ebfe1c084eb179ac2f8a797143dcaa41f20f0693da972811f15c2",
+      "text": "इंस्टॉलर थ्रेड रुकने तक संवाद खुला रखें।\n\n:param event: Qt बंद करने की घटना; रद्दीकरण लंबित रहने तक अनदेखी की जाती है।\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
+        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeInstallDialog.reject": {
+      "source_blocks_sha256": [
+        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
+      ],
+      "source_sha256": "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38",
+      "text": "सक्रिय उपप्रक्रियाएँ रद्द करें और कार्यकर्ता के समाप्त होने तक बंद करना टालें।",
+      "translation_source_blocks_sha256": [
+        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeInstallDialog.start": {
+      "source_blocks_sha256": [
+        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
+      ],
+      "source_sha256": "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400",
+      "text": "बटन स्पष्ट रूप से दबाए जाने के बाद स्थापना शुरू करें और Qt को प्रतिक्रियाशील रखें।",
+      "translation_source_blocks_sha256": [
+        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog": {
+      "source_blocks_sha256": [
+        "17474f21efe74ce8e27cd0c152705795f1ca4e356c9c7165dfedaf9157ad0906"
+      ],
+      "source_sha256": "0d336be016fad1f5419d9e7c885c5427d155c2a036a29e967cd11780c8da4ba5",
+      "text": "GUI थ्रेड से बाहर PyPI जाँचें, रद्द की गई जाँच को इंस्टॉल किया गया ऐप खोलने देते हुए। एक स्वचालित, केवल-पठन अपडेट जाँच तैयार करें।",
+      "translation_source_blocks_sha256": [
+        "450cc032373b2a63cb949d6a6e788a5aca71fe48d5bfd4fe5cfdd52d226d5d71"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.__init__.check": {
+      "source_blocks_sha256": [
+        "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a"
+      ],
+      "source_sha256": "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a",
+      "text": "वर्कर का finished सिग्नल आने तक तुलना को सहेजे रखता है।",
+      "translation_source_blocks_sha256": [
+        "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.closeEvent": {
+      "source_blocks_sha256": [
+        "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
+        "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ],
+      "source_sha256": "5fee03e6931b695099309777f5b01ba03fd9be5c01c08f2fa46135b47da0b9be",
+      "text": "सक्रिय जाँच थ्रेड के नष्ट होने से रोकें।\n\n:param event: Qt क्लोज़ इवेंट; जाँच रद्द होते समय अनदेखा किया जाता है।\n:returns: None.",
+      "translation_source_blocks_sha256": [
+        "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
+        "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
+        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
+      ]
+    },
+    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.reject": {
+      "source_blocks_sha256": [
+        "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda"
+      ],
+      "source_sha256": "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda",
+      "text": "जाँच रद्द करें और डायलॉग को उसके वर्कर के बाहर निकलने तक जीवित रखें।",
+      "translation_source_blocks_sha256": [
+        "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda"
+      ]
+    },
+    "spacr.qt.parascape.open_parascape": {
+      "source_blocks_sha256": [
+        "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
+        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
+        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
+        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
+      ],
+      "source_sha256": "a181c665df9e5f0ef365a0e6222c9c83442ae146811bd5c009020bb2d62743df",
+      "text": "हर बार खोलने पर अपडेट जाँचें और लॉन्च से पहले pip अपग्रेड की पेशकश करें।\n\n:param parent: आरंभ करने का अनुरोध करने वाला जीव-पृष्ठ।\n:param root: बाहरी अनुप्रयोगों का वैकल्पिक फ़ोल्डर।\n:returns: उपप्रक्रिया, या रद्द होने अथवा आरंभ विफल होने पर None।",
+      "translation_source_blocks_sha256": [
+        "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
+        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
+        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
+        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
+      ]
+    },
+    "spacr.qt.parascape.open_parascape.check": {
+      "source_blocks_sha256": [
+        "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28"
+      ],
+      "source_sha256": "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28",
+      "text": "अलग किए गए चाइल्ड प्रोसेस को समेटता है और spaCR से बाहर निकलने पर ParaScape को बंद किए बिना विफलताएँ दिखाता है।",
+      "translation_source_blocks_sha256": [
+        "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28"
+      ]
+    },
     "spacr.qt.path_probe": {
       "source_blocks_sha256": [
         "669a38da76908fd22ccd0b0841f77108116f5ff07b40aaeeeaed58bdcf584fb5",
@@ -118556,138 +118694,6 @@
       "text": "वॉचर चलाता है, और बाहर निकलते समय जो कुछ लंबित है उसका सारांश बनाता है।",
       "translation_source_blocks_sha256": [
         "abcbc5bd9305ad77f63e4d737da75d57f01f8f75209876132dea6fceec277b4c"
-      ]
-    },
-    "spacr.qt.parascape": {
-      "source_blocks_sha256": [
-        "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4"
-      ],
-      "source_sha256": "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4",
-      "text": "ParaScape को अलग स्थापित करें, फिर उसकी डेस्कटॉप प्रक्रिया शुरू करें और निगरानी करें।",
-      "translation_source_blocks_sha256": [
-        "8453f554beac0496deaa593f0c56c4f5b4efc1e6319b74d651b129f1ee4cc3d4"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeInstallDialog": {
-      "source_blocks_sha256": [
-        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
-        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
-        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
-        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
-        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
-      ],
-      "source_sha256": "48dc09ee572bea724b60f544538511af8ff8e2333a51ec031e5a6be2631657c5",
-      "text": "अपने अलग परिवेश में स्थापना से पहले अल्फ़ा अनुप्रयोग और डाउनलोड के आकार को समझाएँ।\n\n:param parent: वह जीव-पृष्ठ जिसके अंतर्गत यह संवाद आता है।\n:param root: बाहरी अनुप्रयोगों की वैकल्पिक मूल निर्देशिका।\n:param job: परीक्षणों के लिए इंस्टॉलर का वैकल्पिक प्रतिस्थापन।\nसहमति और प्रगति नियंत्रण बनाएँ; संवाद खोलने से कुछ भी स्थापित नहीं होता।",
-      "translation_source_blocks_sha256": [
-        "fa7c82398a78f2e5a52cad19c9b3514e18355ba67ad419431375252ef0c9d901",
-        "6937d0914948bb88793b7c7d01c752c215186aa101f82790d329767df92e9a89",
-        "e5f38b79cde58dc643a1c6475afc3a03bb7598c303444d51ea1e1752fd4ed995",
-        "6b506395f4c4797ecaa890057d8293596b77fa272b67a244f21eb0cc63449153",
-        "1418ad3e04a39fb142727b41a65a822c89f3412ec38d5e2ebf1fe4b3fac00bb3"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeInstallDialog.closeEvent": {
-      "source_blocks_sha256": [
-        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
-        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ],
-      "source_sha256": "e66937bb1d1ebfe1c084eb179ac2f8a797143dcaa41f20f0693da972811f15c2",
-      "text": "इंस्टॉलर थ्रेड रुकने तक संवाद खुला रखें।\n\n:param event: Qt बंद करने की घटना; रद्दीकरण लंबित रहने तक अनदेखी की जाती है।\n:returns: None.",
-      "translation_source_blocks_sha256": [
-        "a533455c9af9614e3ea95e0dabc8cd82246a876171c2c8d9836184caf7f69b67",
-        "06cf73a593bf7cb8971c7a134880134e39fbb0fd79aa42154453bb722d2a33fc",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeInstallDialog.reject": {
-      "source_blocks_sha256": [
-        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
-      ],
-      "source_sha256": "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38",
-      "text": "सक्रिय उपप्रक्रियाएँ रद्द करें और कार्यकर्ता के समाप्त होने तक बंद करना टालें।",
-      "translation_source_blocks_sha256": [
-        "e7b49562d6302ed2e1e0830cf288a7515eec1dbe3cc418fc8f9341ca48f6bb38"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeInstallDialog.start": {
-      "source_blocks_sha256": [
-        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
-      ],
-      "source_sha256": "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400",
-      "text": "बटन स्पष्ट रूप से दबाए जाने के बाद स्थापना शुरू करें और Qt को प्रतिक्रियाशील रखें।",
-      "translation_source_blocks_sha256": [
-        "87c45a09c0598f82fd2cd68e18e895ccbbdf36a09d2ee45eed6f711aba449400"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeUpdateCheckDialog": {
-      "source_blocks_sha256": [
-        "17474f21efe74ce8e27cd0c152705795f1ca4e356c9c7165dfedaf9157ad0906"
-      ],
-      "source_sha256": "0d336be016fad1f5419d9e7c885c5427d155c2a036a29e967cd11780c8da4ba5",
-      "text": "GUI थ्रेड से बाहर PyPI जाँचें, रद्द की गई जाँच को इंस्टॉल किया गया ऐप खोलने देते हुए। एक स्वचालित, केवल-पठन अपडेट जाँच तैयार करें।",
-      "translation_source_blocks_sha256": [
-        "450cc032373b2a63cb949d6a6e788a5aca71fe48d5bfd4fe5cfdd52d226d5d71"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.__init__.check": {
-      "source_blocks_sha256": [
-        "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a"
-      ],
-      "source_sha256": "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a",
-      "text": "वर्कर का finished सिग्नल आने तक तुलना को सहेजे रखता है।",
-      "translation_source_blocks_sha256": [
-        "3250cd81bc635b1302e7d70ade4d8ce5be745b4fae54ee135b0a66a2ef2ccb7a"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.closeEvent": {
-      "source_blocks_sha256": [
-        "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
-        "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ],
-      "source_sha256": "5fee03e6931b695099309777f5b01ba03fd9be5c01c08f2fa46135b47da0b9be",
-      "text": "सक्रिय जाँच थ्रेड के नष्ट होने से रोकें।\n\n:param event: Qt क्लोज़ इवेंट; जाँच रद्द होते समय अनदेखा किया जाता है।\n:returns: None.",
-      "translation_source_blocks_sha256": [
-        "ad4881eb6af01c2ce16cd7f85cefffd1af3f5882c06f9bc88d149ac9174a4da8",
-        "97e3f01d58e82b3d31c86bc05f50bf551ebf30210e9f475739c97fb2ed65942f",
-        "903ea500e7ccf842c1312b6c2f964e3e98ff146456cecec717e9a0e122bf735f"
-      ]
-    },
-    "spacr.qt.parascape.ParaScapeUpdateCheckDialog.reject": {
-      "source_blocks_sha256": [
-        "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda"
-      ],
-      "source_sha256": "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda",
-      "text": "जाँच रद्द करें और डायलॉग को उसके वर्कर के बाहर निकलने तक जीवित रखें।",
-      "translation_source_blocks_sha256": [
-        "ea6a20b887bc498626a91be8c0bb7f6bdb2120239fccf526a208276f67b5edda"
-      ]
-    },
-    "spacr.qt.parascape.open_parascape": {
-      "source_blocks_sha256": [
-        "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
-        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
-        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
-        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
-      ],
-      "source_sha256": "a181c665df9e5f0ef365a0e6222c9c83442ae146811bd5c009020bb2d62743df",
-      "text": "हर बार खोलने पर अपडेट जाँचें और लॉन्च से पहले pip अपग्रेड की पेशकश करें।\n\n:param parent: आरंभ करने का अनुरोध करने वाला जीव-पृष्ठ।\n:param root: बाहरी अनुप्रयोगों का वैकल्पिक फ़ोल्डर।\n:returns: उपप्रक्रिया, या रद्द होने अथवा आरंभ विफल होने पर None।",
-      "translation_source_blocks_sha256": [
-        "e415a919c5d7384e251376fb844eaf0c0d41bf20cf4730770996691161edd143",
-        "2fa2c692ac8c5cb994cecbbb949aa856b2d449d3875df57291ea71f8e5f35979",
-        "d66dd9ae668d47368aec4e95fcb4bc47622f9fa66c8ba47b1ffe9ef1a0385eb8",
-        "b40e5f02d577a4e112acfaf21084e4f040c59f4cd4889089cb42ceae89a59bc3"
-      ]
-    },
-    "spacr.qt.parascape.open_parascape.check": {
-      "source_blocks_sha256": [
-        "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28"
-      ],
-      "source_sha256": "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28",
-      "text": "अलग किए गए चाइल्ड प्रोसेस को समेटता है और spaCR से बाहर निकलने पर ParaScape को बंद किए बिना विफलताएँ दिखाता है।",
-      "translation_source_blocks_sha256": [
-        "3ddd71cd02c6052f511f3487da642bc99dfb85bb61d109d5af861dcbe5bfef28"
       ]
     },
     "spacr.qt.startup_benchmark": {

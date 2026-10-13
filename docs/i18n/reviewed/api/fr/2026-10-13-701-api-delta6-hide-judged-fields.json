@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review_kind": "Codex AI technical review; no human or native-speaker signoff",
+  "records": [
+    {
+      "label": "spacr.curation_queue.CurationQueue#9",
+      "source": "whether fields with a Keep or Discard verdict were dropped from this session; the editor starts with its \"Hide judged fields\" switch on when this is true.",
+      "source_sha256": "44df9019b5f23bd7c3b5cef304ad7a37dd097317564db6141072e235557963ab",
+      "context": "whether fields with a Keep or Discard verdict were dropped from this session; the editor starts with its \"Hide judged fields\" switch on when this is true.",
+      "translation": "indique si les champs ayant un verdict « Conserver » ou « Éliminer » ont été exclus de cette session ; lorsque cette valeur est vraie, l’éditeur démarre avec le bouton \"Hide judged fields\" (Masquer les champs évalués) activé.",
+      "review_basis": "Manually drafted directly from the current English by Codex and technically reviewed for exclusion semantics, UI labels, and RST/code preservation; canonical and contextual catalog gates pass. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.curation_queue.CurationQueue#10",
+      "source": "number of otherwise waiting fields dropped because they have a verdict. Zero unless ``exclude_verdicts`` is true.",
+      "source_sha256": "f8e67164688a83f341c0cf77518305adfd5a6112a07e99cc0a7b5859c7b75cd3",
+      "context": "number of otherwise waiting fields dropped because they have a verdict. Zero unless ``exclude_verdicts`` is true.",
+      "translation": "nombre de champs qui seraient autrement encore en attente, mais qui ont été exclus parce qu’ils ont un verdict. Vaut zéro sauf si ``exclude_verdicts`` est vrai.",
+      "review_basis": "Manually drafted directly from the current English by Codex and technically reviewed for exclusion semantics, UI labels, and RST/code preservation; canonical and contextual catalog gates pass. No human or native-speaker signoff."
+    },
+    {
+      "label": "spacr.curation_queue.build_queue#13",
+      "source": "also drop every field with a Keep or Discard verdict in ``csv/keep_discard.csv`` (read from the queue folder and from the folder the editor opens, which differ in the ``sibling`` layout), in addition to the done and skip rows. The verdicts stay in the file; the number dropped is :attr:`CurationQueue.excluded_by_verdict`.",
+      "source_sha256": "d1bab61c89e908c9ed74cb1695b623f843f78494ba2286c7847c9f2ada292280",
+      "context": "also drop every field with a Keep or Discard verdict in ``csv/keep_discard.csv`` (read from the work list folder and from the folder the editor opens, which differ in the ``sibling`` layout), in addition to the done and skip rows. The verdicts stay in the file; the number dropped is :attr:`CurationQueue.excluded_by_verdict`.",
+      "translation": "exclure également tous les champs ayant un verdict « Conserver » ou « Éliminer » dans ``csv/keep_discard.csv`` (lu dans le dossier de la file et dans le dossier ouvert par l’éditeur, qui sont distincts dans la structure ``sibling``), en plus des lignes avec done et skip. Les verdicts restent dans le fichier ; le nombre de champs exclus est indiqué par :attr:`CurationQueue.excluded_by_verdict`.",
+      "review_basis": "Manually drafted directly from the current English by Codex and technically reviewed for exclusion semantics, UI labels, and RST/code preservation; canonical and contextual catalog gates pass. No human or native-speaker signoff."
+    }
+  ]
+}
