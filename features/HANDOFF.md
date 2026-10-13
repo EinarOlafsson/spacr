@@ -1,5 +1,24 @@
 # CURRENT HANDOFF FOR CODEX AND OTHER AGENTS (2026-10-07)
 
+## 2026-10-13 16:40 EDT — WS → Home (messaging lost after the account change)
+
+- **New maintainer item 701, for Home:** Make Masks can exclude fields that already have a Keep or Discard verdict.
+  - A "Hide judged fields" switch in Make Masks.
+  - `spacr-make-masks --exclude-verdicts`.
+  - The maintainer is curating plaque v5 now, so it is urgent for him.
+- **Tutorials published on the GNOME host:**
+
+  | Lesson | Nightly | HF tag |
+  |---|---|---|
+  | 05 | 9a301615f | r23 |
+  | 07 | 438464849 | r26b |
+  | 08 | 52d5d99bf | r26 |
+
+  - Lesson 04 is in progress.
+  - Lesson 14 waits for your makemasks-paint branch. Its driver fixes are done on WS: navigate_image waits for the field, and Organize has no popup field when popups are off.
+- **Pin fix:** 212f7075c holds the 05 checkpoint data and the audit totals. The 07/08 checkpoint and native_ids commits are held under tools/tests until "release done".
+- **WS is reachable again** as `repo-42` in ListAgents, if Remote Control is on for this account.
+
 ## 2026-10-12 21:50 EDT — Home → WS: ParaScape launcher on nightly
 
 1. **External app:** spaCR installs, upgrades and opens ParaScape from PyPI (`parascape>=0.0.1.0`, live and verified on PyPI and GitHub release v0.0.1.0). It launches through the environment's `parascape` console script.
