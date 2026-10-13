@@ -551,7 +551,7 @@
       "section": "spaCR",
       "description": "Home の現在の全モジュールを左から右へ確認し、Mask で共通の操作項目を学びます。その後、ナビゲーション、ヘルプ、表示を調整します。",
       "objectives": [
-        "現在の Core、Data、Tools、Organism の各行にあるすべてのモジュールを確認する。",
+        "現在の Core、Data、Tools の各行にあるすべてのモジュールを確認する。",
         "Mask を使って共通の設定、プレビュー、操作、出力を確認する。",
         "Home に戻り、検索を使い、パネルを配置する。",
         "表示とパフォーマンスの設定を選ぶ。"
@@ -560,9 +560,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home が出発点です。各行を左から右へ読みます。Core、Data、Tools、Organism の順です。各タイルは対応するモジュールを開きます。左のサイドバーにも同じ項目があり、Home でこの一覧に戻れます。",
+          "narration": "Home が出発点です。各行を左から右へ読みます。Core、Data、Tools の順です。各タイルは対応するモジュールを開きます。左のサイドバーにも同じ項目があり、Home でこの一覧に戻れます。",
           "hold_after": 0.7,
-          "speech_text": "ホーム が出発点です。各行を左から右へ読みます。Core、Data、Tools、Organism の順です。各タイルは対応するモジュールを開きます。左のサイドバーにも同じ項目があり、ホーム でこの一覧に戻れます。"
+          "speech_text": "ホーム が出発点です。各行を左から右へ読みます。Core、Data、Tools の順です。各タイルは対応するモジュールを開きます。左のサイドバーにも同じ項目があり、ホーム でこの一覧に戻れます。"
         },
         {
           "visual": "home_module_mask",
@@ -601,18 +601,6 @@
           "speech_text": "Annotate では物体の切り抜き画像を確認し、見直したラベルを例に記録できます。"
         },
         {
-          "visual": "home_module_classify_merged",
-          "narration": "Classify は確認済みのラベルでモデルを学習させ、切り抜き画像または測定した特徴量を使って他の物体にスコアを付けます。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "classify_merged"
-          ],
-          "related_lessons": [
-            "41_classify"
-          ],
-          "speech_text": "Classify は確認済みのラベルでモデルを学習させ、切り抜き画像または測定した特徴量を使って他の物体にスコアを付けます。"
-        },
-        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes はシーケンスデータを読み、ガイドやバーコードを数えて識別します。",
           "hold_after": 0.7,
@@ -649,18 +637,6 @@
           "speech_text": "Import は入力する顕微鏡ファイルとメタデータをプロジェクトの構成に合わせて準備します。"
         },
         {
-          "visual": "home_module_embeddings",
-          "narration": "Embeddings は物体の切り抜き画像を数値的な特徴量に変換し、探索や比較に使います。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "embeddings"
-          ],
-          "related_lessons": [
-            "77_embeddings"
-          ],
-          "speech_text": "Embeddings は物体の切り抜き画像を数値的な特徴量に変換し、探索や比較に使います。"
-        },
-        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare は保存した複数の実行結果をまとめ、違いを確認します。",
           "hold_after": 0.7,
@@ -673,18 +649,6 @@
           "speech_text": "Run Compare は保存した複数の実行結果をまとめ、違いを確認します。"
         },
         {
-          "visual": "home_module_experiment_design",
-          "narration": "Experiment Design は実験前に条件、ウェル、試料の識別情報を配置します。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "experiment_design"
-          ],
-          "related_lessons": [
-            "67_experiment_design"
-          ],
-          "speech_text": "Experiment Design は実験前に条件、ウェル、試料の識別情報を配置します。"
-        },
-        {
           "visual": "home_module_power",
           "narration": "Power / Design は比較を計画する際の標本数や検出力の仮定を調べます。",
           "hold_after": 0.7,
@@ -695,30 +659,6 @@
             "68_power_design"
           ],
           "speech_text": "Power / Design は比較を計画する際の標本数や検出力の仮定を調べます。"
-        },
-        {
-          "visual": "home_module_dose_response",
-          "narration": "Dose-Response は濃度ごとの応答を当てはめます。選択した評価項目と対照を明確に保ちます。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "dose_response"
-          ],
-          "related_lessons": [
-            "69_dose_response"
-          ],
-          "speech_text": "Dose-Response は濃度ごとの応答を当てはめます。選択した評価項目と対照を明確に保ちます。"
-        },
-        {
-          "visual": "home_module_qc_dashboard",
-          "narration": "QC はプロジェクトに保存された品質レポートを一覧表示し、不足しているものを示します。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "qc_dashboard"
-          ],
-          "related_lessons": [
-            "54_qc_dashboard"
-          ],
-          "speech_text": "QC はプロジェクトに保存された品質レポートを一覧表示し、不足しているものを示します。"
         },
         {
           "visual": "home_module_make_masks",
@@ -757,18 +697,6 @@
           "speech_text": "Image ユーマップ は物体の特徴量を投影し、似た物体を探索して代表的な切り抜き画像を確認します。"
         },
         {
-          "visual": "home_module_gate_editor",
-          "narration": "Gate Editor は実際のデータ列を使って選択範囲を定義します。ゲートをラベルに変える前に、選ばれた物体を確認してください。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "gate_editor"
-          ],
-          "related_lessons": [
-            "64_gate_editor"
-          ],
-          "speech_text": "ゲートエディタ は実際のデータ列を使って選択範囲を定義します。ゲートをラベルに変える前に、選ばれた物体を確認してください。"
-        },
-        {
           "visual": "home_module_graph_builder",
           "narration": "Graph Builder は測定表からグラフを作ります。列やグループ分けを設定できます。",
           "hold_after": 0.7,
@@ -779,18 +707,6 @@
             "58_graph_builder"
           ],
           "speech_text": "Graph Builder は測定表からグラフを作ります。列やグループ分けを設定できます。"
-        },
-        {
-          "visual": "home_module_toxoplasma",
-          "narration": "Organism の行には Toxoplasma があります。生物のガイド、操作できる図、利用できる解析への入口を開きます。別の Toxoplasma チュートリアルでこのページを説明します。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "toxoplasma"
-          ],
-          "related_lessons": [
-            "82_toxoplasma"
-          ],
-          "speech_text": "Organism の行には Toxoplasma があります。生物のガイド、操作できる図、利用できる解析への入口を開きます。別の Toxoplasma チュートリアルでこのページを説明します。"
         },
         {
           "visual": "06_mask_host",

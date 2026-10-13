@@ -551,7 +551,7 @@
       "section": "spaCR",
       "description": "从左到右浏览 Home 中所有当前模块，然后通过 Mask 学习通用控件，并调整导航、帮助和外观。",
       "objectives": [
-        "识别当前 Core、Data、Tools 和 Organism 各行中的所有模块。",
+        "识别当前 Core、Data 和 Tools 各行中的所有模块。",
         "通过 Mask 认识通用设置、预览、操作和输出。",
         "返回 Home，使用搜索并排列面板。",
         "选择外观和性能设置。"
@@ -560,9 +560,9 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home 是起点。每行从左往右查看，依次为 Core、Data、Tools 和 Organism。每个磁贴打开对应模块。左侧栏提供相同入口，Home 返回此概览。",
+          "narration": "Home 是起点。每行从左往右查看，依次为 Core、Data 和 Tools。每个磁贴打开对应模块。左侧栏提供相同入口，Home 返回此概览。",
           "hold_after": 0.7,
-          "speech_text": "主页 是起点。每行从左往右查看，依次为 Core、Data、Tools 和 Organism。每个磁贴打开对应模块。左侧栏提供相同入口，主页 返回此概览。"
+          "speech_text": "主页 是起点。每行从左往右查看，依次为 Core、Data 和 Tools。每个磁贴打开对应模块。左侧栏提供相同入口，主页 返回此概览。"
         },
         {
           "visual": "home_module_mask",
@@ -601,18 +601,6 @@
           "speech_text": "Annotate 可检查对象裁剪图像，并为示例记录经过审核的标签。"
         },
         {
-          "visual": "home_module_classify_merged",
-          "narration": "Classify 用审核过的标签训练模型，并使用对象裁剪图或测量特征为其他对象评分。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "classify_merged"
-          ],
-          "related_lessons": [
-            "41_classify"
-          ],
-          "speech_text": "Classify 用审核过的标签训练模型，并使用对象裁剪图或测量特征为其他对象评分。"
-        },
-        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes 读取测序数据，计数并识别导向序列或条形码。",
           "hold_after": 0.7,
@@ -649,18 +637,6 @@
           "speech_text": "Import 为项目结构准备输入的显微镜文件及其元数据。"
         },
         {
-          "visual": "home_module_embeddings",
-          "narration": "Embeddings 将对象裁剪图像编码为数值特征，用于探索和比较。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "embeddings"
-          ],
-          "related_lessons": [
-            "77_embeddings"
-          ],
-          "speech_text": "Embeddings 将对象裁剪图像编码为数值特征，用于探索和比较。"
-        },
-        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare 汇集保存的运行结果，便于检查差异。",
           "hold_after": 0.7,
@@ -673,18 +649,6 @@
           "speech_text": "Run Compare 汇集保存的运行结果，便于检查差异。"
         },
         {
-          "visual": "home_module_experiment_design",
-          "narration": "Experiment Design 在实验前安排条件、孔位和样本标识。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "experiment_design"
-          ],
-          "related_lessons": [
-            "67_experiment_design"
-          ],
-          "speech_text": "Experiment Design 在实验前安排条件、孔位和样本标识。"
-        },
-        {
           "visual": "home_module_power",
           "narration": "Power / Design 在规划比较时探索样本量和统计功效假设。",
           "hold_after": 0.7,
@@ -695,30 +659,6 @@
             "68_power_design"
           ],
           "speech_text": "Power / Design 在规划比较时探索样本量和统计功效假设。"
-        },
-        {
-          "visual": "home_module_dose_response",
-          "narration": "Dose-Response 拟合不同浓度下的响应，同时明确选定的测量终点和对照。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "dose_response"
-          ],
-          "related_lessons": [
-            "69_dose_response"
-          ],
-          "speech_text": "Dose-Response 拟合不同浓度下的响应，同时明确选定的测量终点和对照。"
-        },
-        {
-          "visual": "home_module_qc_dashboard",
-          "narration": "QC 列出项目中已保存的质量报告，并标出缺失的报告。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "qc_dashboard"
-          ],
-          "related_lessons": [
-            "54_qc_dashboard"
-          ],
-          "speech_text": "QC 列出项目中已保存的质量报告，并标出缺失的报告。"
         },
         {
           "visual": "home_module_make_masks",
@@ -757,18 +697,6 @@
           "speech_text": "Image 优麦普 投影对象特征，以探索相似对象并检查代表性裁剪图像。"
         },
         {
-          "visual": "home_module_gate_editor",
-          "narration": "Gate Editor 在真实数据列上定义筛选范围。将筛选范围转成标签前，请审核选中的对象。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "gate_editor"
-          ],
-          "related_lessons": [
-            "64_gate_editor"
-          ],
-          "speech_text": "门控编辑器 在真实数据列上定义筛选范围。将筛选范围转成标签前，请审核选中的对象。"
-        },
-        {
           "visual": "home_module_graph_builder",
           "narration": "Graph Builder 从测量表创建图表，可配置列和分组。",
           "hold_after": 0.7,
@@ -779,18 +707,6 @@
             "58_graph_builder"
           ],
           "speech_text": "Graph Builder 从测量表创建图表，可配置列和分组。"
-        },
-        {
-          "visual": "home_module_toxoplasma",
-          "narration": "Organism 行包含 Toxoplasma。它打开生物指南、交互图和可用的弓形虫检测入口。单独的 Toxoplasma 教程介绍此页面。",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "toxoplasma"
-          ],
-          "related_lessons": [
-            "82_toxoplasma"
-          ],
-          "speech_text": "Organism 行包含 Toxoplasma。它打开生物指南、交互图和可用的弓形虫检测入口。单独的 Toxoplasma 教程介绍此页面。"
         },
         {
           "visual": "06_mask_host",

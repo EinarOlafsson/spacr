@@ -491,7 +491,7 @@
       "section": "spaCR",
       "description": "Home의 현재 모든 모듈을 왼쪽에서 오른쪽으로 살펴봅니다. 그런 다음 Mask로 공통 조작 요소를 배우고 탐색, 도움말, 모양을 조정합니다.",
       "objectives": [
-        "현재 Core, Data, Tools, Organism 행의 모든 모듈을 식별합니다.",
+        "현재 Core, Data, Tools 행의 모든 모듈을 식별합니다.",
         "Mask로 공통 설정, 미리보기, 동작, 출력을 파악합니다.",
         "Home으로 돌아가 검색을 사용하고 패널을 배치합니다.",
         "모양과 성능 설정을 선택합니다."
@@ -500,7 +500,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home이 시작점입니다. 각 행을 왼쪽부터 읽으세요. Core, Data, Tools, Organism 순서입니다. 각 타일은 해당 모듈을 엽니다. 왼쪽 사이드바에도 같은 경로가 있으며 Home으로 이 개요에 돌아옵니다.",
+          "narration": "Home이 시작점입니다. 각 행을 왼쪽부터 읽으세요. Core, Data, Tools 순서입니다. 각 타일은 해당 모듈을 엽니다. 왼쪽 사이드바에도 같은 경로가 있으며 Home으로 이 개요에 돌아옵니다.",
           "hold_after": 0.7
         },
         {
@@ -537,17 +537,6 @@
           ]
         },
         {
-          "visual": "home_module_classify_merged",
-          "narration": "Classify는 검토된 레이블로 모델을 학습시키고 크롭 이미지나 측정된 특징을 사용해 다른 객체의 점수를 계산합니다.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "classify_merged"
-          ],
-          "related_lessons": [
-            "41_classify"
-          ]
-        },
-        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes는 시퀀싱 데이터를 읽어 가이드 또는 바코드를 세고 식별합니다.",
           "hold_after": 0.7,
@@ -581,17 +570,6 @@
           ]
         },
         {
-          "visual": "home_module_embeddings",
-          "narration": "Embeddings는 잘라낸 객체 이미지를 탐색과 비교에 사용할 수치 특징으로 인코딩합니다.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "embeddings"
-          ],
-          "related_lessons": [
-            "77_embeddings"
-          ]
-        },
-        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare는 저장된 실행 결과를 모아 차이를 살펴봅니다.",
           "hold_after": 0.7,
@@ -603,17 +581,6 @@
           ]
         },
         {
-          "visual": "home_module_experiment_design",
-          "narration": "Experiment Design은 실험 전에 조건, 웰, 시료 식별 정보를 배치합니다.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "experiment_design"
-          ],
-          "related_lessons": [
-            "67_experiment_design"
-          ]
-        },
-        {
           "visual": "home_module_power",
           "narration": "Power / Design은 비교를 계획할 때 표본 크기와 통계적 검정력에 관한 가정을 살펴봅니다.",
           "hold_after": 0.7,
@@ -622,28 +589,6 @@
           ],
           "related_lessons": [
             "68_power_design"
-          ]
-        },
-        {
-          "visual": "home_module_dose_response",
-          "narration": "Dose-Response는 농도별 반응을 적합하며 선택한 측정 지표와 대조군을 명확히 유지합니다.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "dose_response"
-          ],
-          "related_lessons": [
-            "69_dose_response"
-          ]
-        },
-        {
-          "visual": "home_module_qc_dashboard",
-          "narration": "QC는 프로젝트에 저장된 품질 보고서를 나열하고 누락된 보고서를 표시합니다.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "qc_dashboard"
-          ],
-          "related_lessons": [
-            "54_qc_dashboard"
           ]
         },
         {
@@ -680,17 +625,6 @@
           ]
         },
         {
-          "visual": "home_module_gate_editor",
-          "narration": "Gate Editor는 실제 데이터 열에 선택 범위를 정의합니다. 선택 범위를 레이블로 바꾸기 전에 선택된 객체를 검토하세요.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "gate_editor"
-          ],
-          "related_lessons": [
-            "64_gate_editor"
-          ]
-        },
-        {
           "visual": "home_module_graph_builder",
           "narration": "Graph Builder는 측정 표에서 열과 그룹을 설정할 수 있는 그래프를 만듭니다.",
           "hold_after": 0.7,
@@ -699,17 +633,6 @@
           ],
           "related_lessons": [
             "58_graph_builder"
-          ]
-        },
-        {
-          "visual": "home_module_toxoplasma",
-          "narration": "Organism 행에는 Toxoplasma가 있습니다. 생물 안내, 상호작용 가능한 그림과 사용 가능한 톡소플라스마 분석 경로를 엽니다. 별도의 Toxoplasma 튜토리얼에서 이 페이지를 설명합니다.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "toxoplasma"
-          ],
-          "related_lessons": [
-            "82_toxoplasma"
           ]
         },
         {

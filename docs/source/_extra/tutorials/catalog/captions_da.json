@@ -491,7 +491,7 @@
       "section": "spaCR",
       "description": "Gennemgå alle aktuelle moduler på Home fra venstre mod højre. Lær derefter de fælles betjeningselementer med Mask, og tilpas navigation, hjælp og udseende.",
       "objectives": [
-        "Identificere alle moduler i de aktuelle rækker Core, Data, Tools og Organism.",
+        "Identificere alle moduler i de aktuelle rækker Core, Data og Tools.",
         "Bruge Mask til at genkende fælles indstillinger, forhåndsvisninger, handlinger og resultater.",
         "Vende tilbage til Home, bruge søgning og arrangere panelerne.",
         "Vælge indstillinger for udseende og ydeevne."
@@ -500,7 +500,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home er udgangspunktet. Læs hver række fra venstre mod højre: Core, Data, Tools og Organism. Hver flise åbner sit modul. Sidepanelet giver de samme indgange, og Home vender tilbage til oversigten.",
+          "narration": "Home er udgangspunktet. Læs hver række fra venstre mod højre: Core, Data og Tools. Hver flise åbner sit modul. Sidepanelet giver de samme indgange, og Home vender tilbage til oversigten.",
           "hold_after": 0.7
         },
         {
@@ -537,17 +537,6 @@
           ]
         },
         {
-          "visual": "home_module_classify_merged",
-          "narration": "Classify træner en model på gennemgåede etiketter og scorer andre objekter ud fra udsnitsbilleder eller målte egenskaber.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "classify_merged"
-          ],
-          "related_lessons": [
-            "41_classify"
-          ]
-        },
-        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes læser sekvensdata for at tælle og identificere guider eller stregkoder.",
           "hold_after": 0.7,
@@ -581,17 +570,6 @@
           ]
         },
         {
-          "visual": "home_module_embeddings",
-          "narration": "Embeddings koder objektudsnit som numeriske egenskaber til udforskning og sammenligning.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "embeddings"
-          ],
-          "related_lessons": [
-            "77_embeddings"
-          ]
-        },
-        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare samler gemte resultater fra kørsler, så du kan undersøge forskelle.",
           "hold_after": 0.7,
@@ -603,17 +581,6 @@
           ]
         },
         {
-          "visual": "home_module_experiment_design",
-          "narration": "Experiment Design placerer betingelser, brønde og prøveidentiteter før et eksperiment.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "experiment_design"
-          ],
-          "related_lessons": [
-            "67_experiment_design"
-          ]
-        },
-        {
           "visual": "home_module_power",
           "narration": "Power / Design undersøger antagelser om stikprøvestørrelse og statistisk styrke ved planlagte sammenligninger.",
           "hold_after": 0.7,
@@ -622,28 +589,6 @@
           ],
           "related_lessons": [
             "68_power_design"
-          ]
-        },
-        {
-          "visual": "home_module_dose_response",
-          "narration": "Dose-Response tilpasser respons på tværs af koncentrationer og holder det valgte endepunkt og kontrollerne tydelige.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "dose_response"
-          ],
-          "related_lessons": [
-            "69_dose_response"
-          ]
-        },
-        {
-          "visual": "home_module_qc_dashboard",
-          "narration": "QC viser et projekts gemte kvalitetsrapporter og markerer dem, der mangler.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "qc_dashboard"
-          ],
-          "related_lessons": [
-            "54_qc_dashboard"
           ]
         },
         {
@@ -680,17 +625,6 @@
           ]
         },
         {
-          "visual": "home_module_gate_editor",
-          "narration": "Gate Editor definerer udvalg på faktiske datakolonner. Gennemgå objekterne, før et udvalg bliver til etiketter.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "gate_editor"
-          ],
-          "related_lessons": [
-            "64_gate_editor"
-          ]
-        },
-        {
           "visual": "home_module_graph_builder",
           "narration": "Graph Builder laver grafer fra måletabeller med valgbare kolonner og grupperinger.",
           "hold_after": 0.7,
@@ -699,17 +633,6 @@
           ],
           "related_lessons": [
             "58_graph_builder"
-          ]
-        },
-        {
-          "visual": "home_module_toxoplasma",
-          "narration": "Rækken Organism indeholder Toxoplasma. Den åbner en organismevejledning, en interaktiv tegning og de tilgængelige Toxoplasma-analyser. Den særskilte Toxoplasma-vejledning gennemgår siden.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "toxoplasma"
-          ],
-          "related_lessons": [
-            "82_toxoplasma"
           ]
         },
         {

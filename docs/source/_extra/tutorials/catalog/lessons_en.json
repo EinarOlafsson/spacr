@@ -512,7 +512,7 @@
       "section": "spaCR",
       "description": "Tour every current Home module from left to right, then learn the shared module controls using Mask and adjust navigation, help and appearance.",
       "objectives": [
-        "Identify every module in the current Core, Data, Tools and Organism rows.",
+        "Identify every module in the current Core, Data and Tools rows.",
         "Use Mask to recognize shared settings, previews, actions and outputs.",
         "Return Home, use search and arrange panels.",
         "Choose appearance and performance settings."
@@ -521,7 +521,7 @@
       "scenes": [
         {
           "visual": "00_home",
-          "narration": "Home is the starting point. Read each row from left to right: Core, Data, Tools and Organism. Every tile opens its named module. The sidebar provides the same routes, and Home returns to this overview.",
+          "narration": "Home is the starting point. Read each row from left to right: Core, Data and Tools. Every tile opens its named module. The sidebar provides the same routes, and Home returns to this overview.",
           "hold_after": 0.7
         },
         {
@@ -558,17 +558,6 @@
           ]
         },
         {
-          "visual": "home_module_classify_merged",
-          "narration": "Classify trains a model on reviewed labels and scores other objects, using image crops or measured features.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "classify_merged"
-          ],
-          "related_lessons": [
-            "41_classify"
-          ]
-        },
-        {
           "visual": "home_module_map_barcodes",
           "narration": "Map Barcodes reads sequencing data to count and identify guides or barcodes.",
           "hold_after": 0.7,
@@ -602,17 +591,6 @@
           ]
         },
         {
-          "visual": "home_module_embeddings",
-          "narration": "Embeddings encodes object crops into numerical features for exploration and comparison.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "embeddings"
-          ],
-          "related_lessons": [
-            "77_embeddings"
-          ]
-        },
-        {
           "visual": "home_module_run_compare",
           "narration": "Run Compare brings saved run results together so you can inspect differences.",
           "hold_after": 0.7,
@@ -624,17 +602,6 @@
           ]
         },
         {
-          "visual": "home_module_experiment_design",
-          "narration": "Experiment Design lays out conditions, wells and sample identities before an experiment.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "experiment_design"
-          ],
-          "related_lessons": [
-            "67_experiment_design"
-          ]
-        },
-        {
           "visual": "home_module_power",
           "narration": "Power / Design explores sample-size and power assumptions when planning comparisons.",
           "hold_after": 0.7,
@@ -643,28 +610,6 @@
           ],
           "related_lessons": [
             "68_power_design"
-          ]
-        },
-        {
-          "visual": "home_module_dose_response",
-          "narration": "Dose-Response fits responses across concentrations, keeping the chosen endpoint and controls explicit.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "dose_response"
-          ],
-          "related_lessons": [
-            "69_dose_response"
-          ]
-        },
-        {
-          "visual": "home_module_qc_dashboard",
-          "narration": "QC lists the saved quality reports of a project and marks the ones that are missing.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "qc_dashboard"
-          ],
-          "related_lessons": [
-            "54_qc_dashboard"
           ]
         },
         {
@@ -701,17 +646,6 @@
           ]
         },
         {
-          "visual": "home_module_gate_editor",
-          "narration": "Gate Editor defines selections on real data columns. Review selected objects before turning a gate into labels.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "gate_editor"
-          ],
-          "related_lessons": [
-            "64_gate_editor"
-          ]
-        },
-        {
           "visual": "home_module_graph_builder",
           "narration": "Graph Builder creates plots from measurement tables with configurable columns and grouping.",
           "hold_after": 0.7,
@@ -720,17 +654,6 @@
           ],
           "related_lessons": [
             "58_graph_builder"
-          ]
-        },
-        {
-          "visual": "home_module_toxoplasma",
-          "narration": "The Organism row contains Toxoplasma. It opens an organism guide, an interactive diagram and the available Toxoplasma assay routes. The separate Toxoplasma tutorial explores this page.",
-          "hold_after": 0.7,
-          "focus_modules": [
-            "toxoplasma"
-          ],
-          "related_lessons": [
-            "82_toxoplasma"
           ]
         },
         {
