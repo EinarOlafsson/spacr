@@ -3682,9 +3682,10 @@ class MainWindow(QMainWindow):
             QTimer.singleShot(0, self._relay_the_menu_bar)
             current = self.windowState()
             previous = event.oldState() if hasattr(event, "oldState") else current
-            if current & (Qt.WindowFullScreen | Qt.WindowMaximized) & ~previous:
-                from .widgets.ambient import field_ripple_for_widget
-
+            ambient = sys.modules.get(f"{__package__}.widgets.ambient")
+            if (ambient is not None and current
+                    & (Qt.WindowFullScreen | Qt.WindowMaximized) & ~previous):
+                field_ripple_for_widget = ambient.field_ripple_for_widget
                 _after(0, self, lambda: _after(
                     0, self, lambda: field_ripple_for_widget(self, edge="top")
                     if not self.isMinimized() and (self.isFullScreen() or self.isMaximized())
