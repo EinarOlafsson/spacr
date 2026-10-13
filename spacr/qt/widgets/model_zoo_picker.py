@@ -567,6 +567,51 @@ class _BackendJob(QObject):
             self.succeeded.emit(state)
 
 
+def _retire_thread(thread, worker, wait_ms: int = 2000) -> bool:
+    """Stop a dialog's worker thread within ``wait_ms`` and never destroy it running.
+
+    A QThread parented to a dialog dies with the dialog, and Qt aborts the
+    process when that happens while it still runs. The thread is asked to
+    stop and waited for; one that will not stop is cut loose from the dialog
+    and its worker, taken off its parent and parked with
+    :func:`spacr.qt.bridge._park_still_running`, never terminated.
+
+    :param thread: the QThread, or None.
+    :param worker: the QObject living on it, or None.
+    :param wait_ms: how long to wait for it to stop.
+    :returns: True when the thread has stopped, False when it was parked.
+    """
+    from ..bridge import thread_has_stopped
+
+    if thread_has_stopped(thread):
+        return True
+    try:
+        thread.requestInterruption()
+        thread.quit()
+        if thread.wait(max(0, int(wait_ms))):
+            return True
+    except RuntimeError:
+        return True
+    if worker is not None:
+        for name in ("progressed", "finished", "failed", "succeeded",
+                     "cancelled"):
+            signal = getattr(worker, name, None)
+            if signal is None:
+                continue
+            try:
+                signal.disconnect()
+            except (RuntimeError, TypeError):
+                pass
+    try:
+        thread.setParent(None)
+    except RuntimeError:
+        return True
+    from ..bridge import _park_still_running
+
+    _park_still_running([(thread, worker)])
+    return False
+
+
 class BackendInstallDialog(QDialog):
     """Install, or uninstall, one segmentation backend, with progress and
     Cancel.
@@ -804,10 +849,7 @@ class BackendInstallDialog(QDialog):
 
     def _join(self) -> None:
         """Retire the worker thread."""
-        thread = self._thread
-        if thread is not None:
-            thread.quit()
-            thread.wait(10000)
+        _retire_thread(self._thread, self._worker, 10000)
         self._thread = None
         self._worker = None
         self.progress.setVisible(False)
@@ -876,6 +918,18 @@ class BackendInstallDialog(QDialog):
             event.ignore()
             return
         super().closeEvent(event)
+
+    def done(self, result: int) -> None:
+        """Cancel and retire a job still running when the dialog ends.
+
+        :param result: dialog result passed unchanged to Qt.
+        """
+        if self._thread is not None:
+            self._cancel.set()
+            _retire_thread(self._thread, self._worker, 2000)
+            self._thread = None
+            self._worker = None
+        super().done(result)
 
 
 def install_backend(parent, name: str, *, watch=None, reinstall: bool = False,
@@ -1913,12 +1967,10 @@ class ModelZooPicker(QDialog):
     def _finish_download(self, outcome: str) -> None:
         """Common teardown for both download outcomes."""
         self.progress.setVisible(False)
-        thread = getattr(self, "_thread", None)
-        if thread is not None:
-            thread.quit()
-            thread.wait(5000)
-            self._thread = None
-            self._worker = None
+        _retire_thread(getattr(self, "_thread", None),
+                       getattr(self, "_worker", None), 5000)
+        self._thread = None
+        self._worker = None
         self.refresh()
         if outcome:
             self.status.setText(outcome)
@@ -1988,15 +2040,8 @@ class ModelZooPicker(QDialog):
         a live thread. This crashed the test suite before it could crash a
         user, which is the only reason it was found here.
         """
-        thread = getattr(self, "_thread", None)
-        if thread is None:
-            return
-        try:
-            if thread.isRunning():
-                thread.quit()
-                thread.wait(10000)
-        except RuntimeError:
-            pass
+        _retire_thread(getattr(self, "_thread", None),
+                       getattr(self, "_worker", None), 2000)
         self._thread = None
         self._worker = None
 
@@ -2024,6 +2069,7 @@ class ModelZooPicker(QDialog):
         work never waits for HTTP, and discarded results cannot refresh
         this dialog.
         """
+        self._stop_any_download()
         runner = getattr(self, "_catalogue_job", None)
         if runner is not None:
             runner.shutdown(timeout_ms=0)

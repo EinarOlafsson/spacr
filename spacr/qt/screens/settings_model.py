@@ -7190,13 +7190,20 @@ def _copy_measurement_store(source: str, target: str, report) -> tuple:
 
 def _run_measurement_migration(source, target, kind, signals) -> None:
     """Copy on a Python worker, reporting only bounded table summaries."""
+    def emit(signal, *args) -> None:
+        """Emit unless the receiving object has been deleted meanwhile."""
+        try:
+            signal.emit(*args)
+        except RuntimeError:
+            return
+
     try:
         copied = _copy_measurement_store(source, target,
-                                          lambda _message: signals.progress.emit("table"))
+                                          lambda _message: emit(signals.progress, "table"))
     except Exception:
-        signals.failed.emit(kind)
+        emit(signals.failed, kind)
     else:
-        signals.copied.emit(tuple(copied))
+        emit(signals.copied, tuple(copied))
 
 
 class _MeasurementMigrationSignals(QObject):
@@ -7529,10 +7536,15 @@ class _CsvColumnField(QWidget):
         generation = self._generation
         paths = self.input_paths()
 
-        self._thread = threading.Thread(
-            target=lambda: self._loaded.emit(
-                self._read_columns(paths, generation)),
-            daemon=True)
+        def job() -> None:
+            """Read the columns and hand them over unless the widget is gone."""
+            result = self._read_columns(paths, generation)
+            try:
+                self._loaded.emit(result)
+            except RuntimeError:
+                return
+
+        self._thread = threading.Thread(target=job, daemon=True)
         self._thread.start()
         return self._thread
 

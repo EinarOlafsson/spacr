@@ -19229,9 +19229,13 @@ class _Sam2SeedDialog(QDialog):
             try:
                 labels, _reply = propagate(self.frames, seeds,
                                            backward=backward)
-                self.finished_run.emit(labels, None)
+                outcome = (labels, None)
             except Exception as exc:
-                self.finished_run.emit(None, exc)
+                outcome = (None, exc)
+            try:
+                self.finished_run.emit(*outcome)
+            except RuntimeError:
+                return
 
         self._thread = threading.Thread(target=work, daemon=True)
         self._thread.start()

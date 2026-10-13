@@ -441,7 +441,10 @@ class _DocsReach(QObject):
         :param state: one of the three states.
         """
         self._state = str(state)
-        self.settled.emit(self._state)
+        try:
+            self.settled.emit(self._state)
+        except RuntimeError:
+            return
 
     def start(self) -> None:
         """Ask, once, on a daemon thread; do nothing if already asked."""
@@ -611,7 +614,10 @@ class _IndexLoader(QObject):
         except Exception:
             LOG.exception("the help index could not be built")
             entries = []
-        self.ready.emit(entries)
+        try:
+            self.ready.emit(entries)
+        except RuntimeError:
+            return
 
 
 class HelpSearchField(QLineEdit):
