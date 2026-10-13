@@ -802,13 +802,11 @@ class _DistributionSmokeController(QObject):
                 if self.screen._crop_choice_warnings(self.record['settings']):
                     raise RuntimeError('The smoke fixture unexpectedly requires crop confirmation')
                 self.record['module_constructed'] = True
-                self.phase = 'running'
+                self.phase = 'starting'
                 self.screen._btn_run.click()
-                if self.screen._worker is None:
-                    raise RuntimeError('The real Run action did not start a pipeline worker')
-                self.screen._worker.error.connect(self._pipeline_failed)
-                self.record['real_run_clicked'] = True
-                self._write()
+                self._attach_to_the_worker()
+            elif self.phase == 'starting':
+                self._attach_to_the_worker()
             elif self.phase == 'running':
                 if self.screen._thread is not None:
                     return
@@ -1359,6 +1357,25 @@ class _DistributionSmokeController(QObject):
             ).fetchone()
             cells = connection.execute('SELECT COUNT(*) FROM cell').fetchone()[0]
         return status, cells
+
+    def _attach_to_the_worker(self):
+        """Follow the worker the real Run started, once it has started.
+
+        A session's first Run imports its pipeline off the GUI thread and
+        starts the worker only when that import ends; until then the screen
+        holds ``_entry_import`` and the controller waits for the next tick.
+
+        :raises RuntimeError: when the Run ended without a worker.
+        """
+        if getattr(self.screen, '_entry_import', None) is not None:
+            return
+        worker = getattr(self.screen, '_worker', None)
+        if worker is None:
+            raise RuntimeError('The real Run action did not start a pipeline worker')
+        worker.error.connect(self._pipeline_failed)
+        self.record['real_run_clicked'] = True
+        self.phase = 'running'
+        self._write()
 
     def _pipeline_failed(self, error):
         """Retain the failure before requesting ordinary Qt shutdown."""
