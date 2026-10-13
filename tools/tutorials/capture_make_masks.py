@@ -395,6 +395,15 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     ready()
     canvas = screen._canvas
     original = canvas.mask.copy()
+    # The background's distance transform (0.6 s on a 2,000 px field) runs
+    # on a thread from here, where SciPy lets go of the interpreter lock, so
+    # the app keeps painting through the recording instead of freezing.
+    import threading
+    free_space = {}
+    free_worker = threading.Thread(
+        target=lambda: free_space.setdefault('distance', distance_transform_edt(original == 0)),
+        daemon=True)
+    free_worker.start()
     pixels = canvas.image.copy()
     if not np.array_equal(original, tifffile.imread(evidence[0]['mask'])):
         raise RuntimeError('The editor did not load the actual companion labels')
@@ -482,7 +491,9 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     capture('06_redo')
     undo()
 
-    free = distance_transform_edt(original == 0)
+    while free_worker.is_alive():
+        settle(0.05)
+    free = free_space['distance']
     free[:80] = free[-80:] = 0
     free[:, :80] = free[:, -80:] = 0
     y, x = np.unravel_index(np.argmax(free), free.shape)
@@ -512,10 +523,16 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     if len(pieces) < 2:
         raise RuntimeError('The chosen real object has no two divided pieces to merge')
     join_points = []
+    # Measured inside the label's box plus a one-pixel ring of background:
+    # the same distances and the same first maximum as over the whole field,
+    # without two full-field transforms on the GUI thread mid-clip.
+    y0, y1 = max(0, int(yy.min()) - 1), int(yy.max()) + 2
+    x0, x1 = max(0, int(xx.min()) - 1), int(xx.max()) + 2
     for value in pieces[:2]:
-        inside = distance_transform_edt((divided == value) & (original == label))
+        inside = distance_transform_edt((divided[y0:y1, x0:x1] == value)
+                                         & (original[y0:y1, x0:x1] == label))
         py, px = np.unravel_index(np.argmax(inside), inside.shape)
-        join_points.append((int(px), int(py)))
+        join_points.append((int(px) + x0, int(py) + y0))
     gesture(join_points, button=Qt.RightButton)
     if not canvas.manual_ids or not np.array_equal(canvas.mask > 0, divided > 0):
         raise RuntimeError('Right-drag did not merge without painting background')
@@ -569,7 +586,18 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     if screen._btn_settings.isChecked():
         QTest.mouseClick(screen._btn_settings, Qt.LeftButton)
         settle()
+    def wand_landed():
+        # A Wand click on a full field floods on a worker thread; the
+        # region lands a moment after the release, with the app live.
+        deadline = time.monotonic() + timeout
+        while canvas._wand_busy():
+            if time.monotonic() >= deadline:
+                raise TimeoutError('The Wand region did not land')
+            settle(0.05)
+        settle(0.2)
+
     gesture([(int(x), int(y))])
+    wand_landed()
     added = canvas.mask.copy()
     changed = added != original
     if (not changed.any() or np.any(original[changed] != 0)
@@ -577,6 +605,7 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
         raise RuntimeError('Default Wand did not add only a bounded real intensity region')
     capture('07b_wand_add')
     gesture([(int(x), int(y))], modifiers=Qt.ControlModifier)
+    wand_landed()
     if not np.array_equal(canvas.mask, original) or not np.array_equal(canvas.image, pixels):
         raise RuntimeError('Ctrl+Wand did not remove exactly its added region')
     if screen._shortcut_rows['Ctrl + left click'][1].text() != 'Remove the intensity region':
