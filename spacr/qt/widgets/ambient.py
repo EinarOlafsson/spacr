@@ -10072,6 +10072,11 @@ class AmbientWidget(QWidget):
         #: The frame currently on screen. Held so a paint with nothing new
         #: to show can put it up again instead of waiting for one.
         self._last_frame: Optional[QImage] = None
+        #: The frame a stopped backdrop on screen shows again, as
+        #: ``(key, image)`` (:meth:`_paint_still`), or ``None``.
+        self._still = None
+        #: Whether this backdrop stopped on screen and so paints a still.
+        self._holds_still = False
         #: ``_last_frame`` with the cards composited in, as
         #: :func:`_compose_cards` returns it, or ``None``.
         self._last_composed = None
@@ -10349,9 +10354,11 @@ class AmbientWidget(QWidget):
     def _republish(self) -> None:
         """Re-shade the current clock and make it the frame on screen.
 
-        Called with :attr:`_engine_lock` held. A no-op with no shading
-        thread, where the next ``paintEvent`` shades synchronously anyway.
+        Called with :attr:`_engine_lock` held. With no shading thread it
+        only drops the still (:meth:`_paint_still`), so the next
+        ``paintEvent`` shades the changed engine.
         """
+        self._still = None
         producer = self._producer_box[0]
         if producer is None:
             return
@@ -10412,6 +10419,7 @@ class AmbientWidget(QWidget):
             self._pending_dt = 0.0
         self._last_frame = None
         self._last_composed = None
+        self._still = None
         self._pending_art_impulses.clear()
         self._field_grab = None
         self._sync_interaction_filter()
@@ -10878,10 +10886,26 @@ class AmbientWidget(QWidget):
         each keep a slot warm behind a tab nobody is on, which is 2 MiB apiece
         for the aurora. The next :meth:`start` shades a replacement before it
         starts the thread, so there is nothing to show for it.
+
+        The one exception is a backdrop that stops while it is still on
+        screen -- a CPU-heavy run pausing the animation
+        (:func:`_animation_paused_for_work`), reduced motion, or the
+        animation switched off. Its frame on screen is kept as the still
+        (:meth:`_paint_still`), because every console line and figure the
+        window paints over it asks it for a whole frame again, and shading
+        that frame on the GUI thread against the run's worker took 250-350 ms
+        on lesson 08's Measure run. Hidden, it keeps nothing.
         """
         self._field_grab = None
         self._timer.stop()
         self._sync_interaction_filter()
+        producer = self._producer_box[0]
+        self._holds_still = bool(self.isVisible()
+                                 and isinstance(self._engine, _BufferedEngine))
+        keep = (self._last_frame if producer is not None and self._holds_still
+                else None)
+        self._still = (None if keep is None
+                       else (self._still_key(producer.size), keep))
         _retire_producer(self._producer_box)
         if self._art_input is not None:
             if self._engine_lock.acquire(blocking=False):
@@ -10941,6 +10965,8 @@ class AmbientWidget(QWidget):
                 producer.publish(first)
         self._last_frame = None
         self._last_composed = None
+        self._still = None
+        self._holds_still = False
         producer.doorbell = self.__dict__.get("_doorbell")
         producer.tick_driven = (producer.doorbell is not None
                                 and self.__dict__.get("_art_input") is not None)
@@ -11562,6 +11588,53 @@ class AmbientWidget(QWidget):
         offset = self.mapTo(window, QPoint(0, 0))
         return QPoint(x - offset.x(), y - offset.y())
 
+    def _still_key(self, size) -> tuple:
+        """What a kept still frame is valid for: size, engine and clock.
+
+        :param size: the shading size, as :meth:`_art_render_size` gives it.
+        """
+        engine = self._engine
+        return (tuple(size), id(engine), getattr(engine, "time", None))
+
+    def _paint_still(self, painter: QPainter, width: int, height: int) -> bool:
+        """Blit the stopped backdrop's still frame; False when it has none.
+
+        A stopped backdrop on screen does not move, yet Qt asks it for a
+        whole frame each time something over it repaints. The frame on
+        screen when it stopped (:meth:`stop`), or the first one shaded after,
+        is kept and blitted again for as long as the size, the engine and its
+        clock are those it was shaded for; every engine change drops it
+        (:meth:`_republish`). The pixels are those
+        :meth:`AmbientEngine.paint` would draw: the same shade, the same blit.
+
+        Only a buffered engine that stopped on screen keeps one. A backdrop
+        never started (tests drive those frame by frame), a hidden one and
+        the unbuffered engines paint as before.
+
+        :param painter: the widget painter, the page already drawn.
+        :param width: the widget width.
+        :param height: the widget height.
+        """
+        engine = self._engine
+        if (not self.__dict__.get("_holds_still")
+                or not isinstance(engine, _BufferedEngine)):
+            return False
+        key = self._still_key(self._art_render_size(width, height))
+        still = self.__dict__.get("_still")
+        if still is None or still[0] != key:
+            if not self._engine_lock.acquire(blocking=False):
+                return False
+            try:
+                frame = engine.shade(*key[0])
+            finally:
+                self._engine_lock.release()
+            if frame is None:
+                return False
+            still = (key, frame)
+            self._still = still
+        engine.blit(painter, still[1], width, height)
+        return True
+
     def paintEvent(self, event) -> None:
         """Paint, timed on the timing timeline when timing is on.
 
@@ -11645,7 +11718,8 @@ class AmbientWidget(QWidget):
 
             self._paint_base(painter, rect)
             if producer is None:
-                self._engine.paint(painter, width, height)
+                if not self._paint_still(painter, width, height):
+                    self._engine.paint(painter, width, height)
                 return
             if self._last_frame is not None:
                 self._engine.blit(painter, self._last_frame, width, height)
