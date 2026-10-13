@@ -35,6 +35,12 @@ DESIGN QUESTIONS TO SETTLE FIRST (ask the maintainer with the question tool)
 - Hosting: a new page on the existing site (site-src) or a separate site in
   the same style.
 
+Decided 2026-10-13 (maintainer): BOTH GPU paths are options the user can
+pick on the page: "Hugging Face Space (ZeroGPU)" running spaCR's real
+pipeline, and "In my browser (WebGPU)" running exported models locally (no
+upload). The pages live ON the spaCR site (site-src), as a new section
+beside the Models tab.
+
 --------------------------------------------------------------------------------
 WHAT TO BUILD
 --------------------------------------------------------------------------------
