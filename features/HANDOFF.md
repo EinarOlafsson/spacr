@@ -3,6 +3,33 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+## 2026-10-13 18:54 EDT — WS: full remake inventory and staging/queue prerequisites
+
+The full existing remake scope is 84 lesson routes, with 04/05/07/08 already
+remade on GNOME and 80 remaining. Local source bindings for the inventory
+were checked (210 files). Per-lesson missing inputs, placeholders and driver
+gaps are recorded in `features/data/n676_remake_preflight_2026-10-13/`.
+No new TEM/FIB-SEM route is included; lesson 43 remains unstarted.
+
+Two completed tooling preparations are committed locally and held:
+- `67dbbd20b`: lesson 20 staging requires exact English/scientific/clip/gate
+  evidence with original video/native/receipt hash bindings; 63 owning cases pass.
+- `6487de73a` + `facc4b16a`: queue validation now sees capture-argument
+  placeholders and missing local paths before emitting jobs; 12 cases pass.
+The external queue dispatcher stays inactive until CH integration. Scientific
+validator/staging-helper conversion is still in progress in its isolated tree.
+
+Home app profiling candidate: the cellpose_masks preview declaration omits
+its existing _fill_live_preview_card hook, so _install_screen_seams builds the
+full preview panel during Workbench construction. _attach inserts its card
+before hiding it. See the bound source notes in the preparation README.
+These are static findings; any patch still needs initial-open and first-use
+validation to resolve the stall throughout the lesson.
+
+Home CI run 38477246153 has active test jobs; release is still pending.
+Tools/tests stay held. No new capture/publication started; CH stays29552bae7.
+
+
 ## 2026-10-13 18:33 EDT — WS: lesson 20 reference passed; telemetry fix held
 
 Independent reference checks passed for both r28 captures: three saved masks
