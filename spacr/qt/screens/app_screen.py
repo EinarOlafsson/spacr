@@ -2611,7 +2611,10 @@ class AppScreen(QWidget):
         Never raises: a page that cannot resolve its colour falls back to
         the rendering it had before this existed.
         """
-        from ..preferences import resolve_effective_theme
+        try:
+            from ..preferences import resolve_effective_theme
+        except ImportError:
+            return None
 
         return self._page_fill_under(resolve_effective_theme)
 
@@ -2624,7 +2627,10 @@ class AppScreen(QWidget):
         that paints its own page under the field read the preference store
         once a frame (CI, 2026-10-13: 1.0 reads per Mask field frame).
         """
-        from ..theme import _painting_theme
+        try:
+            from ..theme import _painting_theme
+        except ImportError:
+            return None
 
         return self._page_fill_under(_painting_theme)
 

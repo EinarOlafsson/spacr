@@ -126,10 +126,13 @@ def test_the_compiled_mixer_matches_numpy_for_every_pair_and_blend():
 
 @pytest.mark.parametrize("background", ["#101418", "#eeeeee"])
 @pytest.mark.parametrize("kind", ["color_waves", "spirals"])
+@pytest.mark.parametrize("palette", ["spacr", "random"])
+@pytest.mark.parametrize("blink", [0.0, 40.0])
 def test_a_frame_mixed_by_the_kernel_is_the_numpy_frame(monkeypatch,
-                                                       background, kind):
+                                                       background, kind, palette, blink):
     made = _engine(background)
-    made.set_blink_percent(40.0)
+    made.set_colors(ambient.PALETTE_SETS[palette].colors)
+    made.set_blink_percent(blink)
     _only(made, kind)
     _event(made, kind, 6.0)
     monkeypatch.setattr(ambient, "_ready_color_blend", lambda: None)
@@ -137,6 +140,107 @@ def test_a_frame_mixed_by_the_kernel_is_the_numpy_frame(monkeypatch,
     monkeypatch.setattr(ambient, "_ready_color_blend",
                         lambda: ambient._blend_colored_words)
     assert bytes(made.shade(320, 180).constBits()) == reference
+
+
+@pytest.mark.parametrize("background", ["#101418", "#eeeeee"])
+@pytest.mark.parametrize("palette", ["spacr", "random"])
+@pytest.mark.parametrize("spread", [False, True])
+@pytest.mark.parametrize("blend", [0, 1, 127, 254, 255])
+@pytest.mark.parametrize("compiled_scatter", [False, True])
+@pytest.mark.parametrize("blink", [0.0, 40.0])
+def test_sparse_crossfades_keep_overlaps_and_clipped_grains_exact(
+        monkeypatch, background, palette, spread, blend, compiled_scatter, blink):
+    if ambient._COLOR_BLEND is None:
+        _compiled_mixer()
+    if not compiled_scatter:
+        monkeypatch.setattr(ambient, "_ready_colored_scatter", lambda: None)
+    made = _engine(background)
+    made.set_colors(ambient.PALETTE_SETS[palette].colors)
+    made.set_blink_percent(blink)
+    _only(made, "color_waves")
+    _event(made, "color_waves", 6.0)
+    monkeypatch.setattr(made, "_event_strength", lambda _row: blend / 255.0)
+    x, y = np.meshgrid(
+        np.array([-2., -1.7, -.8, -.2, 0., .3, .7, 1., 1.49, 1.5,
+                  11.7, 12.7, 13.2, 14.7], dtype=np.float32),
+        np.array([-2., -1.7, -.8, -.2, 0., .3, .7, 1., 1.49, 1.5,
+                  7.7, 8.7, 9.2, 10.7], dtype=np.float32))
+    x, y = x.ravel(), y.ravel()
+    light = np.linspace(0., 1.5, x.size, dtype=np.float32)
+    monkeypatch.setattr(ambient, "_ready_color_blend", lambda: None)
+    reference_image = made._point_material(13, 9, x, y, light, spread)
+    reference = bytes(reference_image.constBits())
+    monkeypatch.setattr(ambient, "_ready_color_blend", lambda: ambient._COLOR_BLEND)
+    actual = made._point_material(13, 9, x, y, light, spread)
+    assert bytes(actual.constBits()) == reference
+
+
+def test_a_sparse_crossfade_mixes_only_the_grain_support(monkeypatch):
+    made = _engine()
+    made.set_blink_percent(0.0)
+    _only(made, "color_waves")
+    _event(made, "color_waves", 6.0)
+    sizes = []
+
+    def measured(output, base, blend):
+        sizes.append(base.size)
+        ambient._blend_colored_words(output, base, blend)
+
+    monkeypatch.setattr(ambient, "_ready_color_blend", lambda: measured)
+    made._point_material(320, 180, np.array([150.3], np.float32),
+                         np.array([100.7], np.float32), np.array([.5], np.float32), True)
+    assert sizes == [16], "the full canvas is never passed to the sparse mixer"
+
+
+def test_reusing_colour_scratch_preserves_published_and_moving_frames(monkeypatch):
+    if ambient._COLOR_BLEND is None:
+        _compiled_mixer()
+    made = _engine()
+    made.set_blink_percent(40.0)
+    _only(made, "color_waves")
+    _event(made, "color_waves", 6.0)
+    x, y = np.array([10.3, 10.7], np.float32), np.array([20.7, 20.3], np.float32)
+    light = np.array([.5, .8], np.float32)
+    monkeypatch.setattr(ambient, "_ready_color_blend", lambda: ambient._COLOR_BLEND)
+    first = made._point_material(80, 60, x, y, light, True)
+    published = bytes(first.constBits())
+    second = made._point_material(80, 60, x + 30., y + 20., light, True)
+    assert bytes(first.constBits()) == published
+    monkeypatch.setattr(ambient, "_ready_color_blend", lambda: None)
+    reference = made._point_material(80, 60, x + 30., y + 20., light, True)
+    assert bytes(second.constBits()) == bytes(reference.constBits())
+
+
+@pytest.mark.parametrize("background", ["#101418", "#eeeeee"])
+def test_a_partial_colour_kernel_failure_resets_scratch_before_fallback(
+        monkeypatch, background):
+    made = _engine(background)
+    made.set_blink_percent(0.0)
+    _only(made, "color_waves")
+    _event(made, "color_waves", 6.0)
+    x = np.array([10.3, 10.7, -.7, 79.3], np.float32)
+    y = np.array([20.7, 20.3, .3, 59.3], np.float32)
+    light = np.array([.5, .8, .3, .5], np.float32)
+    monkeypatch.setattr(ambient, "_ready_colored_scatter", lambda: None)
+    monkeypatch.setattr(ambient, "_ready_color_blend", lambda: None)
+    reference = made._point_material(80, 60, x, y, light, True)
+    expected = bytes(reference.constBits())
+    calls = []
+
+    def failing(flat, _ranks, px, py, _indices, _table, _axial, _diagonal,
+                width, _height, dark, _spread):
+        calls.append(1)
+        flat[py[0] * width + px[0]] = np.uint32(0xffffffff if dark else 0)
+        raise RuntimeError("the colour kernel failed after writing a grain")
+
+    monkeypatch.setattr(ambient, "_ready_colored_scatter", lambda: failing)
+    monkeypatch.setattr(ambient, "_ready_color_blend", lambda: ambient._blend_colored_words)
+    actual = made._point_material(80, 60, x, y, light, True)
+    assert bytes(actual.constBits()) == expected
+    assert made._phenomena_kernel_failed
+    following = made._point_material(80, 60, x, y, light, True)
+    assert bytes(following.constBits()) == expected
+    assert calls == [1], "the failed kernel stays disabled on later frames"
 
 
 def test_the_mixer_is_offered_once_the_warmup_built_it(monkeypatch):

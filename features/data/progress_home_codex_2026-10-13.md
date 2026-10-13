@@ -1,12 +1,13 @@
-Home/Work progress — 2026-10-13 17:48 EDT
+Home/Work progress — 2026-10-13 18:18 EDT
 
-Source: nightly 7fda0a78c, latest dated item notes and Home takeover request. — means no reliable measured percentage or ETA. ✅ denotes achieved in the last 12 hours when this snapshot was written. Locally held changes are not complete until validated and published.
+Source: dated item notes and Home takeover request. — means no reliable measured percentage or ETA. ✅ denotes achieved in the last 12 hours. The completed CI implementation row is local scope; N43, F288 and the release remain open until hosted acceptance.
 
 | item | percent done | time left | owner | detailed description |
 |---|---:|---|---|---|
-| Release 1.5.1.5 | — | CI-dependent | Home | Repair known CI blockers; obtain a fully green nightly run; release, publish notes and regenerate/copy README outputs. |
-| N43 | — | CI-dependent | Home | Palette fix b07389e36 imported privately; repair package-import teardown, module-tour test setup, colour-wave performance and settings-model coverage. |
-| F288 | — | CI/GPU-dependent | Home + Work | Preserve the coverage ratchet and existing CUDA exemption; current CI remains red; actual CuPy acceptance belongs to Work. |
+| Release 1.5.1.5 | — | CI-dependent | Home | Local CI repairs validated; publish one combined code batch and run full nightly CI. Release, notes and README refresh follow green hosted acceptance. |
+| CI repair implementation | ✅ | Done locally; CI pending | Home Codex team | Five known blockers repaired: cached paint palette, harmless import fallback, navigation walkthrough setup, exact sparse colour crossfade, and real settings-source coverage. 74 regression checks, 106 timing/parity checks, 185 functional coverage cases and 48 API/i18n/701 checks pass; nine pre-existing locale findings remain report-only. |
+| N43 | — | CI-dependent | Home | Known failures repaired and validated locally. Full nightly CI remains required before this parent item closes. |
+| F288 | — | CI/GPU-dependent | Home + Work | Settings-model regression covered; new crossfade path has no uncovered lines/arcs in its owning test run. Full hosted ratchet remains pending; retain the existing CUDA exemption. |
 | Make Masks lesson 14 performance | — | After release | Home | Review held edits, finish repaint/stall fixes, test owning files and stress the lesson driver for crashes. |
 | N697 | — | After Make Masks fixes | Home + Work | Rebase held brush-label implementation; validate disconnected strokes, Shift-strokes, 3D and undo; translate and publish. |
 | N696 | — | After N697 | Home + Work | Rebase held automatic-diameter implementation; finish source-bound translations and validate GUI/CLI/run/preview parity. |

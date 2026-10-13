@@ -130,6 +130,22 @@ class TestRethemingTheBackdrops:
 
 class TestThePagesOwnFill:
 
+    def test_a_page_loaded_outside_its_package_keeps_the_existing_fill(
+            self, screen, monkeypatch):
+        """Theme lookup failures remain harmless during paint and teardown."""
+        from spacr.qt.screens import app_screen
+
+        monkeypatch.setattr(screen, "_ambient", None)
+        monkeypatch.setattr(screen, "_dna_rain", None)
+        monkeypatch.setattr(app_screen, "__package__",
+                            "not_a_package.qt.screens")
+        monkeypatch.setattr(app_screen, "__spec__", None)
+
+        assert screen.page_fill() is None
+        assert screen._page_fill_for_a_frame() is None
+        screen._sync_page_palette()
+        screen.close()
+
     def test_a_screen_that_animates_something_paints_no_fill(self, screen,
                                                               monkeypatch):
         """A flat fill would paint over the animation it sits behind."""

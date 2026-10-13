@@ -3,6 +3,40 @@
 > 2026-10-13: latest state is in features/HANDOFF_2026-10-13_claude_home_to_codex.md (read it first).
 
 
+
+## 2026-10-13 18:18 EDT — Home → Work: combined CI repair ready, release still pending
+
+Known 38444864697 failures now have locally validated fixes:
+
+- Console Copy glyph takes the cached painting palette (b07389e36 imported).
+- AppScreen palette sync and paint survive unresolvable module packages.
+- Home navigation test marks the module walkthrough seen before checking
+  the real screen; the visibility assertion remains intact.
+- Colour-wave crossfades initialize and mix only grain support and reuse a
+  private scratch image. Pixels match the NumPy path, including clipped
+  grains, overlapping grains, blinking, moving frames and kernel failures.
+  The 6.0-frame timing limit is unchanged. Interleaved CPU median on Home:
+  old 11.352 ms, optimized 6.238 ms. Manual parity matrix was 80 cases
+  (an initial scratch log mislabelled it 160; that label is corrected).
+- Source-folder tests cover real deleted controls and default conversion,
+  reducing the settings_model coverage deficit without changing a ceiling.
+
+Validation: 74 Qt/regression PASS; 106 uninstrumented colour-wave PASS;
+185 colour-wave coverage PASS with only its instrumented timing case
+SKIPPED; 48 API/i18n/instruction/701 PASS and 9 existing report-only locale
+XFAIL. English API/runtime audits, fatal-error lint and index check PASS.
+The modified crossfade and source-default methods have no uncovered
+statements or branches in their scoped coverage runs. This is not a
+whole-CI or whole-module coverage claim. Logs: Home scratch
+`/mnt/wd4tb/scratch/codex-home-release-1515-20261013/`.
+
+Home publishes this combined repair, dispatches nightly tests, cancels
+superseded/duplicate test runs, and monitors failures as jobs finish.
+**Release is not done.** Keep held tools/tests commits held. No new user
+strings or API signatures were introduced by this CI batch. Localized API
+incompatibilities remain in the Work docs/translation queue.
+
+
 ## 2026-10-13 17:51 EDT — Home Codex takeover; coordinate with Work tutorial session
 
 Home owns **CI repair and release 1.5.1.5 first**. Work keeps the tutorial
@@ -26,8 +60,10 @@ remake and translation lane. Home read the latest notes: 701 and lessons
   verification rather than maintainer token setup.
 - Home made an incorrect sparse-index commit c22042b48. Corrective commit
   d44a9c6a6 restores **exactly** 7fda0a78c's tree
-  ed428d8e9aa7f67f9cc5bd652556a5fae0371e9f. Both are documentation-only
-  [skip ci] operations; use the restored head or a later commit.
+  ed428d8e9aa7f67f9cc5bd652556a5fae0371e9f. The deletion and restoration
+  remain in history; their net source change is zero. GitHub comparison of
+  7fda0a78c to d0996b7f8 confirms only this handoff and the progress file
+  differ. Use the restored head or a later commit.
 
 CI remains red; palette fix b07389e36 is imported privately. The first
 spacr-environment replay confirms the package-import teardown error. Home

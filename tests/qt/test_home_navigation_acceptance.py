@@ -9,6 +9,9 @@ from spacr.qt.widgets.home import AppTile
 
 @pytest.mark.parametrize('key', ['mask', 'measure', 'annotate', 'classify_merged', 'toxoplasma'])
 def test_visible_home_tile_opens_real_screen(qtbot, qt_theme_applied, key):
+    from spacr.qt.walkthrough import mark_seen
+
+    mark_seen(key)
     window = MainWindow(initial_app="__home__")
     qtbot.addWidget(window)
     window._tour_timer.stop()

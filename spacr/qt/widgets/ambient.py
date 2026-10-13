@@ -8144,10 +8144,47 @@ class _SpaceoutFieldEngine(_DataArtEngine):
         inside = (px >= 0) & (px < width) & (py >= 0) & (py < height)
         indices = hues[inside] * np.uint16(256) + np.rint(values[inside] * 255).astype(np.uint16)
         px, py = px[inside], py[inside]
-        image = QImage(width, height, QImage.Format_RGB32)
+        mixer = _ready_color_blend() if blend < 255 else None
+        if mixer is not None:
+            frame_key = ("spaceout_colour_frame", width, height)
+            image = self._material_cache.get(frame_key)
+            if image is None:
+                image = QImage(width, height, QImage.Format_RGB32)
+                self._material_cache[frame_key] = image
+        else:
+            image = QImage(width, height, QImage.Format_RGB32)
         output = np.frombuffer(image.bits(), np.uint32, count=width * height)
         table, axial, diagonal = tables
-        output.fill(table[0])
+        destinations = None
+        if mixer is not None:
+            if spread and not self._random_palette:
+                fx = np.asarray(x, np.float32).reshape(-1)
+                fy = np.asarray(y, np.float32).reshape(-1)
+                bx = np.floor(fx - .5).astype(np.int32)
+                by = np.floor(fy - .5).astype(np.int32)
+                offsets = np.arange(-1, 3, dtype=np.int32)
+                nx = np.broadcast_to(bx[None, None, :] + offsets[None, :, None],
+                                     (4, 4, bx.size))
+                ny = np.broadcast_to(by[None, None, :] + offsets[:, None, None], nx.shape)
+                valid = (nx >= 0) & (nx < width) & (ny >= 0) & (ny < height)
+                destinations = ny[valid] * width + nx[valid]
+                boundary = (px == 0) | (py == 0)
+                cx, cy = px[boundary], py[boundary]
+            else:
+                destinations = np.empty(0, np.int32)
+                cx, cy = px, py
+            if spread or self.blink_percent:
+                offsets = np.arange(-1, 2, dtype=np.int32)
+                nx = np.broadcast_to(cx[None, None, :] + offsets[None, :, None],
+                                     (3, 3, cx.size))
+                ny = np.broadcast_to(cy[None, None, :] + offsets[:, None, None], nx.shape)
+                valid = (nx >= 0) & (nx < width) & (ny >= 0) & (ny < height)
+                destinations = np.concatenate((destinations, ny[valid] * width + nx[valid]))
+            else:
+                destinations = np.concatenate((destinations, cy * width + cx))
+            output[destinations] = table[0]
+        else:
+            output.fill(table[0])
         kernel = None if self._phenomena_kernel_failed else _ready_colored_scatter()
         if kernel is not None:
             try:
@@ -8157,7 +8194,10 @@ class _SpaceoutFieldEngine(_DataArtEngine):
                 self._phenomena_kernel_failed = True
                 kernel = None
         if kernel is None:
-            output.fill(table[0])
+            if destinations is None:
+                output.fill(table[0])
+            else:
+                output[destinations] = table[0]
             combine = np.maximum.at if self.dark else np.minimum.at
             combine(output, py * width + px, table[indices])
             if spread:
@@ -8167,12 +8207,13 @@ class _SpaceoutFieldEngine(_DataArtEngine):
                     valid = (nx >= 0) & (nx < width) & (ny >= 0) & (ny < height)
                     selected = diagonal if dx and dy else axial
                     combine(output, ny[valid] * width + nx[valid], selected[indices[valid]])
-        mixer = _ready_color_blend() if blend < 255 else None
         if mixer is not None:
             self._flicker_field_dots(image, px, py, opaque=False)
             ordinary = super()._point_material(width, height, x, y, light, spread)
-            mixer(output, np.frombuffer(ordinary.bits(), np.uint32,
-                                        count=width * height), blend)
+            base = np.frombuffer(ordinary.bits(), np.uint32, count=width * height)
+            previous = base[destinations]
+            mixer(output[destinations], previous, blend)
+            base[destinations] = previous
             return ordinary
         np.bitwise_or(output, np.uint32(0xff000000), out=output)
         self._flicker_field_dots(image, px, py)
