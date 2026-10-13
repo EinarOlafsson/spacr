@@ -202,6 +202,10 @@ def fake_ambient(monkeypatch):
         palette if palette in module.palettes_for(theme)
         else module.palettes_for(theme)[0])
     module.AmbientWidget = StubAmbient
+    #: 2026-10-12 (ff1b3c1f2): the DNA rain asks the ambient module whether
+    #: its backdrop covers opaquely, so a stand-in module must answer it.
+    module._covers_opaquely = lambda pixmap: (
+        pixmap is None or not pixmap.hasAlphaChannel())
     module.calls = []
     module.ripple_count = 0
     module.ripple_vertical = []
