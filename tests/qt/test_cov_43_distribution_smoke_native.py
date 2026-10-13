@@ -39,6 +39,7 @@ def _controller(tmp_path, **extra):
     fake._write = lambda: Controller._write(fake)
     fake._finish = lambda code: Controller._finish(fake, code)
     fake._pipeline_failed = lambda error: Controller._pipeline_failed(fake, error)
+    fake._attach_to_the_worker = lambda: Controller._attach_to_the_worker(fake)
     fake._installed_root = Controller._installed_root
     fake._require_installed_origin = Controller._require_installed_origin
     fake.__dict__.update(extra)
@@ -638,6 +639,66 @@ def test_a_configured_screen_that_drifted_is_refused(tmp_path, change, message):
                                 _expected_src="/smoke")
     Controller._advance(fake)
     assert len(failures) == 1 and message in failures[0]
+
+
+def _clicked_screen(**extra):
+    """A Measure screen whose Run button is enabled and was just clicked."""
+    screen = _screen(
+        _settings_model=SimpleNamespace(
+            collect=lambda: {"src": "/smoke", "n_jobs": 1}),
+        _crop_choice_warnings=lambda settings: [], **extra)
+    screen._btn_run.click = lambda: None
+    return screen
+
+
+def test_a_first_run_still_importing_its_pipeline_is_waited_for(tmp_path):
+    """A session's first Run imports its pipeline off the GUI thread.
+
+    The worker exists only once that import ends, so a click that leaves
+    ``_entry_import`` set is not a Run without a worker: the smoke waits in
+    ``starting`` and attaches on the tick after the import has finished.
+    """
+    connected = []
+    worker = SimpleNamespace(error=SimpleNamespace(connect=connected.append))
+    screen = _clicked_screen(_entry_import=object(), _worker=None)
+    fake, failures = _advancing(tmp_path, "configured", screen=screen,
+                                _expected_src="/smoke")
+    Controller._advance(fake)
+    assert fake.phase == "starting" and not failures
+    assert "real_run_clicked" not in fake.record
+    Controller._advance(fake)
+    assert fake.phase == "starting" and not failures
+    screen._entry_import = None
+    screen._worker = worker
+    Controller._advance(fake)
+    assert fake.phase == "running" and not failures
+    assert fake.record["real_run_clicked"] is True
+    assert connected == [fake._pipeline_failed]
+    assert json.loads(fake.output.read_text())["real_run_clicked"] is True
+
+
+def test_a_run_whose_worker_is_ready_at_once_goes_straight_to_running(tmp_path):
+    """A warm session starts the worker inside the click itself."""
+    connected = []
+    worker = SimpleNamespace(error=SimpleNamespace(connect=connected.append))
+    fake, failures = _advancing(tmp_path, "configured",
+                                screen=_clicked_screen(_worker=worker),
+                                _expected_src="/smoke")
+    Controller._advance(fake)
+    assert fake.phase == "running" and not failures
+    assert fake.record["module_constructed"] is True
+    assert connected == [fake._pipeline_failed]
+
+
+def test_an_import_that_ends_without_a_worker_is_refused(tmp_path):
+    screen = _clicked_screen(_entry_import=object(), _worker=None)
+    fake, failures = _advancing(tmp_path, "starting", screen=screen)
+    Controller._advance(fake)
+    assert not failures
+    screen._entry_import = None
+    Controller._advance(fake)
+    assert len(failures) == 1
+    assert "did not start a pipeline worker" in failures[0]
 
 
 def test_a_configured_screen_waits_for_its_run_button(tmp_path):
