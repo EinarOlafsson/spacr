@@ -576,10 +576,12 @@ def test_a_rendered_list_always_holds_something_selectable(palette):
     assert [f != Qt.NoItemFlags for f in flags] == [False, True, False, True]
     assert palette._list.currentRow() == 1
 
-    # the row it selected is a command, and Enter runs that command
-    palette._on_activate()
-    assert ran == ["a"]
-
     # an empty render selects nothing at all, and never asks the loop to
     assert palette._render([]) is None
     assert palette._list.count() == 0
+    assert palette._list.currentRow() == -1
+
+    # the row it selected is a command, and Enter runs that command
+    palette._render(commands)
+    palette._on_activate()
+    assert ran == ["a"]

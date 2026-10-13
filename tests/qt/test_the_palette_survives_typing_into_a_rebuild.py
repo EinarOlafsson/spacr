@@ -12,9 +12,8 @@ the Python wrappers of the items it saw at the start of a ``clear``, so the
 outer one leaves wrappers to freed items behind.
 
 This drives that shape many times over: the real Ctrl+K route, a driver
-nested in the open callback, keys dispatched from the list model's
-``modelAboutToBeReset`` and ``rowsInserted`` and from the list's
-``currentRowChanged`` while a rebuild runs, arrow keys, rows picked under the
+nested in the open callback, keys dispatched from inside the step that builds
+the rows and from the list's ``currentRowChanged``, arrow keys, rows picked under the
 pointer, a palette closed from inside a rebuild and typed into afterwards,
 and a fresh palette opened on every round. After every key the list has to
 be exactly the rows the typed text selects.
@@ -112,9 +111,13 @@ def hook(pal, close_inside):
         finally:
             depth["n"] -= 1
 
-    model = pal._list.model()
-    model.modelAboutToBeReset.connect(key_inside)
-    model.rowsInserted.connect(key_inside)
+    build = pal._rows_for
+
+    def built(cmds):
+        key_inside()
+        return build(cmds)
+
+    pal._rows_for = built
     pal._list.currentRowChanged.connect(key_inside)
 
 
